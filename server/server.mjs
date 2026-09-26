@@ -25,6 +25,7 @@ import { toEnglish } from './english.mjs';
 import { extractClaims } from './claims.mjs';
 import { judge } from './judge.mjs';
 import { sidekick } from './sidekick.mjs';
+import { detectReveals } from './reveals.mjs';
 import { loadScenario, buildSystemInstruction, TOOLS, evidenceMessage, directorNote, CONFESSION_NEEDS, confessionSecret, revealable, toMin, fmt } from '../prompts/build-prompt.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -166,6 +167,14 @@ async function talk(req, res) {
       newTurns.push({ role: 'user', parts: responses });
       // If the model already spoke this round, don't ask it to talk again after the tool call.
       if (parts.some((p) => p.text && p.text.trim())) break;
+    }
+    // Secrets said without a reveal_secret call (thinking "minimal" rarely calls tools): see server/reveals.mjs.
+    {
+      const answer = newTurns.filter((t) => t.role === 'model').flatMap((t) => t.parts).map((p) => p.text || '').join(' ').trim();
+      const candidates = c.secrets.filter((x) => allowed.has(x.id) && !revealed.has(x.id));
+      for (const id of await detectReveals(S, GEMINI, { character: c, question: say, answer, candidates }, rid)) {
+        revealed.add(id); send('tool', { name: 'reveal_secret', args: { secret_id: id }, ok: true, unlock: unlockOf[id] || null, detected: true });
+      }
     }
     send('done', { turns: newTurns, gateOpen });
     tlog.info('turn done', { rid, character: c.id, model: usedModel, chars, ms: Date.now() - t0 });

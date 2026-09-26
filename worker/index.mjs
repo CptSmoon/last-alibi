@@ -15,6 +15,7 @@ import { toEnglish } from '../server/english.mjs';
 import { extractClaims } from '../server/claims.mjs';
 import { judge } from '../server/judge.mjs';
 import { sidekick } from '../server/sidekick.mjs';
+import { detectReveals } from '../server/reveals.mjs';
 import { logger, reqId } from '../server/log.mjs';
 
 const S = scenario;
@@ -135,6 +136,14 @@ async function talk(b, env) {
         }
         newTurns.push({ role: 'user', parts: responses });
         if (parts.some((p) => p.text && p.text.trim())) break;
+      }
+      // Secrets said without a reveal_secret call (thinking "minimal" rarely calls tools): see server/reveals.mjs.
+      {
+        const answer = newTurns.filter((t) => t.role === 'model').flatMap((t) => t.parts).map((p) => p.text || '').join(' ').trim();
+        const candidates = c.secrets.filter((x) => allowed.has(x.id) && !revealed.has(x.id));
+        for (const id of await detectReveals(S, env.GEMINI_API_KEY, { character: c, question: say, answer, candidates }, rid)) {
+          revealed.add(id); await send('tool', { name: 'reveal_secret', args: { secret_id: id }, ok: true, unlock: unlockOf[id] || null, detected: true });
+        }
       }
       await send('done', { turns: newTurns, gateOpen });
       tlog.info('turn done', { rid, character: c.id, ms: Date.now() - t0 });
