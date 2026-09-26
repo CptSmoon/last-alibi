@@ -54,9 +54,28 @@ def segments(im, n, join=3, equal=False):
                         if 0 <= nx < sw and 0 <= ny < sh and d[ny][nx] and not seen[ny][nx]: seen[ny][nx] = True; st.append((nx, ny))
                 if cnt > 12: boxes.append([x0, y0, x1, y1, cnt])
     if len(boxes) < n and equal:                     # poses touching (e.g. hat brims): fall back to equal columns
-        out = []
+        al = im.getchannel('A'); dens = [sum(1 for y in range(0, h, 2) if al.getpixel((x, y)) > 40) for x in range(w)]
+        cuts = [0]
+        for i in range(1, n):                        # cut at the emptiest column near each expected boundary
+            c = i * w // n; r = w // (n * 5)
+            cuts.append(min(range(c - r, c + r), key=lambda x: (dens[x], abs(x - c))))
+        cuts.append(w); out = []
         for i in range(n):
-            piece = im.crop((i * w // n, 0, (i + 1) * w // n, h)); bb = piece.getchannel('A').point(lambda v: 255 if v > 40 else 0).getbbox()
+            piece = im.crop((cuts[i], 0, cuts[i + 1], h))
+            # drop slivers of the neighbours: keep the widest run of occupied columns
+            pa = piece.getchannel('A'); pw = piece.width
+            occ = [any(pa.getpixel((x, y)) > 40 for y in range(0, h, 3)) for x in range(pw)]
+            runs, st = [], None
+            for x, o in enumerate(occ + [False]):
+                if o and st is None: st = x
+                if not o and st is not None: runs.append((st, x)); st = None
+            if runs:
+                a0, a1 = max(runs, key=lambda r: r[1] - r[0])
+                # re-attach nearby runs (hat brims, hands) that are close to the main body
+                for r0, r1 in runs:
+                    if r1 >= a0 - 12 and r0 <= a1 + 12: a0, a1 = min(a0, r0), max(a1, r1)
+                piece = piece.crop((a0, 0, a1, h))
+            bb = piece.getchannel('A').point(lambda v: 255 if v > 40 else 0).getbbox()
             out.append(piece.crop(bb) if bb else piece)
         return out
     while len(boxes) > n:                           # merge the smallest into its nearest neighbour

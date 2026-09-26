@@ -1,0 +1,26 @@
+// Cloudflare Worker for Last Stop, Simplon-Orient: the built game (dist/) + the game API (worker/index.mjs).
+//   npm run build:web        -> dist/ (allow-listed static files only)
+//   npx wrangler dev         -> local test at http://localhost:8787 (secrets from .dev.vars)
+//   npx wrangler deploy      -> publish
+// Secrets: wrangler secret put GEMINI_API_KEY / GRADIUM_API_KEY (never in this file).
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "simplon-orient",
+  // Personal account (bd96kais@gmail.com). Pinned so a deploy can never land on another logged-in account.
+  "account_id": "b23d1748734924e02ec038742f418125",
+  "main": "worker/index.mjs",
+  "compatibility_date": "2026-04-28",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": { "directory": "dist", "binding": "ASSETS", "run_worker_first": ["/api/*"], "not_found_handling": "404-page" },
+  "vars": {
+    // Extra origins allowed to call the API (comma-separated). itch.io game frames are always allowed.
+    "ALLOWED_ORIGINS": ""
+  },
+  // Per-IP limits, so a public page cannot drain the Gemini / Gradium credits.
+  "ratelimits": [
+    { "name": "TALK_LIMIT", "namespace_id": "1931", "simple": { "limit": 20, "period": 60 } },
+    { "name": "VOICE_LIMIT", "namespace_id": "1932", "simple": { "limit": 30, "period": 60 } },
+    { "name": "NOTES_LIMIT", "namespace_id": "1933", "simple": { "limit": 6, "period": 60 } }
+  ],
+  "observability": { "enabled": true }
+}

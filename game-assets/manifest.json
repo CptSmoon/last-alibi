@@ -1,0 +1,130 @@
+{
+ "bg": [
+  "bg-c1",
+  "bg-c2",
+  "bg-c3",
+  "bg-c4",
+  "bg-c5",
+  "bg-c6",
+  "bg-c7",
+  "bg-corridor",
+  "bg-dining",
+  "bg-kitchen",
+  "bg-lounge",
+  "bg-night",
+  "bg-outside"
+ ],
+ "sprites": {
+  "brandt": [
+   "back",
+   "front",
+   "left",
+   "right",
+   "talk",
+   "walk",
+   "sit"
+  ],
+  "castelli": [
+   "back",
+   "front",
+   "left",
+   "right",
+   "talk",
+   "walk"
+  ],
+  "cook": [
+   "back",
+   "front",
+   "left",
+   "right",
+   "talk",
+   "walk"
+  ],
+  "ferrand": [
+   "back",
+   "front",
+   "left",
+   "right",
+   "talk",
+   "walk",
+   "sit"
+  ],
+  "hale": [
+   "back",
+   "front",
+   "left",
+   "right",
+   "talk",
+   "walk",
+   "sit"
+  ],
+  "irina": [
+   "back",
+   "front",
+   "left",
+   "right",
+   "talk",
+   "walk",
+   "sit"
+  ],
+  "mila": [
+   "back",
+   "front",
+   "left",
+   "right",
+   "talk",
+   "walk",
+   "sit"
+  ],
+  "sorel": [
+   "back",
+   "front",
+   "left",
+   "right",
+   "talk",
+   "walk"
+  ],
+  "theo": [
+   "back",
+   "front",
+   "left",
+   "right",
+   "talk",
+   "walk"
+  ]
+ },
+ "portraits": {
+  "brandt": 3,
+  "castelli": 3,
+  "cook": 3,
+  "ferrand": 3,
+  "hale": 3,
+  "irina": 3,
+  "mila": 3,
+  "sorel": 3,
+  "theo": 3
+ },
+ "items": [
+  "e_ampoule_tip",
+  "e_blotter",
+  "e_bolt",
+  "e_callboard",
+  "e_camphor",
+  "e_contract",
+  "e_grappa",
+  "e_handkerchief",
+  "e_letters",
+  "e_marked_cards",
+  "e_medbag",
+  "e_notebook",
+  "e_passports",
+  "e_scorecard",
+  "e_trainlog",
+  "e_tumbler",
+  "e_wet_shoes",
+  "x_fedora",
+  "x_magnifier",
+  "x_magnifier2",
+  "x_notebook"
+ ]
+}

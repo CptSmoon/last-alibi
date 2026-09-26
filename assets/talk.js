@@ -5,6 +5,7 @@
 //   scripted - keyword answers (assets/demo-dialogue.js), works offline
 //   live     - Gemini on the server (/api/talk, SSE) + Gradium voice in the browser (voice.js)
 (function () {
+  const LOGT = (window.LOG || { scope: () => console }).scope('talk');
   const { rect, text, wrap, panel, nameTag, blip, measure } = PX;
   const BX = 6, BY = 124, BW = 308, BH = 52, TX = 62, CHARS = 40;
   const cname = (id) => (id === 'sorel' ? 'Inspector Sorel' : (PORTRAITS.CAST[id] || {}).name || id);
@@ -20,10 +21,11 @@
       const p = P(); if (p.revealed.has(secretId)) return;
       p.revealed.add(secretId);
       const ev = unlock || CASE.unlocks[secretId];
+      LOGT.info('secret revealed', { who: T.who, secret: secretId, unlocks: ev || null, confession: secretId === CASE.confession.secretId });
       if (secretId === CASE.confession.secretId) hooks.confession();
       else if (ev) hooks.clue(ev);
     }
-    function mood(m, trust) { const p = P(); if (m) p.mood = m; if (trust != null) p.trust = Math.max(0, Math.min(5, trust)); }
+    function mood(m, trust) { const p = P(); LOGT.debug('mood', { who: T.who, mood: m, trust }); if (m) p.mood = m; if (trust != null) p.trust = Math.max(0, Math.min(5, trust)); }
     const gateOpen = () => T.who === CASE.confession.character && G.ch.phase === 'after' && !P().revealed.has(CASE.confession.secretId)
       && CASE.confession.needAnyThreeOf.filter((e) => P().shown.has(e)).length >= 3;
 
@@ -58,12 +60,15 @@
       async turn(input) {
         const who = T.who, p = P(), chId = G.ch.id, hist = (p.history[chId] ||= []);
         T.busy = true; if (T.speech) T.speech.cancel();
-        let item = null, speech = null;
+        // Open the voice now, while Gemini thinks, so the first sentence is spoken without waiting for a socket.
+        let item = null; const speech = G.settings.voice && voiceOf(who) ? (T.speech = new VOICE.Speech(voiceOf(who), {})) : null;
         const ctrl = new AbortController(); T.abort = ctrl;
+        const t0 = performance.now(); let first = 0;
+        LOGT.info('live turn', { who, chapter: chId, clock: G.clock, kind: input.kind, evidence: input.evidence, history: hist.length });
         try {
           const r = await fetch('/api/talk', { method: 'POST', headers: { 'content-type': 'application/json' }, signal: ctrl.signal,
             body: JSON.stringify({ character: who, chapter: chId, now: G.clock, history: hist, input, shown: [...p.shown], revealed: [...p.revealed] }) });
-          if (!r.ok || !r.body) throw new Error('talk ' + r.status);
+          if (!r.ok || !r.body) { let why = ''; try { why = (await r.json()).error; } catch (_) {} throw new Error(`talk ${r.status}${why ? ': ' + why : ''}`); }
           const rd = r.body.getReader(), dec = new TextDecoder(); let buf = '';
           for (;;) {
             const { value, done } = await rd.read(); if (done) break;
@@ -74,24 +79,29 @@
               const m = JSON.parse(line.slice(5));
               if (who !== T.who || !T.open) continue;
               if (m.type === 'text') {
+                if (!first) { first = performance.now(); LOGT.debug('first words', { who, ms: Math.round(first - t0) }); }
                 T.busy = false;
-                if (!item) { item = show(who, '', true); if (G.settings.voice && voiceOf(who)) speech = T.speech = new VOICE.Speech(voiceOf(who), {}); }
+                if (!item) { item = show(who, '', true); item.speech = speech; }
                 item.raw += m.delta; item.lines = wrap(item.raw.replace(/\s+/g, ' ').trim(), CHARS);
                 speech && speech.text(m.delta);
               } else if (m.type === 'tool') {
+                LOGT[m.ok ? 'info' : 'warn'](m.ok ? 'tool' : 'tool rejected by server', { who, name: m.name, args: m.args });
                 if (!m.ok) continue;
                 if (m.name === 'reveal_secret') reveal(m.args.secret_id, m.unlock);
                 if (m.name === 'set_mood') mood(m.args.mood, m.args.trust);
                 if (m.name === 'end_interview') p.done = true;
               } else if (m.type === 'done') {
                 hist.push(...m.turns);
+                LOGT.info('live turn done', { who, ms: Math.round(performance.now() - t0), chars: item ? item.raw.length : 0, gateOpen: !!m.gateOpen });
                 if (item) { item.done = true; log(who, item.raw.trim()); }
               } else if (m.type === 'error') throw new Error(m.message);
             }
           }
           speech && speech.end();
         } catch (e) {
-          if (e.name !== 'AbortError') { console.warn('[talk]', e); show(who, '...'); }
+          if (speech && speech === T.speech) speech.cancel();
+          if (e.name === 'AbortError') LOGT.debug('live turn aborted', { who });
+          else { LOGT.error('live turn failed', { who, error: String(e.message || e) }); show(who, '...'); }
         } finally { T.busy = false; }
       },
       // First meeting in a chapter: the written greeting plays at once and goes into the history.
@@ -100,7 +110,7 @@
         if (hist.length || !g) return this.turn({ kind: 'greet' });
         hist.push({ role: 'user', parts: [{ text: '[DIRECTOR: The inspector has just walked up to you. Greet him.]' }] }, { role: 'model', parts: [{ text: g }] });
         const it = show(T.who, g, true); it.done = true; log(T.who, g);
-        if (G.settings.voice && voiceOf(T.who)) { const sp = (T.speech = new VOICE.Speech(voiceOf(T.who), {})); sp.text(g); sp.end(); }
+        if (G.settings.voice && voiceOf(T.who)) { const sp = (T.speech = it.speech = new VOICE.Speech(voiceOf(T.who), {})); sp.text(g); sp.end(); }
       },
       ask(q) { return this.turn({ kind: 'say', text: q }); },
       present(ev) { return this.turn({ kind: 'present', evidence: ev }); },
@@ -122,20 +132,23 @@
     const api = {
       state: T,
       open(id) {
+        LOGT.info('open', { who: id, brain: T.brain, voice: voiceMode(), chapter: G.ch && G.ch.id });
         T.open = true; T.who = id; T.queue = []; T.line = null; T.asked = 0; T.partial = ''; T.buf = '';
-        if (P().done) { show(id, 'I have nothing more to say to you, Inspector.'); return; }
+        if (P().done) { LOGT.info('refuses to talk (interview ended)', { who: id }); show(id, 'I have nothing more to say to you, Inspector.'); return; }
         brain().greet();
       },
-      close() { if (!T.open) return 0; brain().close(); VOICE.player.flush(); T.open = false; const asked = T.asked; T.who = null; T.buf = ''; return asked; },
+      close() { if (!T.open) return 0; LOGT.info('close', { who: T.who, asked: T.asked }); brain().close(); VOICE.player.flush(); T.open = false; const asked = T.asked; T.who = null; T.buf = ''; return asked; },
       ask(q) {
         q = (q || '').trim(); if (!q || !T.open || P().done || T.busy) return;
-        T.asked++; T.queue = []; T.line = null; show('sorel', q); log('sorel', q); brain().ask(q);
+        T.asked++; T.queue = []; T.line = null; show('sorel', q); log('sorel', q);
+        LOGT.info('ask', { who: T.who, brain: T.brain, q }); brain().ask(q);
         if (canGather() && /gather|accuse|everyone|assemble|ready/i.test(q)) hooks.gather();
       },
       quick(i) { const s = suggestions()[i]; if (!s || T.busy) return; if (s !== GATHER) T.usedQuick[T.who].add(s); api.ask(s); },
       present(ev) {
         if (!T.open || P().done || T.busy) return;
         T.asked++; P().shown.add(ev);
+        LOGT.info('present', { who: T.who, evidence: ev, gateOpen: gateOpen() });
         const e = CASE.evidence.find((x) => x.id === ev);
         const line = e.take ? `Look at this: ${e.name.toLowerCase()}.` : `I know about this: ${e.name.replace(/^[^:]+: /, '').toLowerCase()}.`;
         T.queue = []; T.line = null; show('sorel', line); log('sorel', line); brain().present(ev);
@@ -148,14 +161,14 @@
         T.listening = true; T.partial = '';
         VOICE.player.flush(); T.speech && T.speech.cancel();
         T.listener = new VOICE.Listener({ partial: (t) => (T.partial = t) });
-        try { await T.listener.start(); } catch (e) { T.listening = false; hooks.toast('Microphone unavailable. Type instead.'); }
+        try { await T.listener.start(); } catch (e) { LOGT.warn('push-to-talk failed', { error: String(e.message || e) }); T.listening = false; hooks.toast('Microphone unavailable. Type instead.'); }
       },
       async talkEnd() {
         if (!T.listening) return; T.listening = false;
         const q = T.listener ? await T.listener.stop() : ''; T.partial = '';
         if (q) api.ask(q); else hooks.toast("Didn't catch that. Hold SPACE while you speak.");
       },
-      setBrain(b) { T.brain = b; },
+      setBrain(b) { if (T.brain !== b) LOGT.info('brain', { brain: b }); T.brain = b; },
       voiceMode, suggestions, yourTurn, gateOpen,
       frame,
     };
@@ -169,7 +182,10 @@
       if (L) {
         const total = L.lines.join('').length;
         if (L.n < total) {
-          L.n += L.who === 'sorel' ? 3 : L.live && voiceMode() ? 0.3 : 0.9; talking = L.who !== 'sorel';
+          // With voice, type in step with the spoken words (Gradium word timestamps); otherwise at a fixed pace.
+          if (L.speech && !L.speech.cancelled) { const raw = L.raw.replace(/\s+/g, ' ').trim(); if (raw) L.n = Math.max(L.n, total * L.speech.caption(raw).length / raw.length); }
+          else L.n += L.who === 'sorel' ? 3 : L.live && voiceMode() ? 0.3 : 0.9;
+          talking = L.who !== 'sorel';
           if (!(L.live && voiceMode()) && (L.n | 0) % 4 === 0 && L.who !== 'sorel' && G.settings.sound) blip(170 + (L.who.length * 37) % 120, 0.02, 0.006);
         } else if (!L.doneAt) L.doneAt = t;
       }

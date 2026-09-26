@@ -776,7 +776,8 @@ window.CASE = {
    "isStaff": false,
    "voice": {
     "gradium": "nlYB3lceu4gwj9Eu",
-    "name": "Graham"
+    "name": "Graham",
+    "gradiumSpeed": -0.5
    },
    "secrets": []
   },
@@ -806,7 +807,8 @@ window.CASE = {
    "isStaff": false,
    "voice": {
     "gradium": "HtgP9v8SoWbq_jxi",
-    "name": "Rémi"
+    "name": "Rémi",
+    "gradiumSpeed": -0.7
    },
    "secrets": [
     "s_ferrand_absent",
@@ -839,7 +841,8 @@ window.CASE = {
    "isStaff": false,
    "voice": {
     "gradium": "7c5UOKm7AiBgJADg",
-    "name": "Holly"
+    "name": "Holly",
+    "gradiumSpeed": -0.8
    },
    "secrets": [
     "s_irina_visit",
@@ -872,7 +875,8 @@ window.CASE = {
    "isStaff": false,
    "voice": {
     "gradium": "sCOIUHZRnsz0oPUp",
-    "name": "British Narrator"
+    "name": "British Narrator",
+    "gradiumSpeed": -1.2
    },
    "secrets": [
     "s_hale_absent",
@@ -905,7 +909,9 @@ window.CASE = {
    "isStaff": false,
    "voice": {
     "gradium": "ubuXFxVQwVYnZQhy",
-    "name": "Eva"
+    "name": "Eva",
+    "gradiumSpeed": -1.2,
+    "gradiumTemp": 0.9
    },
    "secrets": [
     "s_mila_name",
@@ -938,7 +944,9 @@ window.CASE = {
    "isStaff": false,
    "voice": {
     "gradium": "3jUdJyOi9pgbxBTK",
-    "name": "Arthur"
+    "name": "Arthur",
+    "gradiumSpeed": -1,
+    "gradiumTemp": 0.7
    },
    "secrets": [
     "s_brandt_listen",
@@ -971,7 +979,8 @@ window.CASE = {
    "isStaff": false,
    "voice": {
     "gradium": "dME3IWyZBvmh1n1q",
-    "name": "Toby"
+    "name": "Toby",
+    "gradiumSpeed": -1.2
    },
    "secrets": [
     "s_theo_visitor",
@@ -1005,7 +1014,9 @@ window.CASE = {
    "isStaff": true,
    "voice": {
     "gradium": "-0MuXG9RcCsuSVtb",
-    "name": "Austin"
+    "name": "Austin",
+    "gradiumSpeed": -0.9,
+    "gradiumTemp": 0.9
    },
    "secrets": []
   }
@@ -1607,6 +1618,9 @@ window.CASE = {
  "voice": {
   "provider": "gradium",
   "sttLanguage": "en",
-  "ttsFormat": "pcm_24000"
+  "ttsFormat": "pcm_24000",
+  "ttsModel": "gradium-tts-beta",
+  "gradiumSpeed": -1,
+  "gradiumTemp": 0.8
  }
 };

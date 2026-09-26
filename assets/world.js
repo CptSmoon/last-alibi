@@ -2,6 +2,7 @@
 // 8 px tiles, 192 x 22. Rows 0-4 are outside (north), 5 and 16 the car walls, 6-15 inside,
 // 17-21 outside (south). Everything here is static; game.js owns time, people and state.
 (function () {
+  const log = (window.LOG || { scope: () => console }).scope('world');
   const T = 8, COLS = 192, ROWS = 22;
   const K = { OUT: 0, WALL: 1, CORR: 2, COMP: 3, DINE: 4, LOUNGE: 5, VEST: 6, DOOR: 7, ODOOR: 8, FURN: 9, KITCHEN: 10, BLOCK: 11, GANG: 12 };
   const tiles = new Uint8Array(COLS * ROWS);
@@ -161,7 +162,7 @@
         prev[j] = i; q.push(j);
       }
     }
-    const end = ey * COLS + ex; if (prev[end] === -1) return null;
+    const end = ey * COLS + ex; if (prev[end] === -1) { log.warn('no path', { from, to }); return null; }
     const out = []; for (let i = end; i !== prev[i]; i = prev[i]) out.push([i % COLS, (i / COLS) | 0]);
     return out.reverse();
   }
@@ -256,6 +257,7 @@
   }
   const ellipse = (ctx, cx, cy, rx, ry, c) => PX.ellipse(ctx, cx, cy, rx, ry, c);
 
+  log.info('world built', { cols: COLS, rows: ROWS, rooms: rooms.length, doors: doors.length, waypoints: Object.keys(wp).length, hotspots: Object.keys(hs).length });
   window.WORLD = { T, COLS, ROWS, K, at, rooms, doors, odoors, waypoints: wp, hotspots: hs, SL, DI, LO, compWest,
     tileOf, roomAt, doorRoom, carAt, solidForPlayer, npcWalk, path, walkTile, renderBase, W: COLS * T, H: ROWS * T };
 })();

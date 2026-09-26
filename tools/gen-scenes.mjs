@@ -5,6 +5,9 @@
 import { spawn } from 'node:child_process';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { logger } from '../server/log.mjs';
+
+const log = logger('gen-scenes');
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const STYLE_REF = join(ROOT, 'art/concept/style-a-gather.jpg');
@@ -53,11 +56,15 @@ const SCENES = [
 
 const only = process.argv.slice(2);
 const todo = SCENES.filter((s) => !only.length || only.some((o) => s.id.includes(o)));
+log.info('start', { todo: todo.map((s) => s.id).join(',') });
+const t0 = Date.now(), failed = [];
 const run = (s) => new Promise((res) => {
+  const ts = Date.now();
   const prompt = `${STYLE}\n\n${CAST}\n\nSCENE: ${s.p}\nThe title plate reads "${s.title}" and the time panel reads "${s.time}". Only these texts and the name labels may appear. 16:9 game screenshot.`;
   const p = spawn('node', [join(ROOT, 'tools/gen-image.mjs'), join(ROOT, 'art/scenes', s.id), prompt], { env: { ...process.env, RAW: '1', REF: [STYLE_REF, ...(s.id.startsWith('01') ? [] : [CAST_REF]), SOREL_REF].join(',') }, stdio: 'inherit' });
-  p.on('exit', res);
+  p.on('exit', (code) => { if (code === 0) log.info('ok', { id: s.id, ms: Date.now() - ts }); else { failed.push(s.id); log.error('FAIL', { id: s.id, code }); } res(); });
 });
 // 4 at a time
 const queue = [...todo];
 await Promise.all(Array.from({ length: 4 }, async () => { while (queue.length) await run(queue.shift()); }));
+(failed.length ? log.warn : log.info)('done', { made: todo.length - failed.length, failed: failed.join(',') || 0, s: Math.round((Date.now() - t0) / 1000) });

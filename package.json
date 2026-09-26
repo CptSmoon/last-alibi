@@ -2,10 +2,16 @@
   "name": "simplon-orient",
   "private": true,
   "type": "module",
-  "description": "Last Stop, Simplon-Orient: a walkable 2D murder mystery. Gemini brains, Gradium voices.",
+  "description": "Last Alibi: walkable 2D murder-mystery cases (first: Last Stop, Simplon-Orient). Gemini brains, Gradium voices.",
   "scripts": {
     "start": "node server/server.mjs",
-    "build:prompts": "node prompts/build-prompt.mjs"
+    "build:prompts": "node prompts/build-prompt.mjs",
+    "build:web": "node tools/build-web.mjs",
+    "build:itch": "node tools/build-web.mjs --api https://simplon-orient.kaisspace.workers.dev --zip",
+    "dev:worker": "node tools/build-web.mjs && wrangler dev",
+    "deploy": "node tools/deploy.mjs"
   },
-  "engines": { "node": ">=20" }
+  "engines": {
+    "node": ">=20"
+  }
 }

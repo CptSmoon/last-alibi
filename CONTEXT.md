@@ -1,4 +1,8 @@
-# Last Stop, Simplon-Orient: project context (v2, 26 Sept 2026)
+# Last Alibi: project context (v2, 26 Sept 2026)
+
+**Last Alibi** is the game: a library of murder-mystery cases (scenarios). The menu is the Last Alibi logo
+(`game-assets/ui/last-alibi-logo.webp`, source `art/logo/`) -> Play -> choose a case (`engine/cases.js`). The first case,
+"Last Stop, Simplon-Orient", is below; the others show as "Coming soon" until their scenarios are written.
 
 A retro 2D murder mystery you **walk around in** (top-down, Among Us scale) aboard the Simplon-Orient
 Express, 1931. People follow per-chapter schedules; you overhear things, pick up clues, talk to anyone by
@@ -47,7 +51,7 @@ own secret. The confession opens once 3 of `CONFESSION_NEEDS` are shown to Ferra
 Christie's 1934 novel is still in copyright, so only the real train and route are used.
 
 ## Flow (v2.1, refined 26 Sept)
-Title (Gemini key art) -> menu (Continue / New game / Choose a case / Settings) -> 5-second opening (train running,
+Last Alibi menu (Play / Settings) -> choose a case -> 5-second opening (train running,
 avalanche, stop) -> **Breakfast** (dining car, tutorial hints: walk, E to say good morning) -> after about 25 s Théo runs in:
 "No. 7! The envoy won't wake" -> fade -> **Compartment 7** (investigation until the relief train at 10:00) -> gather
 everyone via Castelli (quick option 1) -> **The accusation** (in-game: who, why, 3 proofs) -> newspaper.
@@ -78,3 +82,26 @@ spoken voices sound to a human.
 - `tools/build-review.py` cuts out the magenta, slices sprite sheets into poses and item sheets into single clues (`art/assets/slices/`), and builds the review page `art/review/` (published privately as "Simplon-Orient Asset Bible").
 - The player is now **Inspector Marc Sorel, a man** (fedora and trench coat). Prompts and dialogue are updated to match.
 - Not in the game yet: the game still uses the older code-drawn art. The next step is the scene engine that uses these plates and sprites.
+
+## Scene engine (v3, started 26 Sept): the game at `/`
+- `index.html` + `engine/`: stage-based scenes on the Gather-style art. The old top-down game is at `/prototype.html`.
+  - `engine/scenes.js`: each stage's background plate, walkable floor polygon, exits, clue spots, props, and who stands where per story beat (`BEATS.breakfast`, `BEATS.investigation`).
+  - `engine/engine.js`: 1376x768 canvas; actors with sprite poses (walk, talk, sit), depth scaling, A* on the floor polygon, click-to-walk and WASD, exits with fades, speech bubbles, cutscene helpers (`say`, `walkTo`, `wait`, `goto`, fades).
+  - `engine/dialogue.js`: parchment conversation box (portrait expressions, quick questions, typing, hold-to-talk mic, Show). Brains: scripted, or live (Gemini + Gradium).
+  - `engine/ui.js`: parchment interface (top bar, hints, toasts, examine box, inventory, notebook, map, settings, title menu, accusation, newspaper).
+  - `engine/game.js`: the story: title, avalanche, breakfast tutorial, Théo bursts in, the corridor, compartment 7, investigation, gather, accusation, ending.
+- `game-assets/` is built by `tools/build-game-assets.py` from `art/assets` (backgrounds, 300 px sprites, 3 portrait expressions per person, item cut-outs).
+- Playable stages so far: dining car, sleeping-car corridor, compartment 7 (+ the night opening). The lounge, kitchen, outside and compartments 1-6 have art but no stage definitions yet.
+- **All stages now playable (26 Sept):** night opening, dining car, kitchen, lounge car, sleeping-car corridor, compartments 1–7, outside (north side).
+  - Connections: corridor ↔ dining (right door) ↔ lounge (dining right end); dining top-right door ↔ kitchen; kitchen back door ↔ outside ↔ corridor (left vestibule); corridor doors 1–7 ↔ their compartments (investigation only; at breakfast they're locked, and so are the lounge, kitchen and outside).
+  - Clues: corridor (call board, handkerchief, bolt); No. 7 (body, notebook, window, blotter, camphor, letters + contract); No. 3 (doctor's bag, wet shoes); No. 6 (tumbler); No. 2 (marked cards); No. 4 (passports); outside (footprints, ampoule neck); kitchen (grappa glasses); dining (Castelli's log book); lounge (score sheet). Nos. 1 and 5 have flavour only.
+  - People during the investigation: corridor (Castelli, Théo, Ferrand), dining (Irina), lounge (Hale at cards, Mila, Brandt), kitchen (Luigi the cook, bubble lines only, no brain).
+  - Verified with a real-click headless walkthrough: every stage is reachable in both directions, and every spot clue can be collected.
+
+## Deployment (Cloudflare, 26 Sept)
+- Live: https://simplon-orient.kaisspace.workers.dev (Cloudflare account bd96kais@gmail.com; Worker `simplon-orient`).
+- `worker/index.mjs` serves `dist/` (static-assets binding) and the API. `/api/talk` duplicates `server/server.mjs` talk(): keep them in step.
+  Secrets are `GEMINI_API_KEY` and `GRADIUM_API_KEY` (wrangler secret put). Per-IP rate limits are in `wrangler.jsonc`. CORS allows the page itself, itch.io frames and `ALLOWED_ORIGINS`.
+- `npm run deploy` builds `dist/` (tools/build-web.mjs, allow-list only) and runs `wrangler deploy`. `npm run dev:worker` runs a local test (.dev.vars).
+- itch.io: `npm run build:itch` makes `dist-itch.zip` with `API_BASE` pointing at the Worker. Upload it as an HTML5 game with "Click to launch in fullscreen".
+- `prompts/prompt-core.mjs` holds the pure prompt functions (used by the Worker); `build-prompt.mjs` holds the fs loader and CLI and re-exports the core.

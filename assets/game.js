@@ -3,6 +3,7 @@
 // the accusation -> the newspaper. 320x180, integer-scaled, everything drawn in code except the
 // title key art (generated with Gemini, tools/gen-image.mjs).
 (function () {
+  const log = (window.LOG || { scope: () => console }).scope('game');
   const { rect, px, text, wrap, panel, nameTag, vgrad, blip, measure } = PX;
   const VW = 320, VH = 180, OY = 4, T = WORLD.T;
   const toMin = (s) => { const [h, m] = s.split(':').map(Number); return (h < 12 ? h + 24 : h) * 60 + m; };
@@ -81,6 +82,7 @@
 
   // ---------------- flow ----------------
   function newGame() {
+    log.info('new game');
     try { localStorage.removeItem('simplon-save'); } catch (_) {}
     G.items = []; G.notes = []; G.found = new Set(); G.confessed = false; resetPer();
     G.moved = 0; G.saidHello = false; G.openedBag = false; G.showedSomething = false; G.wentOutside = false;
@@ -89,17 +91,20 @@
   function startChapter(id) {
     G.ch = CHAP[id]; G.clock = toMin(G.ch.start); G.acc = 0; G.fired = new Set(); G.bubbles = []; G.read = null; G.runner = null;
     G.chStart = performance.now();
-    const sp = WORLD.waypoints[G.ch.playerStart]; G.player.x = sp.x; G.player.y = sp.y; G.player.dir = sp.dir;
+    const sp = WORLD.waypoints[G.ch.playerStart];
+    if (!sp) log.error('chapter has no valid player start', { chapter: id, playerStart: G.ch.playerStart }); G.player.x = sp.x; G.player.y = sp.y; G.player.dir = sp.dir;
     G.npcs = {};
     for (const c of CASE.characters) {
       if (!c.chapters.includes(id)) continue;
       const sched = (CASE.schedules[id] || {})[c.id]; if (!sched || !sched.length) continue;
       const w = currentWp(sched), p = WORLD.waypoints[w] || sp;
+      if (!WORLD.waypoints[w]) log.warn('unknown waypoint in schedule, using player start', { chapter: id, who: c.id, waypoint: w });
       G.npcs[c.id] = { id: c.id, x: p.x, y: p.y, dir: p.dir, wp: w, path: [], dist: 0, moving: false, look: Object.assign({ id: c.id, seed: c.id.length * 31 }, c.look) };
     }
     G.lastCar = WORLD.carAt(...WORLD.tileOf(G.player.x, G.player.y - 3));
     G.mode = id === 'ch4' ? 'gather' : 'play';
     G.carName = { s: G.ch.title.replace(/^[IVX]+ · /, '').toUpperCase(), sub: G.ch.subtitle, t: 220 };
+    log.info('chapter start', { chapter: id, clock: fmt(G.clock), mode: G.mode, npcs: Object.keys(G.npcs), items: G.items.length, notes: G.notes.length });
     save();
   }
   function fadeTo(lines, then) { G.fade = { t: 0, lines, then }; }
@@ -110,6 +115,7 @@
   function learn(id, quiet) {
     const e = EV[id]; if (!e || known(id)) return false;
     if (e.take) G.items.push(id); else G.notes.push(id);
+    log.info(e.take ? 'item taken' : 'note learned', { id, key: !!e.key, clock: fmt(G.clock), total: G.items.length + G.notes.length });
     if (!quiet) toast((e.take ? '+ ' : 'NOTED: ') + e.name.replace(/^[^:]+: /, ''), id);
     if (G.ch.clock === 'actions' && !quiet) advance(G.ch.minutesPerClue || 0);
     save(); return true;
@@ -117,6 +123,7 @@
   function toast(s, icon, col) { G.toasts.push({ s: s.toUpperCase().slice(0, 34), icon, col: col || (icon && EV[icon]?.take ? '#79ad7c' : '#9cc0e4'), t: 220 }); if (G.settings.sound) blip(icon ? 880 : 660, 0.07, 0.025); }
   function advance(min) {
     G.clock += min;
+    if (min) log.debug('clock', { plus: min, now: fmt(G.clock) });
     if (G.ch.id === 'ch3' && G.clock >= toMin(G.ch.end) && !G.fade) fadeTo(['10:00. THE RELIEF TRAIN WHISTLES.', 'CASTELLI GATHERS EVERYONE.'], () => startChapter('ch4'));
   }
 
@@ -127,7 +134,7 @@
       if (talk.state.open && talk.state.who === n.id) { n.moving = false; faceTo(n, G.player); continue; }
       if (G.runner && G.runner.id === n.id) { runner(n); continue; }
       const w = currentWp(sch[n.id]);
-      if (w !== n.wp) { n.wp = w; const p = WORLD.waypoints[w]; if (p) n.path = WORLD.path(WORLD.walkTile(n.x, n.y - 2), WORLD.walkTile(p.x, p.y - 2)) || []; }
+      if (w !== n.wp) { log.debug('npc moves', { who: n.id, from: n.wp, to: w, clock: fmt(G.clock) }); n.wp = w; const p = WORLD.waypoints[w]; if (p) n.path = WORLD.path(WORLD.walkTile(n.x, n.y - 2), WORLD.walkTile(p.x, p.y - 2)) || []; }
       step(n, WORLD.waypoints[n.wp], 0.8);
     }
   }
@@ -183,7 +190,7 @@
     const moved = Math.hypot(p.x - ox, p.y - oy); p.dist += moved; G.moved += moved;
     p.dir = Math.abs(dx) >= Math.abs(dy) && dx ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
     const car = WORLD.carAt(...WORLD.tileOf(p.x, p.y - 3));
-    if (car !== G.lastCar) { G.carName = { s: { sleeper: 'SLEEPING CAR', dining: 'DINING CAR', lounge: 'LOUNGE CAR', outside: 'OUTSIDE, IN THE SNOW' }[car], t: 110 }; G.lastCar = car; if (car === 'outside') G.wentOutside = true; }
+    if (car !== G.lastCar) { log.debug('player enters', { car }); G.carName = { s: { sleeper: 'SLEEPING CAR', dining: 'DINING CAR', lounge: 'LOUNGE CAR', outside: 'OUTSIDE, IN THE SNOW' }[car], t: 110 }; G.lastCar = car; if (car === 'outside') G.wentOutside = true; }
   }
 
   function updateEvents() {
@@ -191,7 +198,7 @@
     for (const e of CASE.events) {
       const key = e.chapter + e.t + e.who;
       if (e.chapter !== G.ch.id || G.fired.has(key) || toMin(e.t) > G.clock) continue;
-      G.fired.add(key); if (G.npcs[e.who]) bubble(e.who, e.say);
+      G.fired.add(key); log.debug('event', { chapter: e.chapter, t: e.t, who: e.who, present: !!G.npcs[e.who] }); if (G.npcs[e.who]) bubble(e.who, e.say);
     }
   }
 
@@ -228,6 +235,7 @@
       return openTalk(t.id);
     }
     if (t.kind === 'text') return (G.read = { title: t.label, pages: pages(t.text), page: 0 });
+    log.debug('interact', { kind: t.kind, id: t.id || t.ids });
     if (t.kind === 'clue') {
       t.ids.forEach((id) => G.found.add(id));
       const P = []; const owner = [];
@@ -251,16 +259,17 @@
     if (G.ch.clock === 'actions' && asked) advance(G.ch.minutesPerInterview || 10);
     save();
   }
-  function gather() { closeTalk(); fadeTo(['CASTELLI GATHERS EVERYONE', 'IN THE DINING CAR.'], () => startChapter('ch4')); }
+  function gather() { log.info('gather: everyone to the dining car', { clock: fmt(G.clock), items: G.items.length, notes: G.notes.length }); closeTalk(); fadeTo(['CASTELLI GATHERS EVERYONE', 'IN THE DINING CAR.'], () => startChapter('ch4')); }
 
   // ---------------- accusation ----------------
-  function openAccuse() { G.acc_ = { step: 0, sel: 0, suspect: null, motive: null, picks: new Set() }; G.mode = 'accuse'; }
+  function openAccuse() { log.info('accusation opened'); G.acc_ = { step: 0, sel: 0, suspect: null, motive: null, picks: new Set() }; G.mode = 'accuse'; }
   function grade() {
     const r = CASE.accusation.requires, A = G.acc_;
     const keys = [...A.picks].filter((e) => r.evidenceAnyThreeOf.includes(e));
     const verdict = A.suspect === r.suspect && A.motive === r.motive && keys.length >= 3 ? 'solved' : A.suspect === r.suspect ? 'weak' : 'wrong';
     const all = [...new Set(r.evidenceAnyThreeOf)];
     G.result = { verdict, suspect: A.suspect, found: all.filter(known), missed: all.filter((e) => !known(e)) };
+    log.info('accusation graded', { verdict, suspect: A.suspect, motive: A.motive, evidence: [...A.picks], keyEvidence: keys.length, confessed: !!G.confessed });
     G.mode = 'end'; try { localStorage.removeItem('simplon-save'); } catch (_) {}
   }
 
@@ -270,7 +279,8 @@
     try {
       localStorage.setItem('simplon-save', JSON.stringify({ ch: G.ch.id, clock: G.clock, items: G.items, notes: G.notes, found: [...G.found], confessed: G.confessed,
         per: Object.fromEntries(Object.entries(G.per).map(([k, v]) => [k, { ...v, shown: [...v.shown], revealed: [...v.revealed] }])) }));
-    } catch (_) {}
+      log.debug('saved', { chapter: G.ch.id, clock: fmt(G.clock) });
+    } catch (e) { log.warn('save failed', { error: String(e.message || e) }); }
   }
   function load() {
     try {
@@ -278,8 +288,10 @@
       G.items = s.items; G.notes = s.notes; G.found = new Set(s.found); G.confessed = s.confessed;
       for (const [k, v] of Object.entries(s.per)) G.per[k] = { ...v, shown: new Set(v.shown), revealed: new Set(v.revealed) };
       G.saidHello = true; G.moved = 99; G.openedBag = G.showedSomething = G.wentOutside = true;
-      startChapter(s.ch); G.clock = Math.max(G.clock, s.clock); return true;
-    } catch (_) { return false; }
+      startChapter(s.ch); G.clock = Math.max(G.clock, s.clock);
+      log.info('save loaded', { chapter: s.ch, clock: fmt(G.clock), items: G.items.length, notes: G.notes.length });
+      return true;
+    } catch (e) { log.warn('save could not be loaded', { error: String(e.message || e) }); return false; }
   }
   const hasSave = () => { try { return !!localStorage.getItem('simplon-save'); } catch (_) { return false; } };
 
@@ -600,7 +612,7 @@
       if (i === 1 && G.server.voice && s.brain === 'live') s.voice = !s.voice;
       if (i === 2) s.sound = !s.sound;
       if (i === 3) { s.crt = !s.crt; PX.crt(wrapEl, s.crt); }
-      talk.setBrain(s.brain); saveSettings();
+      talk.setBrain(s.brain); saveSettings(); log.info('settings', { ...s });
     }
   }
 
@@ -768,10 +780,11 @@
   PX.crt(wrapEl, G.settings.crt);
   fetch('/api/status').then((r) => r.json()).then((s) => {
     G.server = { brain: !!s.brain, voice: !!s.voice };
+    log.info('server status', s);
     if (!savedSettings && s.brain) G.settings.brain = 'live';
     if (!s.brain) G.settings.brain = 'scripted'; if (!s.voice) G.settings.voice = false;
     talk.setBrain(G.settings.brain);
-  }).catch(() => { G.settings.brain = 'scripted'; G.settings.voice = false; talk.setBrain('scripted'); });
+  }).catch((e) => { log.warn('no game server: scripted brain, no voice', { error: String(e.message || e) }); G.settings.brain = 'scripted'; G.settings.voice = false; talk.setBrain('scripted'); });
 
   let last = performance.now(), lag = 0;
   (function loop(now) { lag += Math.min(100, now - last); last = now; while (lag >= 1000 / 60) { frame(); lag -= 1000 / 60; } requestAnimationFrame(loop); })(performance.now());

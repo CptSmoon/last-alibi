@@ -6,6 +6,9 @@ import { spawn, execFileSync } from 'node:child_process';
 import { existsSync, writeFileSync, readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { logger } from '../server/log.mjs';
+
+const log = logger('gen-assets');
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const A = (...p) => join(ROOT, 'art', ...p);
@@ -76,20 +79,24 @@ add('ui-kit', 'ui', [STYLE_REF, CAST_REF], `Game UI kit sheet matching EXACTLY t
 // ---- run ----
 const only = process.argv.slice(2);
 const todo = ASSETS.filter((a) => (only.length ? only.some((o) => a.id.startsWith(o)) : !existsSync(A('assets', a.group, a.id + '.jpg')) && !existsSync(A('assets', a.group, a.id + '.png'))));
-console.log(`${todo.length} to generate`);
+log.info('start', { todo: todo.length, total: ASSETS.length, only: only.join(',') || undefined });
+const t0 = Date.now(), failed = [];
 const run = (a) => new Promise((res) => {
-  const out = A('assets', a.group, a.id);
+  const out = A('assets', a.group, a.id), ts = Date.now();
+  log.debug('generating', { id: a.id, group: a.group, refs: a.refs.length });
   const p = spawn('node', [join(ROOT, 'tools/gen-image.mjs'), out, a.prompt], { env: { ...process.env, RAW: '1', REF: a.refs.join(','), ASPECT: '16:9' }, stdio: ['ignore', 'pipe', 'inherit'] });
   let o = ''; p.stdout.on('data', (d) => (o += d));
   p.on('exit', (code) => {
     const file = (o.match(/wrote (\S+)/) || [])[1];
     if (code === 0 && file && a.cut) {       // chroma-key the magenta background to transparency
-      try { execFileSync('magick', [file, '-fuzz', '22%', '-transparent', '#FF00FF', '-channel', 'A', '-morphology', 'Erode', 'Disk:1', '+channel', file.replace(/\.\w+$/, '.png')]); } catch (e) { console.error('cutout failed', a.id); }
+      try { execFileSync('magick', [file, '-fuzz', '22%', '-transparent', '#FF00FF', '-channel', 'A', '-morphology', 'Erode', 'Disk:1', '+channel', file.replace(/\.\w+$/, '.png')]); } catch (e) { log.warn('cutout failed (is ImageMagick installed?)', { id: a.id, error: e.message.split('\n')[0] }); }
     }
-    console.log(code === 0 ? `ok   ${a.id}` : `FAIL ${a.id}`); res();
+    if (code === 0) log.info('ok', { id: a.id, ms: Date.now() - ts, left: queue.length });
+    else { failed.push(a.id); log.error('FAIL', { id: a.id, code }); }
+    res();
   });
 });
 const queue = [...todo];
 await Promise.all(Array.from({ length: 5 }, async () => { while (queue.length) await run(queue.shift()); }));
 writeFileSync(A('assets', 'manifest.json'), JSON.stringify(ASSETS.map(({ id, group, scene }) => ({ id, group, scene })), null, 1));
-console.log('done');
+(failed.length ? log.warn : log.info)('done', { made: todo.length - failed.length, failed: failed.length ? failed.join(',') : 0, s: Math.round((Date.now() - t0) / 1000) });

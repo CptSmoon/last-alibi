@@ -1,0 +1,44 @@
+{
+  "title": {
+    "file": "audio/music-title.mp3",
+    "seconds": 150,
+    "bytes": 2401219,
+    "loop": true
+  },
+  "avalanche": {
+    "file": "audio/music-avalanche.mp3",
+    "seconds": 90,
+    "bytes": 1441167,
+    "loop": true
+  },
+  "breakfast": {
+    "file": "audio/music-breakfast.mp3",
+    "seconds": 149.95,
+    "bytes": 2400383,
+    "loop": true
+  },
+  "investigation": {
+    "file": "audio/music-investigation.mp3",
+    "seconds": 179.82,
+    "bytes": 2878111,
+    "loop": true
+  },
+  "accusation": {
+    "file": "audio/music-accusation.mp3",
+    "seconds": 120,
+    "bytes": 1920984,
+    "loop": true
+  },
+  "solved": {
+    "file": "audio/music-solved.mp3",
+    "seconds": 22,
+    "bytes": 353219,
+    "loop": false
+  },
+  "failed": {
+    "file": "audio/music-failed.mp3",
+    "seconds": 22,
+    "bytes": 353219,
+    "loop": false
+  }
+}

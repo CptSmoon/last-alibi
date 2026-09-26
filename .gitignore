@@ -2,3 +2,8 @@
 .env.*
 node_modules/
 .DS_Store
+!.env.example
+dist/
+dist-itch.zip
+.dev.vars
+.wrangler/
