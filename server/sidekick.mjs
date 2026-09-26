@@ -34,6 +34,14 @@ Your errand reports: ${file.reports.length ? file.reports.join(' | ') : 'none ye
 Questioned so far: ${file.questioned.length ? file.questioned.join(', ') : 'nobody'}. Not questioned yet: ${file.notQuestioned.length ? file.notQuestioned.join(', ') : 'nobody'}.
 Rooms with things still to find (count only): ${Object.keys(file.unsearched).length ? Object.entries(file.unsearched).map(([r, n]) => `${ROOMS[r] || r}: ${n}`).join(', ') : 'none that you know of'}.`;
 
+// The opening: he has just run into the dining car to fetch the inspector.
+const ALARM = `
+# RIGHT NOW
+You have just run into the dining car to fetch the inspector, out of breath. Théo, the conductor, could not wake the envoy Anton Lazăr in compartment 7; the door was bolted from inside, and you forced the bolt a few minutes ago. Lazăr is dead in his berth. Dr Ferrand, who was at breakfast, says it was his heart.
+- The inspector may ask what happened, where, who found him, or anything else. Answer in one or two short, shaken sentences, from what you know.
+- Urge him to come and see: it is in compartment 7, in the sleeping car next door. When he agrees, say you will lead the way.
+- From now on you will be his assistant for the morning, until the carabinieri come at 10:00.`;
+
 function tools(people) {
   const who = { type: 'STRING', enum: people, description: 'person id' };
   return [{ functionDeclarations: [
@@ -52,6 +60,7 @@ export async function sidekick(S, key, b, rid) {
   const peopleIds = others.map((c) => c.id), name = (id) => (S.characters.find((c) => c.id === id) || {}).name || id;
   const f = b?.file || {};
   const questioned = [...new Set(Array.isArray(f.questioned) ? f.questioned : [])].filter((id) => peopleIds.includes(id));
+  const alarm = f.phase === 'alarm';
   const file = {
     away: !!f.away,
     found: [...new Set(Array.isArray(f.found) ? f.found : [])].filter((id) => byId.has(id)).slice(0, 60).map((id) => byId.get(id)),
@@ -62,7 +71,7 @@ export async function sidekick(S, key, b, rid) {
     unsearched: Object.fromEntries(Object.entries(f.unsearched || {}).filter(([r, n]) => ROOMS[r] && Number.isInteger(n) && n > 0).slice(0, 12)),
   };
   const now = Number.isInteger(b?.now) ? b.now : undefined;
-  const system = buildSystemInstruction(S, 'castelli', 'ch3', now) + '\n' + SIDEKICK(S, file, others.map((c) => `${c.id} = ${c.name}`).join(', '));
+  const system = buildSystemInstruction(S, 'castelli', 'ch3', now) + '\n' + (alarm ? ALARM : SIDEKICK(S, file, others.map((c) => `${c.id} = ${c.name}`).join(', ')));
   // Each line of the inspector's is framed as what it is: Gemini's safety filter blocks bare commands such as
   // "Bring me Mila Novak" (PROHIBITED_CONTENT, measured 26 Sept), but not the same words in their game context.
   const said = (t) => `[The inspector says to you, Castelli, his assistant in this murder investigation on the train:] ${t}`;
@@ -73,7 +82,7 @@ export async function sidekick(S, key, b, rid) {
   for (let i = 0; i < models.length; i++) {
     try {
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${models[i]}:generateContent`;
-      const payload = { systemInstruction: { parts: [{ text: system }] }, contents, tools: tools(peopleIds),
+      const payload = { systemInstruction: { parts: [{ text: system }] }, contents, ...(alarm ? {} : { tools: tools(peopleIds) }),
         generationConfig: { maxOutputTokens: 600, ...(models[i].startsWith('gemini-3') ? { thinkingConfig: { thinkingLevel: models[i].includes('lite') ? 'minimal' : 'low' } } : {}) } };
       const r = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json', 'x-goog-api-key': key }, body: JSON.stringify(payload), signal: AbortSignal.timeout(20000) });
       if (!r.ok) throw new Error(`gemini ${r.status}: ${(await r.text()).slice(0, 200)}`);

@@ -62,6 +62,7 @@
     toast: (s) => UI.toast(s),
     gather: () => gather(false),
     said: (who, q, a) => window.BOARD && BOARD.heard(who, q, a),
+    lead: () => lead(),
     openShow: () => UI.openPanel('inventory', { G, show: true, who: talk.state.who, onPick: (id) => talk.present(id), onStatement: (c) => { G.flags.confronted = true; talk.ask(BOARD.confrontLine(c)); } }),
     panelOpen: () => UI.panelOpen(),
     closed: (who, asked) => { const a = E.actors.get(who); if (a) a.talking = false; if (asked) advance(8); },
@@ -86,8 +87,10 @@
     },
     exitOpen: (e) => !e.beats || e.beats.includes(G.beat),
     exitLocked: (e) => UI.toast(e.locked),
-    entered: (id) => { UI.place(SCENES[id].name); G.flags['been_' + id] = true; if (id === 'c7') G.flags.inC7 = true; },
+    entered: (id) => {
+      if (G.beat === 'alarm' && id !== 'dining') lead(); UI.place(SCENES[id].name); G.flags['been_' + id] = true; if (id === 'c7') G.flags.inC7 = true; },
     clickActor(a) {
+      if (G.beat === 'alarm') { if (a.id === 'castelli') { a.face(E.player); talk.open('castelli'); } else E.say(a.id, 'Go, Inspector, go with Castelli!', 2200); return; }
       if (G.beat === 'breakfast') {
         if (E.lock) return;
         E.clearBubbles(); const home = a.dir; a.face(E.player); G.greeting = { a, home, d0: Math.hypot(a.x - E.player.x, a.y - E.player.y) };
@@ -154,6 +157,8 @@
       if (!f.moved) { if (E.player.moving) f.moved = true; h = 'Click the floor to walk <kbd>or WASD</kbd>'; }
       else if (!f.greeted) h = 'Say good morning: click someone, or walk up and press <kbd>E</kbd>';
       else if (f.greetedSet && f.greetedSet.size < 2) h = 'Say good morning to someone else';
+    } else if (G.beat === 'alarm') {
+      h = 'Talk to <b>Castelli</b>: ask him where it happened, or say <b>"Take me there"</b>';
     } else if (G.beat === 'investigation') {
       const contra = window.BOARD ? BOARD.contradictions.length : 0, st = window.BOARD ? BOARD.strength() : { n: 0 };
       if (!f.inC7) h = 'Examine the body: go into <b>compartment 7</b> (the open door)';
@@ -197,61 +202,61 @@
 
   // Breakfast is the tutorial: one thing happens at a time. Sorel walks in from the sleeping car,
   // Castelli makes his announcement, then the room is yours until you've greeted two people.
+  // The opening (user request, 26 Sept): you walk into breakfast and Castelli, your assistant for the day, runs in
+  // at once to tell you about No. 7. You talk to him (ask where, who found him, or "take me there"), and he leads
+  // you to the sleeping car, then follows you for the whole investigation.
   async function breakfast(r) {
     G.beat = 'breakfast'; E.beat = 'breakfast'; G.clock = toMin('07:00');
     window.AUDIO && AUDIO.music('breakfast');
     E.player = new E.Actor('sorel', 40, 540, 'right');
     E.lock = true;
-    await E.load('dining'); if (r !== run) return; UI.hud(true); tickClock(); await E.fadeIn(500);
+    await E.load('dining'); if (r !== run) return; UI.hud(true); tickClock();
+    E.actors.delete('castelli');                        // he isn't at breakfast: he's about to run in
+    await E.fadeIn(500);
     await E.player.walkTo(300, 540, null, 3);
-    await E.wait(300); if (r !== run) return;
-    await E.say('castelli', 'Buongiorno, signori! The relief train comes at ten. Coffee is on the house.', 3800); if (r !== run) return;
-    E.lock = false;
-    const start = performance.now(), greeted = () => (G.flags.greetedSet ? G.flags.greetedSet.size : 0);
-    let nudged = false;
-    await new Promise((res) => {
-      const iv = setInterval(() => {
-        const s = (performance.now() - start) / 1000, since = (performance.now() - (G.flags.greetedAt || 0)) / 1000;
-        if (G.flags.moved || greeted()) skipBtn.hidden = true; // playing the breakfast now: Skip intro has done its job
-        if (!nudged && s > 9 && !greeted()) { nudged = true; E.say('hale', 'Morning, Inspector! Snowed in, by Jove.', 3200); }
-        if (r !== run || (greeted() >= 2 && since > 3.5) || (greeted() === 1 && s > 30 && since > 3.5) || s > 50) { clearInterval(iv); res(); }
-      }, 250);
-    });
-    if (r !== run) return;
-    await theoArrives(r);
+    await E.wait(900); if (r !== run) return;
+    await castelliArrives(r);
   }
 
-  async function theoArrives(r) {
+  async function castelliArrives(r) {
     E.lock = true; UI.hint(null); E.clearBubbles();
-    if (E.sceneId !== 'dining') await E.goto('dining', [420, 540, 'left']);
-    E.lock = true;
     const p = E.player; p.stop();
-    // Step into the aisle (away from the tables) and leave Théo room by the door.
+    // Step into the aisle (away from the tables) and leave him room by the door.
     const ax = Math.max(320, Math.min(1100, p.x)), ay = 548;
     if (Math.hypot(p.x - ax, p.y - ay) > 8) await p.walkTo(ax, ay, null, 5);
-    const theo = E.addActor('theo', 30, ay, 'right');
-    L.info('theo arrives');
+    const c = E.addActor('castelli', 30, ay, 'right');
+    L.info('castelli arrives');
     window.AUDIO && (AUDIO.sfx('sting'), AUDIO.music(null, { fade: 1 }));
-    E.say('theo', 'Inspector! Inspector!', 1800, { alert: true });
-    await theo.walkTo(Math.max(120, p.x - 130), p.y, null, 7);
-    theo.face(p); p.face(theo);
-    ['irina', 'ferrand', 'hale', 'mila', 'brandt', 'castelli'].forEach((id) => E.actors.get(id)?.face(theo));
-    await E.wait(250);
-    await E.say('theo', "No. 7! The envoy won't wake, and his door is bolted from inside. Castelli is breaking it open. Come, please!", 4600, { alert: true }); if (r !== run) return;
-    await E.say('irina', 'Mein Gott...', 1500); if (r !== run) return;
-    await E.say('ferrand', "I'm a doctor. I'll come with you.", 2200); if (r !== run) return;
+    E.say('castelli', 'Ispettore! Ispettore!', 1800, { alert: true });
+    await c.walkTo(Math.max(120, p.x - 110), p.y, null, 7); if (r !== run) return;   // he comes right up to you first
+    c.face(p); p.face(c);
+    ['irina', 'ferrand', 'hale', 'mila', 'brandt'].forEach((id) => E.actors.get(id)?.face(c));
+    await E.wait(250); E.clearBubbles();
+    G.beat = 'alarm'; E.lock = false; skipBtn.hidden = true;
+    talk.open('castelli');                              // he tells you; you answer (chips, typing or voice)
+    await new Promise((res) => (G.flags.onLead = res)); if (r !== run) return;
     await E.fadeOut(500);
     window.AUDIO && AUDIO.sfx('reveal');
-    await UI.card(['You run after Théo to the sleeping car.', 'Castelli forces the bolt of No. 7.', 'Anton Lazăr is dead in his berth.'], 3000); if (r !== run) return;
+    await UI.card(['Castelli leads you to the sleeping car.', 'The door of No. 7 hangs open.', 'Anton Lazăr is dead in his berth.'], 3000); if (r !== run) return;
     await startInvestigation(r);
   }
+  // "Take me there" (said to Castelli), or walking off towards the sleeping car: he leads you to No. 7.
+  function lead() {
+    if (G.beat !== 'alarm' || G.flags.led) return; G.flags.led = true;
+    L.info('castelli leads the way');
+    setTimeout(() => { if (talk.state.open) talk.close(); G.flags.onLead && G.flags.onLead(); }, talk.state.open ? 1600 : 0);
+  }
+
   async function startInvestigation(r) {
-    skipBtn.hidden = true; UI.hint(null); E.lock = true;
+    skipBtn.hidden = true; UI.hint(null); E.lock = true; if (talk.state.open) talk.close();
     G.beat = 'investigation'; E.beat = 'investigation'; G.clock = toMin('07:20'); BOARD.hud();
+    if (!E.follower) E.follow('castelli');             // your assistant walks with you (engine.js followers)
     window.AUDIO && AUDIO.music('investigation');
     await E.load('corridor', [700, 500, 'right']); if (r !== run) return; UI.hud(true); tickClock(); await E.fadeIn(500);
     E.lock = false;
-    E.say('castelli', 'Inspector, please. Find out what happened before the carabinieri come at ten.', 4200);
+    E.say('castelli', 'Here, Ispettore. I stay with you: call me whenever you need me.', 4200);
+    window.SIDEKICK && SIDEKICK.hud();
+    UI.toast('Castelli follows you. Click his portrait (bottom right) or press C to call him.', null, 'note');
     await E.wait(4400); E.say('ferrand', 'His heart, Inspector. About half past one. I am sorry.', 3600);
   }
 
@@ -293,7 +298,15 @@
       'A murder mystery game · more cases coming soon');
   }
   // Only the Simplon-Orient case exists so far; picking any ready case starts it.
-  function chooseCase() { UI.cases(window.CASES || [], (c) => { if (c.ready) newGame(); }, title); }
+  // Ask for the microphone as soon as the player presses Play, so the browser prompt never interrupts a
+  // conversation later (user request). The stream is closed at once: this only grants the permission.
+  let micAsked = false;
+  function askMic() {
+    if (micAsked || !navigator.mediaDevices || !G.server.voice) return; micAsked = true;
+    navigator.mediaDevices.getUserMedia({ audio: true }).then((s) => { s.getTracks().forEach((t) => t.stop()); L.info('microphone allowed'); })
+      .catch((e) => L.warn('microphone refused', { error: e.name }));
+  }
+  function chooseCase() { askMic(); UI.cases(window.CASES || [], (c) => { if (c.ready) newGame(); }, title); }
 
   // ---------- boot ----------
   resetPer(); UI.fit();

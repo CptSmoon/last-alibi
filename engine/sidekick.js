@@ -18,7 +18,11 @@
   const CLOCK = { fetch: 6, search: 10, interview: 8 };
 
   const st = () => { const g = GG(); return g && (g.flags.side ||= { history: [], reports: [], errand: null, met: false }); };
-  const active = () => { const g = GG(); return !!g && g.beat === 'investigation' && g.settings.brain === 'live' && g.server.brain; };
+  const live = () => { const g = GG(); return !!g && g.settings.brain === 'live' && g.server.brain; };
+  const active = () => { const g = GG(); return !!g && (g.beat === 'investigation' || g.beat === 'alarm') && live(); };   // the AI sidekick
+  const handles = () => { const g = GG(); return !!g && (g.beat === 'alarm' || active()); };                          // his lines, AI or canned
+  // Without the AI (scripted mode), the opening still works with canned lines.
+  const offline = () => ({ text: 'In compartment 7, Ispettore, in the sleeping car. Théo found the door bolted from inside; we forced it. Come, I will take you there.', actions: [] });
   const away = () => !!(st() && st().errand);
 
   // ---------- the case file he sees ----------
@@ -41,12 +45,14 @@
       questioned: Object.keys(g.per).filter((id) => (g.per[id].lines || []).some((l) => l.who === id)),
       unsearched: clueRooms(),
       away: false,
+      phase: g.beat,
     };
   }
 
   // ---------- conversation ----------
   function greet() {
     const s = st();
+    if (GG().beat === 'alarm') return 'Ispettore, forgive me, your breakfast... It is Signor Lazăr, in compartment 7. Théo found his door bolted from the inside. We forced it. He is dead, Ispettore.';
     if (!s.met) { s.met = true; return 'Ispettore, I am at your service. I can fetch someone for you, search a room, or go and ask someone a question. Or we think it through together.'; }
     return s.reports.length ? 'Ispettore? Shall I go somewhere else for you?' : 'Ispettore. What can I do?';
   }
@@ -77,7 +83,7 @@
     const c = E.actors.get('castelli');
     E.moved.castelli = { beat: 'investigation', room: null, x: 0, y: 0, dir: 'front' };
     if (c) { const ex = exitPoint(E); c.seated = false; c.walkTo(ex[0], ex[1], () => E.actors.get('castelli') === c && E.actors.delete('castelli'), 7); }
-    UI.toast(`Castelli: ${going(a).replace(/^[^.]+\. /, '')}`, null, 'note');
+    UI.toast(`Castelli: ${going(a).replace(/^[^.]+\. /, '')}`, null, 'note'); hud();
     const mine = s;
     const done = (report, extra) => { if (GG() && GG().flags.side === mine) back(a, report, extra); };
     if (a.kind === 'search') setTimeout(() => done(...search(a.room)), TIME.search);
@@ -148,7 +154,7 @@
     const s = st(), g = GG();
     s.errand = null; s.reports.push(report);
     g.clock += CLOCK[a.kind] || 6;
-    arrive('castelli', 120);
+    arrive('castelli', 120); EE().follow('castelli'); hud();   // back at your side, and following you again
     extra && extra();
     EE().say('castelli', report.length > 180 ? report.slice(0, 177) + '…' : report, 7000);
     UI.toast('Castelli is back: ' + (report.length > 110 ? report.slice(0, 107) + '…' : report), null, 'alert');
@@ -156,6 +162,49 @@
     L('errand done', { kind: a.kind, report: report.slice(0, 160) });
   }
 
-  const chips = () => ['What should I do next?', 'Search a room for me', 'Gather everyone. I am ready to accuse.'];
-  window.SIDEKICK = { active, away, greet, ask, run, chips, file };
+  const chips = () => GG().beat === 'alarm' ? ['Where was it?', 'Who found him?', 'Take me there.']
+    : ['What should I do next?', 'Search a room for me', 'Gather everyone. I am ready to accuse.'];
+
+  // ---------- the portrait bubble (bottom right) and C: call him from anywhere ----------
+  const btn = document.createElement('button');
+  btn.id = 'castelli-btn'; btn.hidden = true; btn.title = 'Castelli, your assistant (C)'; btn.setAttribute('aria-label', 'Call Castelli');
+  btn.innerHTML = '<img src="game-assets/portraits/castelli-0.webp" alt=""><span class="k">C</span><span class="st"></span>';
+  (document.getElementById('stage') || document.body).appendChild(btn);
+  function hud() {
+    const g = GG(), on = !!g && g.beat === 'investigation';
+    btn.hidden = !on; if (!on) return;
+    const e = st().errand;
+    btn.classList.toggle('away', !!e);
+    btn.querySelector('.st').textContent = e ? (e.kind === 'fetch' ? 'fetching ' + short(e.person) : e.kind === 'search' ? 'searching' : 'asking ' + short(e.person)) : '';
+  }
+  // He comes to you (if he isn't already beside you), follows you again, and the conversation opens.
+  function summon() {
+    const g = GG(), E = EE(), T = GAME.talk.state;
+    if (!g || g.beat !== 'investigation' || E.lock || T.open) return;
+    if (away()) { UI.toast(`Castelli is out ${btn.querySelector('.st').textContent}. He'll be back soon.`, null, 'note'); return; }
+    const c = E.actors.get('castelli'), p = E.player;
+    if (c && Math.hypot(c.x - p.x, c.y - p.y) < 260) { E.follow('castelli'); c.face(p); GAME.talk.open('castelli'); return; }
+    L('summoned', { room: E.sceneId });
+    const a = arrive('castelli', 110); if (!a) return;
+    E.say('castelli', 'Sì, Ispettore? I am coming!', 1800);
+    const t = setInterval(() => { if (!a.moving || Math.hypot(a.x - p.x, a.y - p.y) < 140) { clearInterval(t); E.follow('castelli'); if (!GAME.talk.state.open && !E.lock) { a.face(p); GAME.talk.open('castelli'); } } }, 150);
+  }
+  btn.onclick = summon;
+  addEventListener('keydown', (e) => {
+    if (e.code !== 'KeyC' || e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
+    const t = document.activeElement; if (t && ['INPUT', 'TEXTAREA'].includes(t.tagName)) return;
+    if (window.UI && UI.busy) return; summon();
+  });
+  const css = document.createElement('style');
+  css.textContent = `#castelli-btn { position: absolute; right: 1.2em; bottom: 1.2em; z-index: 3; width: 5.4em; height: 5.4em; padding: 0; border-radius: 50%; overflow: visible; cursor: pointer;
+    border: .2em solid #e0a72e; background: #3a2414; box-shadow: 0 .3em .8em rgba(0,0,0,.45), 0 0 0 .25em rgba(240,196,106,.25); transition: transform .12s; }
+  #castelli-btn img { width: 100%; height: 100%; object-fit: cover; object-position: top; border-radius: 50%; }
+  #castelli-btn:hover { transform: scale(1.06); }
+  #castelli-btn .k { position: absolute; left: -.3em; top: -.3em; font: 900 .85em var(--ui); background: #fff8e6; color: var(--ink); border: .12em solid var(--edge); border-radius: .35em; padding: 0 .35em; }
+  #castelli-btn .st { position: absolute; left: 50%; bottom: -1.5em; transform: translateX(-50%); white-space: nowrap; font: 800 .8em var(--ui); color: #f5ead0; text-shadow: 0 .1em .3em #000; }
+  #castelli-btn.away img { filter: grayscale(1) brightness(.6); } #castelli-btn.away { border-style: dashed; animation: none; }
+  #dialog:not([hidden]) ~ #castelli-btn, #castelli-btn.hide-talk { display: none; }`;
+  document.head.appendChild(css);
+
+  window.SIDEKICK = { active, handles, offline, away, greet, ask, run, chips, file, hud, summon };
 })();

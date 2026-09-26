@@ -25,13 +25,13 @@
     }
     // A character who ended the interview is only cold for a while: ~40 s, or until the game clock moves on
     // 10 minutes. Showing evidence always gets their attention. (A permanent refusal locked players out.)
-    const cold = () => { const p = P(); return !!(p.coldUntil && performance.now() < p.coldUntil && G.clock < (p.coldClock || 0)); };
+    const cold = () => { const p = T.who && P(); return !!(p && p.coldUntil && performance.now() < p.coldUntil && G.clock < (p.coldClock || 0)); };
     const coldLine = () => type(T.who, 'Not now, Inspector. Come back later, or show me something that matters.');
     function renderChips() {
       chips.innerHTML = '';
       if (cold()) return;
       const used = (T.used[T.who] ||= new Set());
-      const list = T.who === 'castelli' && window.SIDEKICK && SIDEKICK.active() ? SIDEKICK.chips()
+      const list = T.who === 'castelli' && window.SIDEKICK && SIDEKICK.handles() ? SIDEKICK.chips()
         : [...(T.who === 'castelli' && G.canGather() ? ['Gather everyone. I am ready to accuse.'] : []), ...((DEMO[T.who] || {}).ch3?.suggest || []).filter((s) => !used.has(s))].slice(0, 3);
       list.forEach((s, i) => { const b = document.createElement('button'); b.className = 'chip'; b.innerHTML = `<kbd>${i + 1}</kbd>${s}`; b.onclick = () => ask(s, true); chips.appendChild(b); });
     }
@@ -152,7 +152,7 @@
       greet() { this.say(SIDEKICK.greet()); renderChips(); },
       async ask(q) {
         thinking(true);
-        const r = await SIDEKICK.ask(q).catch((e) => { console.warn('[sidekick]', e); return null; });
+        const r = await (SIDEKICK.active() ? SIDEKICK.ask(q) : Promise.resolve(SIDEKICK.offline(q))).catch((e) => { console.warn('[sidekick]', e); return null; });
         if (!T.open || T.who !== 'castelli') return;
         thinking(false);
         this.say((r && r.text) || 'Scusi, Ispettore, I did not follow. Again?');
@@ -163,13 +163,18 @@
       present(ev) { const e = CASE.evidence.find((x) => x.id === ev); return this.ask(`Look at this, Castelli: ${e.name}. ${e.description} What do you make of it?`); },
       close() { T.speech && T.speech.cancel(); T.speech = null; },
     };
-    const brain = () => (G.settings.brain === 'live' && G.server.brain ? (T.who === 'castelli' && window.SIDEKICK && SIDEKICK.active() ? side : live) : scripted);
+    const brain = () => (T.who === 'castelli' && window.SIDEKICK && SIDEKICK.handles() ? side : G.settings.brain === 'live' && G.server.brain ? live : scripted);
 
     // ---- actions ----
     function ask(q, quick) {
       q = (q || '').trim(); if (!q || !T.open || T.busy) return;
       if (cold()) { type('sorel', q, true); setTimeout(coldLine, 450); return; }
       if (quick) (T.used[T.who] ||= new Set()).add(q);
+      // The opening: "take me there" (or any way of saying let's go) and Castelli leads you to No. 7.
+      if (T.who === 'castelli' && G.beat === 'alarm' && /\b(take|bring|lead|show|walk)\b.*\b(me|us)\b|\blet'?s go\b|\bgo there\b|\blead the way\b|\ballons\b|\bcome on\b|\bon y va\b/i.test(q)) {
+        T.lastQ = q; type('sorel', q, true); P().lines.push({ who: 'sorel', s: q });
+        setTimeout(() => { if (T.open) side.say('Sì, Ispettore, subito. This way, follow me!'); hooks.lead && hooks.lead(); }, 400); return;
+      }
       if (T.who === 'castelli' && G.canGather() && /\b(gather|assemble)\b|ready to accuse|i('| a)m ready/i.test(q)) { type('sorel', q, true); setTimeout(() => hooks.gather(), 700); return; }
       T.asked++; T.lastQ = q; type('sorel', q, true); P().lines.push({ who: 'sorel', s: q });
       T.holdQ = performance.now() + 350; brain().ask(q);
