@@ -89,33 +89,35 @@
     return { n, of: key.length, label, tone: n >= 5 ? 'strong' : n >= 3 ? 'fair' : 'weak' };
   }
   function hud() {
-    const el = $('#casepill'); if (!el) return;
+    const el = $('#casepill'), bulb = $('#btn-brief'); if (!el) return;
     const g = G(), on = g && g.beat === 'investigation';
-    el.hidden = !on; if (!on) return;
+    el.hidden = !on; if (bulb) { bulb.hidden = !on; bulb.classList.toggle('blink', on && !g.flags.briefed); } if (!on) return;
     const s = strength();
     el.className = 'parch ' + s.tone;
     el.innerHTML = `<span class="lab">Case</span><span class="dots">${Array.from({ length: s.of }, (_, i) => `<i class="${i < s.n ? 'on' : ''}"></i>`).join('')}</span><b>${s.n}/${s.of}</b><span class="lab">${esc(s.label)}</span>${S.contra.length ? `<span class="warn" title="Contradictions found">⚠ ${S.contra.length}</span>` : ''}`;
   }
 
-  // ---------- briefing ----------
+  // ---------- briefing: a popup over the game, opened from the HUD bulb (it blinks until the first time) ----------
   const STEPS = [
     ['Investigate', 'Search compartment 7 and the rest of the train. Sparkles mark things worth a closer look.'],
     ['Question', 'Talk to the passengers and the crew. Every fact they give you is written in your notebook (<kbd>J</kbd>).'],
     ['Compare', 'When two statements can\'t both be true, you\'ll see ⚠. Confront them with it: someone is lying.'],
     ['Accuse', 'When your case is strong, ask <b>Castelli</b> to gather everyone. Name the killer, the motive, and three proofs.'],
   ];
-  function briefing({ again } = {}) {
+  function briefing() {
     return new Promise((res) => {
-      const b = $('#brief'); b.hidden = false;
-      b.innerHTML = `<div class="inner parch"><p class="kick">${again ? 'Your case' : 'A murder on the Simplon-Orient'}</p>
+      const g = G(); if (g) { g.flags.briefed = true; hud(); }
+      const b = $('#brief'); b.hidden = false; b.classList.add('pop');
+      b.innerHTML = `<div class="inner parch"><button class="x" id="brief-x" aria-label="Close">×</button><p class="kick">Your case · A murder on the Simplon-Orient</p>
         <h2>Who killed Anton Lazăr, and why?</h2>
         <p class="lede">The envoy was found dead behind a bolted door. The doctor says his heart stopped. You don't believe it. The carabinieri board the relief train at <b>10:00</b>: by then you must name the killer and prove it.</p>
         <ol class="steps">${STEPS.map(([t, d], i) => `<li><span class="n">${i + 1}</span><div><b>${t}</b><p>${d}</p></div></li>`).join('')}</ol>
-        <div class="meter"><b>Case strength</b> (top of the screen) counts the proofs you hold that can convict. With fewer than three, the magistrate will let your suspect go.</div>
-        <button class="go" id="brief-go">${again ? 'Back to the investigation' : 'Begin the investigation'}</button></div>`;
-      const done = () => { b.hidden = true; removeEventListener('keydown', key, true); res(); };
+        <div class="meter"><b>Case strength</b> (top right) counts the proofs you hold that can convict. With fewer than three, the magistrate will let your suspect go.</div>
+        <button class="go" id="brief-go">Got it</button></div>`;
+      const done = () => { b.hidden = true; b.classList.remove('pop'); b.onclick = null; removeEventListener('keydown', key, true); res(); };
       const key = (e) => { if (['Enter', 'Escape', 'Space'].includes(e.code)) { e.preventDefault(); e.stopPropagation(); done(); } };
-      addEventListener('keydown', key, true); $('#brief-go').onclick = done; $('#brief-go').focus();
+      addEventListener('keydown', key, true); $('#brief-go').onclick = $('#brief-x').onclick = done; $('#brief-go').focus();
+      b.onclick = (e) => { if (e.target === b) done(); }; // click outside the card closes it
     });
   }
 
@@ -123,7 +125,7 @@
   // Resolves true to accuse, false to keep investigating (only offered while there is time left).
   function readiness({ canWait }) {
     return new Promise((res) => {
-      const s = strength(), b = $('#brief'); b.hidden = false;
+      const s = strength(), b = $('#brief'); b.hidden = false; b.classList.remove('pop');
       const verdict = s.n >= 5 ? 'Your case is strong. Choose your three proofs carefully.'
         : s.n >= 3 ? 'Your case could hold, if you name the right motive and choose your proofs well.'
           : 'Your case is too weak. The magistrate will almost certainly let your suspect go.';
@@ -148,7 +150,12 @@
 #casepill .warn { color: var(--wine); }
 #toasts { top: 6.9em !important; }
 #brief { position: absolute; inset: 0; z-index: 4; background: rgba(18,11,7,.8); display: grid; place-items: center; }
-#brief .inner { width: 52em; padding: 1.4em 1.8em; }
+#brief .inner { position: relative; width: 52em; padding: 1.4em 1.8em; }
+#brief.pop { background: rgba(18,11,7,.35); } #brief.pop .inner { width: 46em; font-size: .92em; animation: pop-in .22s cubic-bezier(.2,1.3,.4,1) both; }
+@keyframes pop-in { from { transform: scale(.9); opacity: 0; } }
+#brief .x { position: absolute; top: .5em; right: .6em; width: 1.8em; height: 1.8em; border-radius: 50%; border: .12em solid var(--edge); background: #fff8e6; font: 900 1.1em/1 var(--ui); color: var(--ink); cursor: pointer; }
+#btn-brief.blink { animation: bulb 1.1s ease-in-out infinite; }
+@keyframes bulb { 50% { background: #f7d77f; color: #7a2236; border-color: #e0a72e; box-shadow: 0 0 1.1em .35em rgba(247,215,127,.85); } }
 #brief .kick { margin: 0; font: 800 .8em var(--ui); letter-spacing: .14em; text-transform: uppercase; color: var(--wine); }
 #brief h2 { margin: .15em 0 .4em; font: 900 1.9em/1.15 var(--ui); }
 #brief .lede { font: 600 1.08em/1.45 var(--ui); margin: 0 0 .9em; }

@@ -122,7 +122,8 @@
   const mapOpts = () => ({ G, here: E.sceneId, hereName: E.scene?.name,
     canTravel: (id) => G.beat === 'investigation' && !E.lock && !!spawnFor(id),
     travel: (id) => { const sp = spawnFor(id); if (!sp || E.lock) return; document.getElementById('panel-close').click(); L.info('fast travel', { from: E.sceneId, to: id }); E.goto(id, sp); } });
-  document.getElementById('casepill').onclick = () => BOARD.briefing({ again: true });
+  // The case briefing lives behind the blinking bulb (and the case meter): it no longer stops the game.
+  document.getElementById('casepill').onclick = document.getElementById('btn-brief').onclick = () => BOARD.briefing();
   document.getElementById('btn-settings').onclick = () => UI.openPanel('settings', { G, onChange: saveSettings });
 
   // ---------- tutorial hints ----------
@@ -208,7 +209,6 @@
     await E.fadeOut(500);
     window.AUDIO && AUDIO.sfx('reveal');
     await UI.card(['You run after Théo to the sleeping car.', 'Castelli forces the bolt of No. 7.', 'Anton Lazăr is dead in his berth.'], 3000);
-    await BOARD.briefing(); // the goal and the loop, before the player can act (QA: the objective wasn't clear)
     G.beat = 'investigation'; E.beat = 'investigation'; G.clock = toMin('07:20'); BOARD.hud();
     window.AUDIO && AUDIO.music('investigation');
     await E.load('corridor', [700, 500, 'right']); tickClock(); await E.fadeIn(500);
