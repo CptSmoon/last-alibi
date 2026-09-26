@@ -70,6 +70,17 @@ for f in sorted((SRC / 'slices').glob('*-*.png')):
     im = drop_edge_islands(im.resize((round(im.width * 300 / im.height), 300), Image.LANCZOS))
     im.save(OUT / 'sprites' / f'{char}-{pose}.png', optimize=True)
     manifest['sprites'].setdefault(char, []).append(pose)
+# Side views: the generated sheets' "left" and "right" poses don't reliably face those ways (for most of the cast
+# both were swapped, for some both faced right), so a character could never look one way. Keep ONE true
+# right-facing profile per character (checked by eye) and make "left" its exact mirror.
+RIGHT_PROFILE = {'sorel': 'right', 'ferrand': 'left', 'irina': 'left', 'hale': 'left', 'mila': 'left',
+                 'brandt': 'left', 'theo': 'right', 'castelli': 'left', 'cook': 'right'}
+for char, src in RIGHT_PROFILE.items():
+    p = OUT / 'sprites' / f'{char}-{src}.png'
+    if not p.exists(): continue
+    right = Image.open(p).convert('RGBA'); right.load()
+    right.save(OUT / 'sprites' / f'{char}-right.png', optimize=True)
+    right.transpose(Image.FLIP_LEFT_RIGHT).save(OUT / 'sprites' / f'{char}-left.png', optimize=True)
 # seated poses: already sized so the head matches the 300 px standing sprites (art/assets/characters/sit/,
 # keyed and head-matched into slices/<id>-sit.png), so copy them as they are; never renormalise to 300 px
 for f in sorted((SRC / 'slices').glob('*-sit.png')):
