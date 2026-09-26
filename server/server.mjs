@@ -201,7 +201,7 @@ createServer(async (req, res) => {
     if (!res.headersSent) json(res, { error: String(e.message || e) }, 500); else res.end();
   }
 }).listen(PORT, () => {
-  log.info(`Last Stop, Simplon-Orient -> http://localhost:${PORT}`, { brain: GEMINI ? S.brain.model : 'demo only', fallback: S.brain.fallbackModel, voice: GRADIUM ? 'Gradium' : 'off', logLevel: process.env.LOG_LEVEL || 'info' });
+  log.info(`Last Stop, Simplon-Orient -> http://localhost:${PORT}`, { brain: GEMINI ? S.brain.model : 'demo only', fallback: S.brain.fallbackModel, voice: GRADIUM ? 'Gradium' : 'off', tts: GRADIUM ? { model: S.voice?.ttsModel || 'default', speed: S.voice?.gradiumSpeed ?? 0, temp: S.voice?.gradiumTemp ?? 0.7 } : undefined, logLevel: process.env.LOG_LEVEL || 'info' });
   if (!GEMINI) log.warn('GEMINI_API_KEY not set: characters use the scripted demo brain');
   if (!GRADIUM) log.warn('GRADIUM_API_KEY not set: voice is off, typing only');
 });
