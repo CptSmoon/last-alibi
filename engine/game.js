@@ -244,13 +244,19 @@
     E.beat = 'breakfast'; await E.load('dining', [700, 540, 'back']); E.beat = 'investigation';
     E.actors.get('castelli')?.face(E.player); await E.fadeIn(500);
     await E.say('castelli', 'They are all here, Inspector.', 2200);
-    const r = await UI.accuse(G);
+    const r = await UI.accuse(G, { judge: async (b) => {
+      if (!G.server.brain) return null;
+      const res = await fetch((window.API_BASE || '') + '/api/judge', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(b) });
+      if (!res.ok) throw new Error('judge ' + res.status);
+      return res.json();
+    } });
+    L.info('accusation', { who: r.who, motive: r.why, proofs: r.picks, words: r.words });
     const req = CASE.accusation.requires, keys = r.picks.filter((e) => req.evidenceAnyThreeOf.includes(e));
     const verdict = r.who === req.suspect && r.why === req.motive && keys.length >= 3 ? 'solved' : r.who === req.suspect ? 'weak' : 'wrong';
     if (verdict !== 'wrong') { E.actors.get(r.who)?.face(E.player); await E.say(r.who, verdict === 'solved' ? '...Colette. She was nineteen. I am so tired, Inspector.' : 'You cannot prove any of this.', 3000); }
     const all = [...new Set(req.evidenceAnyThreeOf)];
     window.AUDIO && AUDIO.music(verdict === 'solved' ? 'solved' : 'failed', { fade: 1.5 });
-    await UI.ending(G, { verdict, who: r.who, found: all.filter(known), missed: all.filter((e) => !known(e)) });
+    await UI.ending(G, { verdict, who: r.who, remark: r.remark, found: all.filter(known), missed: all.filter((e) => !known(e)) });
     title();
   }
 

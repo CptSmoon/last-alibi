@@ -13,6 +13,7 @@ import { buildSystemInstruction, TOOLS, evidenceMessage, directorNote, CONFESSIO
 import { organize as organizeNotes } from '../server/notes.mjs';
 import { toEnglish } from '../server/english.mjs';
 import { extractClaims } from '../server/claims.mjs';
+import { judge } from '../server/judge.mjs';
 import { logger, reqId } from '../server/log.mjs';
 
 const S = scenario;
@@ -173,6 +174,11 @@ export default {
       if (p === '/api/notes/organize' && req.method === 'POST') {
         if (await limited(env, 'NOTES_LIMIT', ip)) return withCors(json({ error: 'Too many requests, slow down.' }, 429), origin);
         const r = await organizeNotes(S, env.GEMINI_API_KEY, await req.json().catch(() => null), reqId());
+        return withCors(json(r.body, r.status), origin);
+      }
+      if (p === '/api/judge' && req.method === 'POST') {
+        if (await limited(env, 'TALK_LIMIT', ip)) return withCors(json({ error: 'Too many requests, slow down.' }, 429), origin);
+        const r = await judge(S, env.GEMINI_API_KEY, await req.json().catch(() => null), reqId());
         return withCors(json(r.body, r.status), origin);
       }
       if (p === '/api/claims' && req.method === 'POST') {

@@ -196,6 +196,13 @@ button { font-family: var(--ui); }
 .proofs { display: grid; grid-template-columns: repeat(auto-fill, minmax(17em, 1fr)); gap: .5em; max-height: 22em; overflow: auto; }
 .proof { display: flex; align-items: center; gap: .6em; font-size: .95em; } .proof img { width: 2.4em; height: 2.4em; object-fit: contain; }
 .proof.on { background: #dff0d4; border-color: var(--green); }
+.acc-help { font: 700 1.05em var(--ui); margin: 0 0 .6em; text-align: center; }
+.acc-say { display: flex; gap: .6em; align-items: stretch; }
+.acc-say textarea { flex: 1; font: 600 1.1em/1.45 var(--ui); padding: .6em .8em; border: .15em solid var(--edge); border-radius: .45em; background: #fffdf5; color: var(--ink); resize: vertical; }
+.acc-say .pill.on { background: var(--red); color: #fff; }
+.acc-held { display: flex; flex-wrap: wrap; gap: .35em; align-items: center; margin-top: .7em; font: 700 .85em var(--ui); color: var(--muted); }
+.acc-held .chipx { font: 700 .95em var(--ui); background: #fff8e6; border: .12em dashed var(--edge); border-radius: 1em; padding: .2em .7em; cursor: pointer; color: var(--ink); } .acc-held .chipx:hover { border-style: solid; background: #fff; }
+#acc-note { font: 700 .95em var(--ui); color: var(--muted); }
 .accbar { display: flex; justify-content: space-between; align-items: center; margin-top: .8em; font: 800 1em var(--ui); }
 .go { font: 900 1.1em var(--ui); padding: .6em 1.6em; background: var(--red); color: #fff; border: .15em solid #7a1a14; border-radius: .4em; cursor: pointer; } .go:disabled { opacity: .4; cursor: default; }
 

@@ -7,6 +7,13 @@
   const itemSrc = (id) => `game-assets/items/${id}.png`;
   const KIND = { fact: 'Noted', testimony: 'Testimony', observation: 'Seen', physical: 'Item', document: 'Document' };
 
+  // Without the server (scripted mode), the accusation words are read with plain keywords.
+  const MOTIVE_WORDS = { m_passy: /passy|patient|colette|clinic|nurse|girl|certificate|1927|blackmail/i, m_letters: /letter|love/i, m_cards: /card|gambl|cheat|debt|piquet/i, m_oil: /oil|bribe|concession/i, m_passport: /passport/i, m_robbery: /rob|steal|theft|money/i };
+  function localJudge(G, words, held) {
+    const motive = Object.keys(MOTIVE_WORDS).find((k) => MOTIVE_WORDS[k].test(words.why)) || null, t = words.proof.toLowerCase();
+    const proofs = held.filter((id) => G.EV[id].name.replace(/^[^:]+: /, '').toLowerCase().split(/[^a-zà-ÿ]+/).some((w) => w.length > 4 && t.includes(w)));
+    return { motive, proofs, remark: '' };
+  }
   const UI = {
     // stage scale: 1em = stage width / 86
     fit() {
@@ -168,31 +175,52 @@
     hideMenu() { $('#menu').hidden = true; },
 
     // ---- accusation: who, why, three proofs ----
-    accuse(G) {
+    accuse(G, o = {}) {
       return new Promise((resolve) => {
-        const a = $('#accuse'); a.hidden = false; let who = null, why = null; const picks = new Set();
+        const a = $('#accuse'); a.hidden = false; let who = null; const words = { why: '', proof: '' };
+        const voiceOn = () => G.settings.brain === 'live' && G.settings.voice && G.server.voice && window.VOICE && VOICE.Listener;
         const step = (n) => {
           const body = $('#acc-body');
           if (n === 0) {
             $('#acc-title').textContent = 'Who killed Anton Lazăr?';
             body.innerHTML = `<div class="suspects">${CASE.accusation.suspects.map((id) => `<button class="sus" data-id="${id}"><img src="game-assets/portraits/${id}-0.webp" alt=""><b>${esc(G.names[id])}</b></button>`).join('')}</div>`;
             body.querySelectorAll('.sus').forEach((b) => (b.onclick = () => { who = b.dataset.id; step(1); }));
-          } else if (n === 1) {
-            $('#acc-title').textContent = `Why did ${G.names[who]} do it?`;
-            body.innerHTML = `<div class="motives">${CASE.accusation.motives.map((m) => `<button class="mot" data-id="${m.id}">${esc(m.label)}</button>`).join('')}</div><button class="back">Back</button>`;
-            body.querySelectorAll('.mot').forEach((b) => (b.onclick = () => { why = b.dataset.id; step(2); }));
-            body.querySelector('.back').onclick = () => step(0);
-          } else {
-            $('#acc-title').textContent = 'Prove it: choose three';
-            const all = [...G.items, ...G.notes];
-            body.innerHTML = `<div class="proofs">${all.map((id) => `<button class="proof" data-id="${id}">${G.EV[id].take ? `<img src="${itemSrc(id)}" alt="">` : ''}<span>${esc(G.EV[id].name)}</span></button>`).join('') || '<p class="empty">You have no proof at all.</p>'}</div>
-              <div class="accbar"><button class="back">Back</button><span id="acc-count">0 of 3 chosen</span><button class="go" disabled>Accuse</button></div>`;
-            body.querySelectorAll('.proof').forEach((b) => (b.onclick = () => {
-              const id = b.dataset.id; if (picks.has(id)) picks.delete(id); else if (picks.size < 3) picks.add(id);
-              b.classList.toggle('on', picks.has(id)); $('#acc-count').textContent = `${picks.size} of 3 chosen`; body.querySelector('.go').disabled = picks.size !== 3;
-            }));
-            body.querySelector('.back').onclick = () => step(1);
-            body.querySelector('.go').onclick = () => { a.hidden = true; resolve({ who, why, picks: [...picks] }); };
+          } else if (n === 1 || n === 2) {
+            // Motive and proofs are said or typed, in the inspector's own words; the magistrate (the AI) reads them.
+            const why1 = n === 1, held = [...G.items, ...G.notes];
+            $('#acc-title').textContent = why1 ? `Why did ${G.names[who]} do it?` : `Prove it: what points to ${G.names[who]}?`;
+            body.innerHTML = `<p class="acc-help">${why1 ? 'Say it or type it: what drove them to kill?' : 'Say it or type it: name at least <b>three</b> things you found that prove it.'}</p>
+              <div class="acc-say"><textarea id="acc-text" rows="3" placeholder="${why1 ? 'He killed him because…' : 'The needle mark, …'}">${esc(why1 ? words.why : words.proof)}</textarea>
+              ${voiceOn() ? '<button class="pill" id="acc-mic" title="Click, speak, click again">🎙 Speak</button>' : ''}</div>
+              ${why1 ? '' : `<div class="acc-held"><span>What you hold (click to add):</span>${held.length ? held.map((id) => `<button class="chipx" data-id="${id}">${esc(G.EV[id].name.replace(/^[^:]+: /, ''))}</button>`).join('') : '<em>Nothing. Your case rests on words alone.</em>'}</div>`}
+              <div class="accbar"><button class="back">Back</button><span id="acc-note"></span><button class="go" id="acc-next">${why1 ? 'Next' : 'Accuse'}</button></div>`;
+            const ta = $('#acc-text'); ta.focus(); ta.addEventListener('keydown', (e) => e.stopPropagation());
+            const keep = () => { if (why1) words.why = ta.value; else words.proof = ta.value; };
+            body.querySelectorAll('.chipx').forEach((b) => (b.onclick = () => { ta.value = (ta.value.trim() ? ta.value.trim().replace(/[.,;]?$/, ', ') : '') + G.EV[b.dataset.id].name.replace(/^[^:]+: /, '').toLowerCase(); keep(); ta.focus(); }));
+            const mic = $('#acc-mic'); let L = null, base = '';
+            const micStop = async (cancel) => { if (!L) return; const l = L; L = null; mic.classList.remove('on'); mic.textContent = '🎙 Speak'; if (cancel) return l.cancel(); const t = await l.stop().catch(() => ''); if (t) ta.value = (base + t).trim(); keep(); };
+            if (mic) mic.onclick = async () => {
+              if (L) return micStop();
+              base = ta.value.trim() ? ta.value.trim() + ' ' : ''; L = new VOICE.Listener({ partial: (t) => (ta.value = base + t) });
+              mic.classList.add('on'); mic.textContent = '■ Stop';
+              try { await L.start(); } catch (_) { L = null; mic.classList.remove('on'); mic.textContent = '🎙 Speak'; UI.toast('Microphone unavailable. Type it instead.'); }
+            };
+            const off = () => micStop(true); addEventListener('blur', off, { once: true });
+            body.querySelector('.back').onclick = async () => { await micStop(true); keep(); step(n - 1); };
+            $('#acc-next').onclick = async () => {
+              await micStop(); keep();
+              if (!ta.value.trim()) { $('#acc-note').textContent = why1 ? 'Say why first.' : 'Name your proof first.'; return; }
+              if (why1) return step(2);
+              $('#acc-next').disabled = true; $('#acc-note').textContent = 'The magistrate is reading your case…';
+              const r = await (o.judge ? o.judge({ suspect: who, motive: words.why, proofs: words.proof, held }) : null).catch(() => null) || localJudge(G, words, held);
+              // Fewer than three proofs recognised: say which ones counted, once, and let them add more or insist.
+              if (r.proofs.length < 3 && words.warned !== words.proof) {
+                words.warned = words.proof; $('#acc-next').disabled = false; $('#acc-next').textContent = 'Accuse anyway';
+                $('#acc-note').innerHTML = `The magistrate counts <b>${r.proofs.length}</b> proof${r.proofs.length === 1 ? '' : 's'}${r.proofs.length ? ': ' + r.proofs.map((id) => esc(G.EV[id].name.replace(/^[^:]+: /, ''))).join(', ') : ''}. Name three things you found.`;
+                return;
+              }
+              a.hidden = true; resolve({ who, why: r.motive, picks: r.proofs, remark: r.remark, words });
+            };
           }
         };
         step(0);
@@ -205,7 +233,7 @@
         weak: R.who === 'ferrand' ? "Dr Ferrand was taken off the train at Domodossola, but the magistrate says the inspector's case leaves too many questions: the motive, or the proofs, did not hold up. He may walk free." : "The magistrate says the inspector's case leaves too many questions. The suspect may walk free.",
         wrong: `The carabinieri took ${G.names[R.who] || 'a passenger'} off the train. A quiet French doctor continued to Belgrade. Lazăr's heart, he said, simply stopped.` }[R.verdict];
       $('#end-head').textContent = H[0]; $('#end-body').textContent = body;
-      $('#end-found').innerHTML = `Key proofs found: <b>${R.found.length} of ${R.found.length + R.missed.length}</b>` + (R.missed.length ? `<br>Missed: ${R.missed.map((m) => esc(G.EV[m].name)).join(', ')}` : '');
+      $('#end-found').innerHTML = (R.remark ? `<i>The magistrate: “${esc(R.remark)}”</i><br>` : '') + `Key proofs found: <b>${R.found.length} of ${R.found.length + R.missed.length}</b>` + (R.missed.length ? `<br>Missed: ${R.missed.map((m) => esc(G.EV[m].name)).join(', ')}` : '');
       return new Promise((r) => ($('#end-again').onclick = () => { e.hidden = true; r(); }));
     },
   };

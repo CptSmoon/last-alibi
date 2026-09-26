@@ -78,6 +78,20 @@ Returns a short-lived, **single-use** Gradium token for one WebSocket (STT or TT
 
 `503` if `GRADIUM_API_KEY` is missing; `502` if Gradium refuses.
 
+## `POST /api/judge`
+
+The accusation's motive and proofs are spoken or typed. The magistrate maps the player's words to a motive id
+(or `null`) and to evidence ids, **only among the evidence the player holds** (`held`). The verdict stays
+deterministic in `engine/game.js`: right suspect + right motive + 3 key proofs.
+
+```json
+{ "suspect": "ferrand", "motive": "Lazar blackmailed him about the girl who died at his clinic", "proofs": "the needle mark, the ampoule tip, his wet shoes", "held": ["e_puncture", "e_ampoule_tip", "e_wet_shoes"] }
+-> { "motive": "m_passy", "proofs": ["e_puncture", "e_ampoule_tip", "e_wet_shoes"], "remark": "You have laid out your points with notable clarity, Inspector." }
+```
+
+Gemini (`brain.model`, then the fallback), JSON schema with enums, temperature 0, about 1.5 s. Without the server,
+`engine/ui.js` falls back to keywords. Shares `TALK_LIMIT` on the Worker.
+
 ## `POST /api/claims`
 
 Turns one answer a character just gave into structured claims, for the notebook's **Statements** tab and the
