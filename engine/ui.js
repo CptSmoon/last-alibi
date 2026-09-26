@@ -20,10 +20,17 @@
       const s = $('#stage'), r = Math.min(innerWidth / 1376, innerHeight / 768);
       s.style.width = 1376 * r + 'px'; s.style.height = 768 * r + 'px'; s.style.fontSize = (1376 * r) / 86 + 'px';
     },
-    place(name) { $('#place').textContent = name; },
-    clock(s, urgent) { $('#clock').textContent = s; $('#clock').classList.toggle('urgent', !!urgent); },
+    // The room name arrives large, then settles into a small caption so the top of the screen stays calm.
+    place(name) { const el = $('#place'); el.textContent = name; el.classList.remove('mini'); clearTimeout(el._t); el._t = setTimeout(() => el.classList.add('mini'), 3200); },
+    // "07:22|relief 10:00": the time, and an optional small second line.
+    clock(s, urgent) { const [t, sub] = String(s).split('|'); $('#clock').innerHTML = esc(t) + (sub ? `<small>${esc(sub)}</small>` : ''); $('#clock').classList.toggle('urgent', !!urgent); },
     hud(on) { $('#hud').hidden = !on; },
-    hint(text) { const h = $('#hint'); h.hidden = !text; if (text) h.innerHTML = text; },
+    // A hint appears when it's new, stays ~7 s, then fades away; it only comes back when the next step changes.
+    hint(text) {
+      const h = $('#hint'), now = performance.now();
+      if (text !== UI._hintText) { UI._hintText = text; UI._hintAt = now; if (text) { h.innerHTML = text; h.classList.remove('gone'); } }
+      const old = text && now - UI._hintAt > 7000; h.classList.toggle('gone', !!old); h.hidden = !text || (old && now - UI._hintAt > 7600);
+    },
     toast(text, icon, tone = 'note') {
       const t = document.createElement('div'); t.className = 'toast ' + tone;
       t.innerHTML = (icon ? `<img src="${itemSrc(icon)}" alt="">` : '') + `<span>${esc(text)}</span>`;

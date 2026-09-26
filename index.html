@@ -1,5 +1,9 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Last Alibi</title>
+<link rel="icon" type="image/png" sizes="32x32" href="game-assets/ui/icon-32.png">
+<link rel="icon" type="image/png" sizes="64x64" href="game-assets/ui/icon-64.png">
+<link rel="icon" href="game-assets/ui/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="game-assets/ui/icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800;900&family=Pixelify+Sans:wght@600&family=Caveat:wght@600;700&display=swap">
 <style>
@@ -31,6 +35,15 @@ button { font-family: var(--ui); }
 #place::before { left: 1.2em; } #place::after { right: 1.2em; }
 #clock { position: absolute; right: 1em; top: .9em; padding: .5em 1em; font: 800 1.15em var(--ui); font-variant-numeric: tabular-nums; }
 #clock.urgent { color: var(--red); }
+/* Declutter (QA: too many elements on top): smaller buttons, no map button (the mini-map and M open the map),
+   the room name shrinks to a caption after entry, a lighter hint, the clock's deadline as a second line,
+   and a compact case meter (dots and count only). */
+.btns { gap: .35em; } .btns .sq { width: 2.85em; height: 2.85em; } .btns .sq svg { width: 1.15em; } #btn-map { display: none; }
+#place { transition: font-size .35s, padding .35s, opacity .35s, top .35s; } #place.mini { font-size: .78em; padding: .35em 1.8em; top: 1.15em; opacity: .9; }
+#place.mini ~ #hint { top: 3.3em; } #hint { transition: top .35s; font-size: .86em !important; background: rgba(245,234,208,.86) !important; }
+#clock { text-align: right; line-height: 1.05; padding: .4em .85em; } #clock small { display: block; font: 700 .52em var(--ui); color: var(--muted); letter-spacing: .02em; }
+#hint.gone { opacity: 0; transition: opacity .6s, top .35s; }
+#hud #casepill { top: 4.7em; font-size: .78em; padding: .25em .65em; gap: .35em; } #hud #casepill .lab { display: none; } #hud #casepill .dots i { width: .55em; height: .55em; }
 #hint { position: absolute; left: 50%; top: 4.9em; transform: translateX(-50%); padding: .45em 1.1em; font: 700 1em var(--ui); white-space: nowrap; background: rgba(245,234,208,.95); }
 #toasts { position: absolute; right: 1em; top: 4.6em; display: grid; gap: .5em; justify-items: end; pointer-events: none; }
 .toast { display: flex; align-items: center; gap: .6em; padding: .45em .9em .45em .6em; font: 700 .95em var(--ui); animation: tin .3s ease-out; transition: opacity .5s, transform .5s;

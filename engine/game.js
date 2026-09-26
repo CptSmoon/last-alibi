@@ -43,7 +43,7 @@
     G.clock += min; tickClock();
     if (G.beat === 'investigation' && G.clock >= toMin('10:00') && !G.flags.gathering) { UI.toast('10:00. The relief train whistles.', null, 'alert'); gather(true); }
   }
-  const tickClock = () => UI.clock(fmt(G.clock) + (G.beat === 'investigation' ? '  ·  relief at 10:00' : ''), G.beat === 'investigation' && G.clock >= toMin('09:30'));
+  const tickClock = () => UI.clock(fmt(G.clock) + (G.beat === 'investigation' ? '|relief at 10:00' : ''), G.beat === 'investigation' && G.clock >= toMin('09:30'));
 
   // ---------- dialogue ----------
   const talk = DIALOGUE.create(G, {
