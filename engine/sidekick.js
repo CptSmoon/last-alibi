@@ -56,7 +56,10 @@
   function greet() {
     const s = st();
     if (s.greetReport) { const r = s.greetReport; s.greetReport = null; return r; }
-    if (GG().beat === 'alarm') return (GG().settings.playerName ? `Inspector ${GG().settings.playerName}!` : 'Inspector!') + ' The envoy, Signor Lazăr, is dead in compartment 7. The door was bolted from the inside; we had to force it.';
+    // His first words also introduce him (user request, 26 Sept): he's your assistant, and the portrait button
+    // (bottom right, shown and glowing during this conversation) calls him from anywhere.
+    if (GG().beat === 'alarm') return (GG().settings.playerName ? `Inspector ${GG().settings.playerName}!` : 'Inspector!') + ' The envoy, Signor Lazăr, is dead in compartment 7. The door was bolted from the inside; we had to force it.'
+      + ' From now on I am your assistant. Whenever you need me, press my portrait at the bottom right of your screen, and I come.';
     if (!s.met) { s.met = true; return 'Inspector, I am at your service. I can fetch someone for you, search a room, or go and ask someone a question. Or we think it through together.'; }
     return s.reports.length ? 'Inspector? Shall I go somewhere else for you?' : 'Inspector. What can I do?';
   }
@@ -198,8 +201,8 @@
   btn.innerHTML = '<img src="game-assets/portraits/castelli-0.webp" alt=""><span class="k">C</span><span class="st"></span>';
   (document.getElementById('stage') || document.body).appendChild(btn);
   function hud() {
-    const g = GG(), on = !!g && g.beat === 'investigation';
-    btn.hidden = !on; if (!on) return;
+    const g = GG(), on = !!g && (g.beat === 'investigation' || g.beat === 'alarm');
+    btn.hidden = !on; btn.classList.toggle('intro', !!g && g.beat === 'alarm'); if (!on) return;
     const e = st().errand;
     btn.classList.toggle('away', !!e);
     btn.querySelector('.st').textContent = e ? (e.kind === 'fetch' ? 'fetching ' + short(e.person) : e.kind === 'search' ? 'searching' : 'asking ' + short(e.person)) : '';
@@ -207,6 +210,7 @@
   // He comes to you (if he isn't already beside you) and the conversation opens. He then stays in that room.
   function summon() {
     const g = GG(), E = EE(), T = GAME.talk.state;
+    if (g && g.beat === 'alarm' && !E.lock && !T.open) { GAME.talk.open('castelli'); return; }   // he's already beside you
     if (!g || g.beat !== 'investigation' || E.lock || T.open) return;
     if (away()) { UI.toast(`Castelli is out ${btn.querySelector('.st').textContent}. He'll be back soon.`, null, 'note'); return; }
     const c = E.actors.get('castelli'), p = E.player;
@@ -231,8 +235,10 @@
   #castelli-btn .k { position: absolute; left: -.3em; top: -.3em; font: 900 .85em var(--ui); background: #fff8e6; color: var(--ink); border: .12em solid var(--edge); border-radius: .35em; padding: 0 .35em; }
   #castelli-btn .st { position: absolute; left: 50%; bottom: -1.5em; transform: translateX(-50%); white-space: nowrap; font: 800 .8em var(--ui); color: #f5ead0; text-shadow: 0 .1em .3em #000; }
   #castelli-btn.away img { filter: grayscale(1) brightness(.6); } #castelli-btn.away { border-style: dashed; animation: none; }
-  #dialog:not([hidden]) ~ #castelli-btn, #castelli-btn.hide-talk { display: none; }`;
+  #dialog:not([hidden]) ~ #castelli-btn:not(.intro), #castelli-btn.hide-talk { display: none; }
+  #castelli-btn.intro { animation: castelli-intro 1.1s ease-in-out infinite; }
+  @keyframes castelli-intro { 50% { transform: scale(1.1); box-shadow: 0 .3em .8em rgba(0,0,0,.45), 0 0 1.2em .5em rgba(247,215,127,.9); } }`;
   document.head.appendChild(css);
 
-  window.SIDEKICK = { active, handles, offline, away, greet, ask, run, chips, file, hud, summon };
+  window.SIDEKICK = { active, handles, offline, away, greet, ask, run, chips, file, hud, summon, hide: () => { btn.hidden = true; } };
 })();

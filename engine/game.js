@@ -212,7 +212,7 @@
   }
   async function opening() {
     const r = ++run; skipBtn.hidden = false;
-    UI.hideMenu(); UI.hud(false);
+    UI.hideMenu(); UI.hud(false); window.SIDEKICK && SIDEKICK.hide();
     window.AUDIO && AUDIO.music(null);
     E.beat = null; E.scene = null;
     if (await playFilm()) {
@@ -267,6 +267,7 @@
     ['irina', 'ferrand', 'hale', 'mila', 'brandt'].forEach((id) => E.actors.get(id)?.face(c));
     await E.wait(250); E.clearBubbles();
     G.beat = 'alarm'; E.lock = false; skipBtn.hidden = true;
+    window.SIDEKICK && SIDEKICK.hud();                  // his portrait button appears (glowing) as he introduces it
     talk.open('castelli');                              // he tells you; you answer (chips, typing or voice)
     await new Promise((res) => (G.flags.onLead = res)); if (r !== run) return;
     await E.fadeOut(500);
@@ -326,7 +327,7 @@
     G.items = []; G.notes = []; G.found = new Set(); G.flags = {}; G.beat = null; resetPer(); window.NOTES && NOTES.reset(); window.BOARD && BOARD.reset(); opening();
   }
   function title() {
-    run++; skipBtn.hidden = true; UI.hud(false); E.scene = null; E.player = null; window.AUDIO && (AUDIO.music('title'), AUDIO.ambience(false));
+    run++; skipBtn.hidden = true; UI.hud(false); window.SIDEKICK && SIDEKICK.hide(); E.scene = null; E.player = null; window.AUDIO && (AUDIO.music('title'), AUDIO.ambience(false));
     UI.menu([['Play', chooseCase], ['Settings', () => UI.openPanel('settings', { G, onChange: saveSettings })]],
       'A murder mystery game · more cases coming soon');
   }
