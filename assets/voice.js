@@ -275,10 +275,11 @@
       if (this.ws && this.ws.readyState <= 1) {
         await new Promise((res) => {
           let flushed = false; this.resolveFlush = () => { flushed = true; res(); };
-          // Flush alone drops the last word: the model holds back ~800 ms (delay_in_frames 10) waiting for
-          // context. One second of silence first lets it finish the sentence (measured 2026-09-26).
+          // Flush alone drops the last word: the model holds back its last words waiting for context. Half a second
+          // of silence first lets it finish the sentence. Measured 26 Sept on clips cut right at the last sound:
+          // 0.33 s lost "o'clock", 0.5 s kept every word and answers ~200 ms sooner than the 1 s we used before.
           const silence = JSON.stringify({ type: 'audio', audio: b64FromF32(new Float32Array(2000)) });
-          const tail = [...Array(12).fill(silence), JSON.stringify({ type: 'flush', flush_id: 1 })];
+          const tail = [...Array(6).fill(silence), JSON.stringify({ type: 'flush', flush_id: 1 })];
           if (this.open) tail.forEach((m) => this.ws.send(m)); else this.queue.push(...tail);
           setTimeout(() => { if (flushed) return; log.warn('stt flush timed out, using partial text'); res(); }, 2500);
         });

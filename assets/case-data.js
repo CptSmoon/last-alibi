@@ -1644,6 +1644,7 @@ window.CASE = {
  },
  "brain": {
   "provider": "gemini",
+  "talkModel": "gemini-3.5-flash-lite",
   "model": "gemini-3.8-flash",
   "thinkingLevel": "low",
   "fallbackModel": "gemini-3.5-flash-lite"

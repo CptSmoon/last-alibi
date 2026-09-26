@@ -96,7 +96,9 @@ async function talk(b, env) {
     const unlockOf = Object.fromEntries(c.secrets.map((x) => [x.id, x.unlocks]));
     const newTurns = [{ role: 'user', parts: [{ text: say }] }];
     const system = buildSystemInstruction(S, c.id, ch.id, now);
-    const models = [S.brain.model, S.brain.fallbackModel].filter(Boolean);
+    // Interviews use brain.talkModel first (the lite model: first words in ~0.6 s; its missing tool calls are covered
+    // by server/reveals.mjs), then brain.model (thinking 'low', reliable tools) if it fails.
+    const models = [...new Set([S.brain.talkModel, S.brain.model, S.brain.fallbackModel].filter(Boolean))];
     try {
       for (let round = 0; round < 3; round++) {
         let parts = [], calls = [];
