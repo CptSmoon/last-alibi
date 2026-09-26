@@ -44,7 +44,8 @@
     if (n) {
       const o = byId(found[0].a);
       window.AUDIO && AUDIO.sfx('sting');
-      UI.toast(`Contradiction: ${short(o.speaker)} and ${short(claim.speaker)} disagree about ${nameOf(claim.about)}`, null, 'alert');
+      UI.toast(o.speaker === claim.speaker ? `Contradiction: ${short(claim.speaker)} just changed their story about ${claim.about === claim.speaker ? 'where they were' : nameOf(claim.about)}`
+        : `Contradiction: ${short(o.speaker)} and ${short(claim.speaker)} disagree about ${nameOf(claim.about)}`, null, 'alert');
       log.info('contradiction', { a: o.id, b: claim.id });
     } else UI.toast('Statement noted: ' + claim.text, null, 'note');
     hud();
