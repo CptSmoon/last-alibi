@@ -1,6 +1,6 @@
 // Quick notes: the inspector's own jottings, and a secretary that tidies them.
 // - N (or the pencil button) opens a small parchment input anywhere; in a conversation use Alt+N (or Ctrl+N)
-//   or the "Note" button. Enter saves, Esc cancels. Click the mic button to dictate and again to stop (or Space while the note is still
+//   or the "Note" button. Enter saves, Esc cancels. Hold the mic button to dictate, or tap it to start and again to stop (Space works the same while the note is still
 //   empty) to dictate, when Gradium voice is on.
 // - Each note keeps the game clock, the room, and who you were talking to. Stored in localStorage
 //   ('simplon-notes'), cleared by a new game.
@@ -161,11 +161,13 @@
 `;
     document.head.appendChild(css);
     pop = document.createElement('div'); pop.id = 'qnote'; pop.className = 'parch'; pop.hidden = true;
-    pop.innerHTML = `<div class="qmeta" id="qn-meta"></div><div class="qrow"><button id="qn-mic" class="pill" title="Click to dictate, click again to stop (or Space while the note is empty)">🎙</button><input id="qn-input" class="note-input" maxlength="${MAX_CHARS}" placeholder="Jot it down…" autocomplete="off"><button id="qn-save" class="pill">Save</button></div><div class="qhelp"><kbd>Enter</kbd> save · <kbd>Esc</kbd> cancel</div>`;
+    pop.innerHTML = `<div class="qmeta" id="qn-meta"></div><div class="qrow"><button id="qn-mic" class="pill" title="Hold to dictate (or hold Space while the note is empty). A quick tap keeps listening until you tap again">🎙</button><input id="qn-input" class="note-input" maxlength="${MAX_CHARS}" placeholder="Jot it down…" autocomplete="off"><button id="qn-save" class="pill">Save</button></div><div class="qhelp"><kbd>Enter</kbd> save · <kbd>Esc</kbd> cancel</div>`;
     $('#stage').appendChild(pop);
     popIn = $('#qn-input'); popMic = $('#qn-mic');
     $('#qn-save').onclick = () => commit();
-    popMic.addEventListener('click', (e) => { e.preventDefault(); listening ? micUp() : micDown(); });   // a toggle, not hold-to-talk
+    // push-to-talk: hold to dictate and let go; a quick tap keeps listening until the next tap
+    popMic.addEventListener('pointerdown', (e) => { e.preventDefault(); press(); });
+    addEventListener('pointerup', () => release());
     const btn = $('#btn-note'); if (btn) btn.onclick = () => open();
     const dbtn = $('#dlg-note'); if (dbtn) dbtn.onclick = () => open();
   }
@@ -185,6 +187,10 @@
     close();
     if (n) window.UI && UI.toast(`Note saved · ${n.clock || ''}`, null, 'note');
   }
+  let pressAt = 0, pressStarted = false;
+  function press() { pressAt = performance.now(); if (listening) { pressStarted = false; micUp(); } else { pressStarted = true; micDown(); } }
+  function release() { if (!pressStarted) return; pressStarted = false; if (listening && performance.now() - pressAt > 350) micUp(); }
+  addEventListener('keyup', (e) => { if (e.code === 'Space' && e.target === popIn) release(); }, true);
   async function micDown() {
     if (!voiceOn() || listening) return;
     listening = true; pop.classList.add('listening'); dictBase = popIn.value ? popIn.value.trim() + ' ' : '';
@@ -219,8 +225,7 @@
       if (t === popIn) {
         if (e.key === 'Enter') { e.preventDefault(); commit(); }
         else if (e.key === 'Escape') { e.preventDefault(); close(); }
-        else if (e.code === 'Space' && listening) { e.preventDefault(); if (!e.repeat) micUp(); }
-        else if (e.code === 'Space' && !popIn.value && voiceOn()) { e.preventDefault(); if (!e.repeat) micDown(); }
+        else if (e.code === 'Space' && (listening || (!popIn.value && voiceOn()))) { e.preventDefault(); if (!e.repeat) press(); }
       } else if (e.key === 'Enter') { e.preventDefault(); t.dispatchEvent(new Event('commit')); }
       else if (e.key === 'Escape') { e.preventDefault(); t.blur(); }
       return;

@@ -1112,7 +1112,7 @@
         "style": "Smooth, amused, unhurried. Purrs his threats. Rolls his r's. Enjoys long pauses.",
         "gradium": "nlYB3lceu4gwj9Eu",
         "gradiumName": "Graham",
-        "gradiumSpeed": -0.5
+        "gradiumSpeed": -0.25
       },
       "look": {
         "skin": "#e2b48a",
@@ -1199,7 +1199,7 @@
         "style": "Warm, measured, reassuring bedside manner. A little too reasonable. Pauses to choose words.",
         "gradium": "HtgP9v8SoWbq_jxi",
         "gradiumName": "Rémi",
-        "gradiumSpeed": -0.7
+        "gradiumSpeed": -0.35
       },
       "look": {
         "skin": "#f0d9c4",
@@ -1319,7 +1319,7 @@
         "style": "Low, mature, Viennese elegance, cold on the surface, cracks under emotion.",
         "gradium": "7c5UOKm7AiBgJADg",
         "gradiumName": "Holly",
-        "gradiumSpeed": -0.8
+        "gradiumSpeed": -0.4
       },
       "look": {
         "skin": "#f5cfae",
@@ -1427,7 +1427,7 @@
         "style": "Firm, clipped, hearty British officer. Barks. Warm underneath.",
         "gradium": "sCOIUHZRnsz0oPUp",
         "gradiumName": "British Narrator",
-        "gradiumSpeed": -1.2
+        "gradiumSpeed": -0.6
       },
       "look": {
         "skin": "#dfa47c",
@@ -1535,7 +1535,7 @@
         "style": "Breezy, husky, quick; drops into fear quickly. Slight Croatian accent.",
         "gradium": "ubuXFxVQwVYnZQhy",
         "gradiumName": "Eva",
-        "gradiumSpeed": -1.2,
+        "gradiumSpeed": -0.6,
         "gradiumTemp": 0.9
       },
       "look": {
@@ -1656,7 +1656,7 @@
         "style": "Even, controlled, businesslike German accent. Irritated when not in control.",
         "gradium": "3jUdJyOi9pgbxBTK",
         "gradiumName": "Arthur",
-        "gradiumSpeed": -1.0,
+        "gradiumSpeed": -0.5,
         "gradiumTemp": 0.7
       },
       "look": {
@@ -1774,7 +1774,7 @@
         "style": "Friendly, quick Parisian working-class voice. Eager to please; guilty when pressed.",
         "gradium": "dME3IWyZBvmh1n1q",
         "gradiumName": "Toby",
-        "gradiumSpeed": -1.2
+        "gradiumSpeed": -0.6
       },
       "look": {
         "skin": "#dfa47c",
@@ -1907,7 +1907,7 @@
         "style": "Gravelly, big-hearted Italian railwayman. Loud, practical, sighs a lot.",
         "gradium": "-0MuXG9RcCsuSVtb",
         "gradiumName": "Austin",
-        "gradiumSpeed": -0.9,
+        "gradiumSpeed": -0.45,
         "gradiumTemp": 0.9
       },
       "look": {
@@ -1976,7 +1976,7 @@
         "style": "Warm, fast, excitable Italian cook with a thick accent. Grumbles and sighs, laughs easily; talks even faster when he feels guilty.",
         "gradium": "n7vovxcDTVG4gClo",
         "gradiumName": "Diego",
-        "gradiumSpeed": -1.1,
+        "gradiumSpeed": -0.55,
         "gradiumTemp": 0.85
       },
       "look": {
@@ -2589,7 +2589,7 @@
     "sttLanguage": "en",
     "ttsFormat": "pcm_24000",
     "ttsModel": "gradium-tts-beta",
-    "gradiumSpeed": -1.0,
+    "gradiumSpeed": -0.5,
     "gradiumTemp": 0.8
   },
   "flow": [

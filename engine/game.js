@@ -21,11 +21,13 @@
 
   const G = {
     names: NAMES, roles: ROLES, EV, beat: null, clock: toMin('07:00'), items: [], notes: [], found: new Set(), per: {},
-    settings: { brain: 'scripted', voice: true, sound: true, music: true, musicVol: 0.7, sfxVol: 0.8, speechRate: 1.15 }, server: { brain: false, voice: false }, flags: {},
+    settings: { brain: 'scripted', voice: true, sound: true, music: true, musicVol: 0.7, sfxVol: 0.8, speechRate: 1 }, server: { brain: false, voice: false }, flags: {},
     canGather: () => G.beat === 'investigation',
   };
   try { Object.assign(G.settings, JSON.parse(localStorage.getItem('simplon-settings') || '{}')); } catch (_) {}
   const saveSettings = () => { try { localStorage.setItem('simplon-settings', JSON.stringify(G.settings)); } catch (_) {} VOICE.player.rate = G.settings.speechRate || 1; };
+  // The 1.15x playback default was too fast (and raised the pitch): reset it once for players who had it saved.
+  if (!G.settings.rateV2) { if (G.settings.speechRate === 1.15) G.settings.speechRate = 1; G.settings.rateV2 = true; try { localStorage.setItem('simplon-settings', JSON.stringify(G.settings)); } catch (_) {} }
   VOICE.player.rate = G.settings.speechRate || 1;
   const resetPer = () => { for (const c of CASE.characters) G.per[c.id] = { mood: 'calm', trust: 2, shown: new Set(), revealed: new Set(), done: false, history: {}, lines: [] }; };
   const known = (id) => G.items.includes(id) || G.notes.includes(id);
