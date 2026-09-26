@@ -4,7 +4,33 @@ Needs art/assets/ (tools/gen-assets.mjs) and the cut-outs in art/assets/slices/ 
 """
 from pathlib import Path
 from PIL import Image
+from collections import deque
 import json
+
+
+def drop_edge_islands(im):
+    """Remove pixel islands that are cut off from the body and touch the left or right edge: bits of the
+    neighbouring pose left over from slicing the sprite sheet. In game they flickered beside a walking character
+    (a thin line next to the inspector, Castelli's broken walk; 26 Sept)."""
+    w, h = im.size; a = im.getchannel('A').load(); px = im.load()
+    seen = [[False] * h for _ in range(w)]; islands = []
+    for x in range(w):
+        for y in range(h):
+            if a[x, y] > 40 and not seen[x][y]:
+                q = deque([(x, y)]); seen[x][y] = True; pts = []
+                while q:
+                    cx, cy = q.popleft(); pts.append((cx, cy))
+                    for dx in (-1, 0, 1):
+                        for dy in (-1, 0, 1):
+                            nx, ny = cx + dx, cy + dy
+                            if 0 <= nx < w and 0 <= ny < h and not seen[nx][ny] and a[nx, ny] > 40:
+                                seen[nx][ny] = True; q.append((nx, ny))
+                islands.append(pts)
+    islands.sort(key=len, reverse=True)
+    for pts in islands[1:]:
+        if min(x for x, _ in pts) <= 1 or max(x for x, _ in pts) >= w - 2:
+            for x, y in pts: px[x, y] = (0, 0, 0, 0)
+    return im
 
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / 'art' / 'assets'
@@ -41,7 +67,7 @@ for f in sorted((SRC / 'slices').glob('*-*.png')):
     if pose not in POSES: continue
     im = Image.open(f).convert('RGBA'); bb = im.getchannel('A').point(lambda v: 255 if v > 60 else 0).getbbox()
     if bb: im = im.crop(bb)
-    im = im.resize((round(im.width * 300 / im.height), 300), Image.LANCZOS)
+    im = drop_edge_islands(im.resize((round(im.width * 300 / im.height), 300), Image.LANCZOS))
     im.save(OUT / 'sprites' / f'{char}-{pose}.png', optimize=True)
     manifest['sprites'].setdefault(char, []).append(pose)
 # seated poses: already sized so the head matches the 300 px standing sprites (art/assets/characters/sit/,

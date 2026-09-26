@@ -52,6 +52,7 @@
     learn: (id) => learn(id),
     // "Follow me": the character walks with the inspector from room to room until told to wait.
     follow: (who, on) => {
+      if (on && who === 'castelli') return;             // Castelli doesn't tag along: call him with his portrait (C)
       if (on) { E.follow(who); UI.toast(`${NAMES[who]} follows you`, null, 'note'); }
       else if (E.follower === who) { E.unfollow(who); UI.toast(`${NAMES[who]} waits here`, null, 'note'); }
       L.info(on ? 'follow' : 'unfollow', { who, room: E.sceneId });
@@ -250,13 +251,12 @@
   async function startInvestigation(r) {
     skipBtn.hidden = true; UI.hint(null); E.lock = true; if (talk.state.open) talk.close();
     G.beat = 'investigation'; E.beat = 'investigation'; G.clock = toMin('07:20'); BOARD.hud();
-    if (!E.follower) E.follow('castelli');             // your assistant walks with you (engine.js followers)
     window.AUDIO && AUDIO.music('investigation');
     await E.load('corridor', [700, 500, 'right']); if (r !== run) return; UI.hud(true); tickClock(); await E.fadeIn(500);
     E.lock = false;
-    E.say('castelli', 'Here, Inspector. I stay with you: call me whenever you need me.', 4200);
+    E.say('castelli', 'Here, Inspector. I stay close: call me whenever you need me.', 4200);
     window.SIDEKICK && SIDEKICK.hud();
-    UI.toast('Castelli follows you. Click his portrait (bottom right) or press C to call him.', null, 'note');
+    UI.toast('Need Castelli? Click his portrait (bottom right) or press C: he comes to you.', null, 'note');
     await E.wait(4400); E.say('ferrand', 'His heart, Inspector. About half past one. I am sorry.', 3600);
   }
 

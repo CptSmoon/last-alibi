@@ -154,7 +154,7 @@
     const s = st(), g = GG();
     s.errand = null; s.reports.push(report);
     g.clock += CLOCK[a.kind] || 6;
-    arrive('castelli', 120); EE().follow('castelli'); hud();   // back at your side, and following you again
+    arrive('castelli', 120); hud();   // back at your side; he stays in this room
     extra && extra();
     EE().say('castelli', report.length > 180 ? report.slice(0, 177) + '…' : report, 7000);
     UI.toast('Castelli is back: ' + (report.length > 110 ? report.slice(0, 107) + '…' : report), null, 'alert');
@@ -177,17 +177,17 @@
     btn.classList.toggle('away', !!e);
     btn.querySelector('.st').textContent = e ? (e.kind === 'fetch' ? 'fetching ' + short(e.person) : e.kind === 'search' ? 'searching' : 'asking ' + short(e.person)) : '';
   }
-  // He comes to you (if he isn't already beside you), follows you again, and the conversation opens.
+  // He comes to you (if he isn't already beside you) and the conversation opens. He then stays in that room.
   function summon() {
     const g = GG(), E = EE(), T = GAME.talk.state;
     if (!g || g.beat !== 'investigation' || E.lock || T.open) return;
     if (away()) { UI.toast(`Castelli is out ${btn.querySelector('.st').textContent}. He'll be back soon.`, null, 'note'); return; }
     const c = E.actors.get('castelli'), p = E.player;
-    if (c && Math.hypot(c.x - p.x, c.y - p.y) < 260) { E.follow('castelli'); c.face(p); GAME.talk.open('castelli'); return; }
+    if (c && Math.hypot(c.x - p.x, c.y - p.y) < 260) { c.face(p); GAME.talk.open('castelli'); return; }
     L('summoned', { room: E.sceneId });
     const a = arrive('castelli', 110); if (!a) return;
     E.say('castelli', 'Sì, Inspector? I am coming!', 1800);
-    const t = setInterval(() => { if (!a.moving || Math.hypot(a.x - p.x, a.y - p.y) < 140) { clearInterval(t); E.follow('castelli'); if (!GAME.talk.state.open && !E.lock) { a.face(p); GAME.talk.open('castelli'); } } }, 150);
+    const t = setInterval(() => { if (!a.moving) { clearInterval(t); if (!GAME.talk.state.open && !E.lock) { a.face(p); GAME.talk.open('castelli'); } } }, 150);
   }
   btn.onclick = summon;
   addEventListener('keydown', (e) => {
