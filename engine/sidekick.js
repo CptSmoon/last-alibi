@@ -52,6 +52,7 @@
   // ---------- conversation ----------
   function greet() {
     const s = st();
+    if (s.greetReport) { const r = s.greetReport; s.greetReport = null; return r; }
     if (GG().beat === 'alarm') return 'Inspector, forgive me, your breakfast... It is Signor Lazăr, in compartment 7. Théo found his door bolted from the inside. We forced it. He is dead, Inspector.';
     if (!s.met) { s.met = true; return 'Inspector, I am at your service. I can fetch someone for you, search a room, or go and ask someone a question. Or we think it through together.'; }
     return s.reports.length ? 'Inspector? Shall I go somewhere else for you?' : 'Inspector. What can I do?';
@@ -85,8 +86,8 @@
     if (c) { const ex = exitPoint(E); c.seated = false; c.walkTo(ex[0], ex[1], () => E.actors.get('castelli') === c && E.actors.delete('castelli'), 7); }
     UI.toast(`Castelli: ${going(a).replace(/^[^.]+\. /, '')}`, null, 'note'); hud();
     const mine = s;
-    const done = (report, extra) => { if (GG() && GG().flags.side === mine) back(a, report, extra); };
-    if (a.kind === 'search') setTimeout(() => done(...search(a.room)), TIME.search);
+    const done = (report, extra, items) => { if (GG() && GG().flags.side === mine) back(a, report, extra, items); };
+    if (a.kind === 'search') setTimeout(() => { const [rep, , got] = search(a.room); done(rep, null, got); }, TIME.search);
     else if (a.kind === 'fetch') setTimeout(() => done(`I found ${name(a.person)}. Here, Inspector.`, () => bring(a.person)), TIME.fetch);
     else if (a.kind === 'interview') {
       const t0 = Date.now();
@@ -104,9 +105,11 @@
       if (!sp.clues || (sp.beats && !sp.beats.includes('investigation'))) continue;
       for (const id of sp.clues) if (!g.found.has(id)) { g.found.add(id); got.push(id); }
     }
-    const names = got.map((id) => g.EV[id].name.replace(/^[^:]+: /, '').toLowerCase());
-    const report = got.length ? `In ${ROOM[room]} I found: ${names.join(', ')}. I brought it all to you.` : `I searched ${ROOM[room]} from top to bottom, Inspector. Nothing new there.`;
-    return [report, () => got.forEach((id) => GAME.learn(id))];
+    const names = got.map((id) => g.EV[id].name.replace(/^[^:]+: /, '')).map((n, i) => (i ? n.replace(/^The /, 'the ') : n));
+    const list = names.length > 1 ? names.slice(0, -1).join(', ') + ' and ' + names.slice(-1) : names[0];
+    const report = got.length ? `I searched ${ROOM[room]}, Inspector. I found ${list.replace(/^The /, 'the ')}. Here, I brought ${got.length > 1 ? 'them' : 'it'} to you.`
+      : `I searched ${ROOM[room]} from top to bottom, Inspector. Nothing new there.`;
+    return [report, null, got];
   }
 
   // Ask someone the inspector's question through the normal interview brain, as Castelli.
@@ -150,16 +153,37 @@
     return a;
   }
   function bring(who) { arrive(who, -150); UI.toast(`${name(who)} is here.`, null, 'note'); }
-  function back(a, report, extra) {
-    const s = st(), g = GG();
+  // Back from an errand: he walks up to you, hands you what he found (the same close-up as finding it yourself,
+  // then it's in your items / notebook), and tells you himself in a conversation (spoken with his voice).
+  // A fetched person just walks in with him. If you're busy or elsewhere, it waits until he is next to you.
+  function back(a, report, extra, items) {
+    const s = st(), g = GG(), E = EE();
     s.errand = null; s.reports.push(report);
     g.clock += CLOCK[a.kind] || 6;
     arrive('castelli', 120); hud();   // back at your side; he stays in this room
-    extra && extra();
-    EE().say('castelli', report.length > 180 ? report.slice(0, 177) + '…' : report, 7000);
-    UI.toast('Castelli is back: ' + (report.length > 110 ? report.slice(0, 107) + '…' : report), null, 'alert');
     window.AUDIO && AUDIO.sfx('reveal');
-    L('errand done', { kind: a.kind, report: report.slice(0, 160) });
+    L('errand done', { kind: a.kind, items, report: report.slice(0, 160) });
+    if (a.kind === 'fetch') { extra && extra(); E.say('castelli', report, 4000); return; }
+    s.deliver = { report, items: items || [], extra };
+    UI.toast('Castelli is back.', null, 'alert');
+    const mine = s, t = setInterval(() => {
+      if (!GG() || GG().flags.side !== mine || !s.deliver) return clearInterval(t);
+      const c = E.actors.get('castelli'), p = E.player;
+      if (!c || c.moving || !p || E.lock || UI.busy || GAME.talk.state.open || Math.hypot(c.x - p.x, c.y - p.y) > 320) return;
+      clearInterval(t); deliver();
+    }, 300);
+  }
+  async function deliver() {
+    const s = st(), d = s.deliver; if (!d) return; s.deliver = null;
+    const g = GG(), E = EE(), c = E.actors.get('castelli');
+    c && c.face(E.player); d.extra && d.extra();
+    for (const id of d.items) {
+      const e = g.EV[id]; window.AUDIO && AUDIO.sfx('clue');
+      await UI.examine({ title: e.name, icon: e.take ? id : null, text: `Castelli hands it to you. ${e.description}`, action: e.take ? 'Take it' : 'Note it' });
+      GAME.learn(id);
+    }
+    s.greetReport = d.report;                       // his first line in the conversation that opens now
+    GAME.talk.open('castelli');
   }
 
   const chips = () => GG().beat === 'alarm' ? ['Where was it?', 'Who found him?', 'Take me there.']
@@ -183,11 +207,12 @@
     if (!g || g.beat !== 'investigation' || E.lock || T.open) return;
     if (away()) { UI.toast(`Castelli is out ${btn.querySelector('.st').textContent}. He'll be back soon.`, null, 'note'); return; }
     const c = E.actors.get('castelli'), p = E.player;
-    if (c && Math.hypot(c.x - p.x, c.y - p.y) < 260) { c.face(p); GAME.talk.open('castelli'); return; }
+    const talkNow = (a) => { a.face(p); if (st().deliver) deliver(); else GAME.talk.open('castelli'); };
+    if (c && Math.hypot(c.x - p.x, c.y - p.y) < 260) { talkNow(c); return; }
     L('summoned', { room: E.sceneId });
     const a = arrive('castelli', 110); if (!a) return;
     E.say('castelli', 'Sì, Inspector? I am coming!', 1800);
-    const t = setInterval(() => { if (!a.moving) { clearInterval(t); if (!GAME.talk.state.open && !E.lock) { a.face(p); GAME.talk.open('castelli'); } } }, 150);
+    const t = setInterval(() => { if (!a.moving) { clearInterval(t); if (!GAME.talk.state.open && !E.lock) talkNow(a); } }, 150);
   }
   btn.onclick = summon;
   addEventListener('keydown', (e) => {
