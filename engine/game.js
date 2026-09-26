@@ -339,7 +339,26 @@
     navigator.mediaDevices.getUserMedia({ audio: true }).then((s) => { s.getTracks().forEach((t) => t.stop()); L.info('microphone allowed'); })
       .catch((e) => L.warn('microphone refused', { error: e.name }));
   }
-  function chooseCase() { askMic(); UI.cases(window.CASES || [], (c) => { if (c.ready) newGame(); }, title); }
+  function chooseCase() { askMic(); UI.cases(window.CASES || [], (c) => { if (c.ready) askName().then(newGame); }, title); }
+
+  // The player's name (user request): asked on Play, prefilled with the last one, changeable in Settings. Characters
+  // call you "Inspector <name>" the first time and now and then after (prompts/prompt-core.mjs).
+  const cleanName = (n) => String(n || '').normalize('NFC').replace(/[^\p{L}\s'’-]/gu, '').replace(/\s+/g, ' ').trim().split(' ').slice(0, 3).join(' ').slice(0, 24);
+  const applyName = () => { NAMES.sorel = G.settings.playerName ? `Inspector ${G.settings.playerName}` : 'Inspector Sorel'; };
+  function askName() {
+    return new Promise((res) => {
+      UI.hideMenu();                                      // the case postcard would stay on top of the card
+      const b = document.getElementById('brief'); b.hidden = false; b.classList.add('pop');
+      b.innerHTML = `<div class="inner parch nameask"><p class="kick">Before you board</p><h2>What is your name, Inspector?</h2>
+        <p class="lede">The passengers and crew will call you by it.</p>
+        <div class="row"><input id="pname" maxlength="24" placeholder="Your name" autocomplete="off" spellcheck="false"><button class="go" id="pname-go">Board the train</button></div></div>`;
+      const inp = document.getElementById('pname'); inp.value = G.settings.playerName || '';
+      const done = () => { G.settings.playerName = cleanName(inp.value); saveSettings(); applyName(); b.hidden = true; b.classList.remove('pop'); L.info('player name', { set: !!G.settings.playerName }); res(); };
+      inp.addEventListener('keydown', (e) => { e.stopPropagation(); if (e.key === 'Enter') done(); });
+      document.getElementById('pname-go').onclick = done; inp.focus(); inp.select();
+    });
+  }
+  applyName();
 
   // ---------- boot ----------
   resetPer(); UI.fit();

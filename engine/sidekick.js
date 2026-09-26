@@ -56,14 +56,14 @@
   function greet() {
     const s = st();
     if (s.greetReport) { const r = s.greetReport; s.greetReport = null; return r; }
-    if (GG().beat === 'alarm') return 'Inspector, forgive me, your breakfast... It is Signor Lazăr, in compartment 7. Théo found his door bolted from the inside. We forced it. He is dead, Inspector.';
+    if (GG().beat === 'alarm') return (GG().settings.playerName ? `Inspector ${GG().settings.playerName}!` : 'Inspector!') + ' The envoy, Signor Lazăr, is dead in compartment 7. The door was bolted from the inside; we had to force it.';
     if (!s.met) { s.met = true; return 'Inspector, I am at your service. I can fetch someone for you, search a room, or go and ask someone a question. Or we think it through together.'; }
     return s.reports.length ? 'Inspector? Shall I go somewhere else for you?' : 'Inspector. What can I do?';
   }
   async function ask(input) {
     const s = st(), g = GG();
     const r = await fetch(API() + '/api/sidekick', { method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ input, now: g.clock, history: s.history.slice(-16), file: file() }) });
+      body: JSON.stringify({ input, now: g.clock, player: g.settings.playerName || '', history: s.history.slice(-16), file: file() }) });
     if (r.status === 429) return { text: 'Piano, Inspector: too many questions at once. A moment, please.', actions: [] };
     if (!r.ok) throw new Error('sidekick ' + r.status);
     const out = await r.json();
@@ -120,7 +120,7 @@
     const g = GG(), p = g.per[who];
     try {
       const r = await fetch(API() + '/api/talk', { method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ character: who, chapter: 'ch3', now: g.clock, history: [], shown: [], revealed: [...p.revealed],
+        body: JSON.stringify({ character: who, chapter: 'ch3', now: g.clock, player: g.settings.playerName || '', history: [], shown: [], revealed: [...p.revealed],
           input: { kind: 'say', text: `[DIRECTOR: This is not the inspector. Bruno Castelli, the chef de train, comes to you with a question from the inspector. Answer him as you would, knowing he will repeat it to the inspector.] ${q}` } }) });
       if (!r.ok || !r.body) throw new Error('talk ' + r.status);
       const rd = r.body.getReader(), dec = new TextDecoder(); let buf = '', text = '';

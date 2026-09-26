@@ -97,6 +97,7 @@
         const slider = (id, label, v, dim) => `<label class="set${dim ? ' off' : ''}"><span>${label}</span><input type="range" id="${id}" min="0" max="100" step="5" value="${Math.round(v * 100)}"></label>`;
         const draw = () => {
           body.innerHTML = row('set-brain', 'Characters', s.brain === 'live' ? 'Live AI' : 'Scripted', !G.server.brain, G.server.brain ? 'Live AI: ask anything, by voice or text' : 'Live AI needs the game server (npm start)')
+            + `<label class="set"><span>Your name<small>What everyone on the train calls you</small></span><input id="set-name" maxlength="24" placeholder="Sorel" autocomplete="off" spellcheck="false"></label>`
             + row('set-voice', 'Spoken voices', s.voice && s.brain === 'live' ? 'On' : 'Off', !G.server.voice || s.brain !== 'live', 'Gradium voices, and the microphone')
             + row('set-rate', 'Speech speed', `${(s.speechRate || 1).toFixed(2).replace(/0$/, '')}×`, !G.server.voice || s.brain !== 'live' || !s.voice, 'How fast the characters talk. Click to change')
             + row('set-music', 'Music', s.music !== false ? 'On' : 'Off', false, 'Score by Lyria (Gemini)')
@@ -105,6 +106,9 @@
             + slider('set-sfxvol', 'Effects volume', s.sfxVol ?? 0.8, !s.sound);
           $('#set-brain').onclick = () => { s.brain = s.brain === 'live' ? 'scripted' : 'live'; s.brainPicked = true; o.onChange(); draw(); };   // a deliberate choice sticks
           $('#set-voice').onclick = () => { s.voice = !s.voice; o.onChange(); draw(); };
+          const nm = $('#set-name'); nm.value = s.playerName || '';
+          nm.addEventListener('keydown', (e) => { e.stopPropagation(); if (e.key === 'Enter') nm.blur(); });
+          nm.onchange = () => { s.playerName = nm.value.normalize('NFC').replace(/[^\p{L}\s'’-]/gu, '').replace(/\s+/g, ' ').trim().split(' ').slice(0, 3).join(' ').slice(0, 24); nm.value = s.playerName; G.names.sorel = s.playerName ? `Inspector ${s.playerName}` : 'Inspector Sorel'; o.onChange(); };
           $('#set-rate').onclick = () => { const R = [1, 1.15, 1.3], i = R.indexOf(s.speechRate || 1); s.speechRate = R[(i + 1) % R.length]; o.onChange(); draw(); };
           $('#set-sound').onclick = () => { s.sound = !s.sound; o.onChange(); window.AUDIO && AUDIO.apply(); draw(); };
           $('#set-music').onclick = () => { s.music = s.music === false; o.onChange(); window.AUDIO && AUDIO.apply(); draw(); };
@@ -235,7 +239,8 @@
     ending(G, R) {
       const e = $('#ending'); e.hidden = false;
       const H = { solved: ['Death on the Simplon: the doctor signed his own victim\'s certificate'], weak: ['Orient Express: doctor detained, but judges call the case "thin"'], wrong: ['Envoy\'s death: wrong passenger arrested, the killer takes the train'] }[R.verdict];
-      const body = { solved: 'Inspector Marc Sorel of the Paris Sûreté proved that Dr Paul Ferrand killed the envoy Anton Lazăr with morphine, then left by the window into the snow. Lazăr had blackmailed him since a patient died at his Passy clinic in 1927.',
+      const me = G.settings.playerName ? `Inspector ${G.settings.playerName}` : 'Inspector Marc Sorel';
+      const body = { solved: me + ' of the Paris Sûreté proved that Dr Paul Ferrand killed the envoy Anton Lazăr with morphine, then left by the window into the snow. Lazăr had blackmailed him since a patient died at his Passy clinic in 1927.',
         weak: R.who === 'ferrand' ? "Dr Ferrand was taken off the train at Domodossola, but the magistrate says the inspector's case leaves too many questions: the motive, or the proofs, did not hold up. He may walk free." : "The magistrate says the inspector's case leaves too many questions. The suspect may walk free.",
         wrong: `The carabinieri took ${G.names[R.who] || 'a passenger'} off the train. A quiet French doctor continued to Belgrade. Lazăr's heart, he said, simply stopped.` }[R.verdict];
       $('#end-head').textContent = H[0]; $('#end-body').textContent = body;

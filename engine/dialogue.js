@@ -102,7 +102,7 @@
         const ctrl = new AbortController(); T.abort = ctrl;
         try {
           const r = await fetch((window.API_BASE || '') + '/api/talk', { method: 'POST', headers: { 'content-type': 'application/json' }, signal: ctrl.signal,
-            body: JSON.stringify({ character: who, chapter: 'ch3', now: G.clock, history: hist, input, shown: [...p.shown], revealed: [...p.revealed] }) });
+            body: JSON.stringify({ character: who, chapter: 'ch3', now: G.clock, player: G.settings.playerName || '', history: hist, input, shown: [...p.shown], revealed: [...p.revealed] }) });
           if (r.status === 429) { thinking(false); type(who, '(Too many questions at once on this network. Wait a few seconds and ask again.)', true); return; }
           if (!r.ok || !r.body) throw new Error('talk ' + r.status);
           const rd = r.body.getReader(), dec = new TextDecoder(); let buf = '';

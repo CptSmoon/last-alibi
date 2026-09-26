@@ -39,7 +39,23 @@ const RULES = (s, c, ch, now) => {
 
 const section = (title, lines) => { const body = lines.filter(Boolean).join('\n'); return body ? `# ${title}\n${body}` : ''; };
 
-export function buildSystemInstruction(s, charId, chapterId, now) {
+// The player's own name (set on the Play card). Only letters, spaces, hyphens and apostrophes, 24 characters at
+// most: it goes into every character's prompt, so nothing else may get through.
+export const cleanPlayerName = (n) => String(n ?? '').normalize('NFC').replace(/[^\p{L}\s'’-]/gu, '').replace(/\s+/g, ' ').trim().split(' ').slice(0, 3).join(' ').slice(0, 24);
+
+// opts.player: the player's name. The inspector is then called by it (instead of Marc Sorel): by name the first time
+// a character speaks to him, then only now and then.
+export function buildSystemInstruction(s, charId, chapterId, now, opts = {}) {
+  const player = cleanPlayerName(opts.player);
+  const text = buildBase(s, charId, chapterId, now);
+  if (!player || /^(marc )?sorel$/i.test(player)) return text;
+  return text.replace(/Marc Sorel/g, player).replace(/\bSorel\b/g, player) + `
+
+# THE INSPECTOR'S NAME
+The inspector is called ${player}. The first time you speak to him, address him as "Inspector ${player}". After that, say "Inspector ${player}" only now and then (about one answer in four, when it feels natural), never in every sentence; otherwise just "Inspector". Always with the English title "Inspector", never another title or language.`;
+}
+
+function buildBase(s, charId, chapterId, now) {
   const c = charOf(s, charId), ch = chapterOf(s, chapterId);
   now = now ?? toMin(ch.start);
   const before = ch.phase === 'before';

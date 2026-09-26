@@ -74,7 +74,7 @@ export async function sidekick(S, key, b, rid) {
     unsearched: Object.fromEntries(Object.entries(f.unsearched || {}).filter(([r, n]) => ROOMS[r] && Number.isInteger(n) && n > 0).slice(0, 12)),
   };
   const now = Number.isInteger(b?.now) ? b.now : undefined;
-  const system = buildSystemInstruction(S, 'castelli', 'ch3', now) + '\n' + (alarm ? ALARM : SIDEKICK(S, file, others.map((c) => `${c.id} = ${c.name}`).join(', ')));
+  const system = buildSystemInstruction(S, 'castelli', 'ch3', now, { player: b?.player }) + '\n' + (alarm ? ALARM : SIDEKICK(S, file, others.map((c) => `${c.id} = ${c.name}`).join(', ')));
   // Each line of the inspector's is framed as what it is: Gemini's safety filter blocks bare commands such as
   // "Bring me Mila Novak" (PROHIBITED_CONTENT, measured 26 Sept), but not the same words in their game context.
   const said = (t) => `[The inspector says to you, Castelli, his assistant in this murder investigation on the train:] ${t}`;
