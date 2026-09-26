@@ -180,17 +180,48 @@
   const skipBtn = document.getElementById('skip');
   skipBtn.onclick = () => skipIntro();
   function skipIntro() {
-    const r = ++run; L.info('intro skipped');
+    const r = ++run; L.info('intro skipped'); stopFilm();
     UI.caption(null); document.getElementById('card').hidden = true; E.clearBubbles(); E.shake = 0;
     if (!E.player) E.player = new E.Actor('sorel', 700, 500, 'right');
     E.fade = 1; E.fadeTarget = 1; E.fadeDone = null;
     startInvestigation(r);
   }
+  // ---------- the opening film (onboarding): the avalanche night, 27 s with its own sound ----------
+  // Plays over the stage; Skip intro stops it (the run token), and if it can't play at all the drawn night
+  // scene with captions runs instead.
+  // One place to switch the cut (e.g. to a narrated version): the web-encoded file and its poster frame.
+  const FILM = { src: 'game-assets/film/opening-avalanche.mp4', poster: 'game-assets/film/opening-avalanche.jpg' };
+  let film = null;
+  function stopFilm() { if (!film) return; const f = film; film = null; f.el.pause(); f.el.remove(); f.done(false); }
+  function playFilm() {
+    return new Promise((done) => {
+      const el = document.createElement('video');
+      el.id = 'film'; el.src = FILM.src; el.poster = FILM.poster;
+      el.playsInline = true; el.preload = 'auto'; el.muted = !G.settings.sound;
+      el.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;z-index:4;opacity:0;transition:opacity .6s';   // under #skip (z 5)
+      (document.getElementById('stage') || document.body).appendChild(el);
+      film = { el, done };
+      const end = (ok) => { if (!film || film.el !== el) return; film = null; el.style.opacity = '0'; setTimeout(() => el.remove(), 650); done(ok); };
+      el.addEventListener('ended', () => end(true));
+      el.addEventListener('error', () => { L.warn('opening film failed to load'); end(false); });
+      el.addEventListener('playing', () => (el.style.opacity = '1'), { once: true });
+      el.play().catch(() => { el.muted = true; el.play().catch(() => end(false)); });   // autoplay rules: fall back to muted, then give up
+      L.info('opening film');
+    });
+  }
   async function opening() {
     const r = ++run; skipBtn.hidden = false;
     UI.hideMenu(); UI.hud(false);
+    window.AUDIO && AUDIO.music(null);
+    E.beat = null; E.scene = null;
+    if (await playFilm()) {
+      if (r !== run) return;
+      await UI.card(['07:00, the next morning.', 'The dining car.'], 1800); if (r !== run) return;
+      return breakfast(r);
+    }
+    if (r !== run) return;
     window.AUDIO && AUDIO.music('avalanche');
-    E.beat = null; await E.load('night'); if (r !== run) return; await E.fadeIn(600);
+    await E.load('night'); if (r !== run) return; await E.fadeIn(600);
     UI.caption(['23:39, 18 December 1931', 'The Simplon-Orient Express, above Iselle']);
     await E.wait(2200); if (r !== run) return;
     E.shake = 70; rumble(); UI.caption(['23:40. An avalanche.', 'The train will not move again until morning.']);
