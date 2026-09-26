@@ -45,7 +45,7 @@ let S = loadScenario();
 log.info('scenario loaded', { id: S.id, characters: S.characters.length, evidence: S.evidence.length, chapters: S.chapters.length });
 const reload = () => { S = loadScenario(); log.info('scenario reloaded', { id: S.id, characters: S.characters.length, evidence: S.evidence.length }); };
 
-const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.json': 'application/json', '.svg': 'image/svg+xml', '.mp3': 'audio/mpeg' };
+const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.json': 'application/json', '.svg': 'image/svg+xml', '.mp3': 'audio/mpeg', '.mp4': 'video/mp4' };
 const PUBLIC = /^\/(index\.html|prototype\.html|cast\.html|plan\.html|assets\/[\w\-./]+|engine\/[\w\-./]+|game-assets\/[\w\-./]+)$/;
 
 function serveStatic(req, res) {
