@@ -1019,6 +1019,39 @@ window.CASE = {
     "gradiumTemp": 0.9
    },
    "secrets": []
+  },
+  {
+   "id": "cook",
+   "name": "Luigi Mancuso",
+   "age": 44,
+   "role": "Dining-car cook, Compagnie Internationale des Wagons-Lits",
+   "look": {
+    "skin": "#d49a6a",
+    "hair": "#2a1a12",
+    "hairStyle": "short",
+    "coat": "#ece6d8",
+    "coat2": "#bdb4a2",
+    "trim": "#9a2a22",
+    "legs": "#2e2a26",
+    "acc": "moustache"
+   },
+   "chapters": [
+    "ch1",
+    "ch2",
+    "ch3"
+   ],
+   "isVictim": false,
+   "isStaff": true,
+   "voice": {
+    "gradium": "n7vovxcDTVG4gClo",
+    "name": "Diego",
+    "gradiumSpeed": -1.1,
+    "gradiumTemp": 0.85
+   },
+   "secrets": [
+    "s_luigi_grappa",
+    "s_luigi_door"
+   ]
   }
  ],
  "evidence": [

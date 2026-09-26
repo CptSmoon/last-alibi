@@ -105,6 +105,7 @@ A case is a single JSON file (`scenario/orient.json`). The server reads it direc
 | Stefan Brandt, 38 | Agent of a German oil company | Listened through the wall from No. 6. Paid Lazăr three bribes | Arthur |
 | Théo Garnier, 31 | Sleeping-car conductor | Left his seat for grappa in the kitchen, and saw a figure pass the window at 00:28 | Toby |
 | Bruno Castelli, 57 | Chef de train (staff, not a suspect) | Nothing. His log shows the dining car's north door was found unbolted at 01:00 | Austin |
+| Luigi Mancuso, 44 | Dining-car cook (staff, not a suspect) | Théo drank grappa with him in the kitchen 00:10–00:35. He left the north door unbolted after the crew came back at 23:55, and at about 00:32 felt the draught and heard it bang shut (he blamed the wind). Back to the window: he saw no one | Diego |
 
 **Solution.** Lazăr made Ferrand travel as his personal physician and had blackmailed him for four years over a patient's morphine death at Ferrand's Passy clinic in 1927. That night Lazăr demanded 50,000 francs. At about 00:20 Ferrand injected morphine into Lazăr's neck in place of his usual camphor-oil heart injection. Mila was standing in the corridor, so Ferrand left through the window into the snow, passed the kitchen window at 00:28, and came back in through the unbolted dining-car north door at about 00:32.
 

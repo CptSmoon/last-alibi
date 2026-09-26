@@ -67,7 +67,7 @@
       }
       if (kind === 'notebook') {
         $('#panel-title').textContent = 'Notebook';
-        const people = ['lazar', 'ferrand', 'irina', 'hale', 'mila', 'brandt', 'theo', 'castelli'];
+        const people = ['lazar', 'ferrand', 'irina', 'hale', 'mila', 'brandt', 'theo', 'castelli', 'cook'];
         const known = [...G.items, ...G.notes];
         body.innerHTML = `<div class="people">${people.map((id) => {
           const facts = known.filter((e) => (G.EV[e].about || []).includes(id));

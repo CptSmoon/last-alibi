@@ -105,7 +105,7 @@ spoken voices sound to a human.
 - **All stages now playable (26 Sept):** night opening, dining car, kitchen, lounge car, sleeping-car corridor, compartments 1–7, outside (north side).
   - Connections: corridor ↔ dining (right door) ↔ lounge (dining right end); dining top-right door ↔ kitchen; kitchen back door ↔ outside ↔ corridor (left vestibule); corridor doors 1–7 ↔ their compartments (investigation only; at breakfast they're locked, and so are the lounge, kitchen and outside).
   - Clues: corridor (call board, handkerchief, bolt); No. 7 (body, notebook, window, blotter, camphor, letters + contract); No. 3 (doctor's bag, wet shoes); No. 6 (tumbler); No. 2 (marked cards); No. 4 (passports); outside (footprints, ampoule neck); kitchen (grappa glasses); dining (Castelli's log book); lounge (score sheet). Nos. 1 and 5 have flavour only.
-  - People during the investigation: corridor (Castelli, Théo, Ferrand), dining (Irina), lounge (Hale at cards, Mila, Brandt), kitchen (Luigi the cook, bubble lines only, no brain).
+  - People during the investigation: corridor (Castelli, Théo, Ferrand), dining (Irina), lounge (Hale at cards, Mila, Brandt), kitchen (Luigi the cook, a full character like the others: staff, not a suspect).
   - Verified with a real-click headless walkthrough: every stage is reachable in both directions, and every spot clue can be collected.
 
 ## Deployment (Cloudflare, 26 Sept)

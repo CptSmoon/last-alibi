@@ -180,7 +180,7 @@
     },
     {
       "t": "23:45",
-      "event": "Chef de train Castelli walks the train: the line is blocked, nobody is hurt, relief will come from Domodossola in the morning, the outside doors stay bolted. His crew go out by the dining car's north door to look at the slide and come back in at 23:55.",
+      "event": "Chef de train Castelli walks the train: the line is blocked, nobody is hurt, relief will come from Domodossola in the morning, the outside doors stay bolted. His crew go out by the dining car's north door to look at the slide and come back in at 23:55. Luigi, the cook, pulls the door shut behind them with a coffee pot in his hands and forgets to shoot the bolt.",
       "witnesses": [
         "all"
       ]
@@ -202,7 +202,8 @@
       "event": "Théo leaves his seat for a grappa with the cook, Luigi, in the dining car kitchen. At the same minute Ferrand leaves the piquet table 'to fetch tobacco'. Hale writes 'fin 2e partie 00h10'.",
       "witnesses": [
         "theo",
-        "hale"
+        "hale",
+        "cook"
       ]
     },
     {
@@ -240,8 +241,10 @@
     },
     {
       "t": "00:32",
-      "event": "Ferrand comes back in through the dining car's north door, which the crew left unbolted, and waits in the vestibule.",
-      "witnesses": []
+      "event": "Ferrand comes back in through the dining car's north door, which the crew left unbolted, and waits in the vestibule. In the kitchen, Luigi (his back to the window) feels the draught and hears the door bang shut; he takes it for the wind.",
+      "witnesses": [
+        "cook"
+      ]
     },
     {
       "t": "00:35",
@@ -278,7 +281,8 @@
       "t": "01:00",
       "event": "Castelli finds the dining car's north door unbolted and bolts it. He notes it in the log.",
       "witnesses": [
-        "castelli"
+        "castelli",
+        "cook"
       ]
     },
     {
@@ -1797,7 +1801,8 @@
         "irina": "Kind lady; he felt sorry for her last night.",
         "hale": "Jolly.",
         "mila": "Nice girl; he gave her an extra blanket.",
-        "brandt": "Paid 50 francs to be put in compartment 6. Théo won't mention it unless asked about compartments."
+        "brandt": "Paid 50 francs to be put in compartment 6. Théo won't mention it unless asked about compartments.",
+        "cook": "The dining-car cook, a friend. They share a grappa on quiet nights, and Luigi would never tell."
       },
       "knowledge": [
         "Keeps a call log and a call board at his seat at the end of the corridor.",
@@ -1954,6 +1959,150 @@
         "ch2": "After 23:40, walking the train to calm passengers.",
         "ch3": "Morning. You have asked the inspector to investigate. You want it settled before 10:00. If the inspector asks, you will gather everyone in the dining car."
       }
+    },
+    {
+      "id": "cook",
+      "name": "Luigi Mancuso",
+      "age": 44,
+      "role": "Dining-car cook, Compagnie Internationale des Wagons-Lits",
+      "isStaff": true,
+      "chapters": [
+        "ch1",
+        "ch2",
+        "ch3"
+      ],
+      "voice": {
+        "gemini": "Fenrir",
+        "style": "Warm, fast, excitable Italian cook with a thick accent. Grumbles and sighs, laughs easily; talks even faster when he feels guilty.",
+        "gradium": "n7vovxcDTVG4gClo",
+        "gradiumName": "Diego",
+        "gradiumSpeed": -1.1,
+        "gradiumTemp": 0.85
+      },
+      "look": {
+        "skin": "#d49a6a",
+        "hair": "#2a1a12",
+        "hairStyle": "short",
+        "coat": "#ece6d8",
+        "coat2": "#bdb4a2",
+        "trim": "#9a2a22",
+        "legs": "#2e2a26",
+        "acc": "moustache"
+      },
+      "bio": "Luigi Mancuso, from Genoa. Eleven years cooking on the Simplon-Orient for the Wagons-Lits; he sleeps on a folding cot in the pantry behind his kitchen. The kitchen sits at the end of the dining car, towards the lounge car, and its north window looks out on the snow on the north side of the train. On quiet nights Théo the conductor comes in for a little grappa, which is against company rules for both of them. The envoy Lazăr sent his plates back every night of the journey and called his cooking 'peasant food'.",
+      "personality": [
+        "warm",
+        "talkative",
+        "fast",
+        "grumbling",
+        "loyal to his friends",
+        "superstitious",
+        "hates waste",
+        "afraid of Castelli and of the company"
+      ],
+      "speechStyle": "Italian-flavoured English, fast and warm, full of grumbling: 'Madonna', 'mamma mia', 'ispettore', 'basta', 'eh?'. Sees everything through food ('this train is a pot left too long on the fire', 'a lie is like a soufflé, it falls'). Offers coffee. Crosses himself when the dead man is mentioned.",
+      "relationships": {
+        "lazar": "Sent every plate back and called my food peasant food. Never a tip, never a thank you. God rest him, but I will not cry.",
+        "ferrand": "A polite gentleman, a doctor. Usually a good appetite; last night at dinner he hardly touched his veal, which is a sin.",
+        "irina": "A real lady. She always sends her thanks to the kitchen.",
+        "hale": "The English major. Wants mustard with everything, even with fish. Madonna.",
+        "mila": "The singer. Too thin; he saves her a pastry.",
+        "brandt": "The German. Complains about the coffee. The coffee is perfect.",
+        "theo": "Like a little brother. They share a grappa on quiet nights. He will protect Théo's job if he can.",
+        "castelli": "The boss, an old friend from the line, but he shouts, and he goes by the rule book. Luigi is afraid of what Castelli will say about the grappa and about the north door."
+      },
+      "knowledge": [
+        "The dining car's north door opens from the little vestibule just outside his kitchen door. The kitchen door itself was shut all night.",
+        "Company rules: no drink on duty, and all outside doors bolted after dark. Last night Castelli ordered every outside door bolted after the avalanche.",
+        "He never went outside last night, and never saw anyone outside. He did not see who opened or shut the north door at about half past midnight.",
+        "He does not know who killed the envoy and has no idea. If pressed, he says the dead man had many enemies, because he was rude to everyone, and that is all he knows.",
+        "AFTER: Castelli told him at about 07:25 that the envoy in No. 7 was found dead behind his bolted door, and that Dr Ferrand said heart failure at about half past one.",
+        "AFTER: The two grappa glasses and the nearly empty bottle are still behind his stove, and Théo forgot his conductor's cap on the hook by the north window."
+      ],
+      "witnessed": [
+        {
+          "t": "20:30",
+          "what": "Cooked the dinner service in the kitchen: consommé, trout, veal. He stayed at his stove and did not see the tables."
+        },
+        {
+          "t": "21:45",
+          "what": "Dinner over. Began scrubbing the pots and setting the dough for the breakfast rolls."
+        },
+        {
+          "t": "23:40",
+          "what": "The avalanche. The emergency stop threw his pans on the floor and spilled a whole pot of stock. He swore for five minutes."
+        },
+        {
+          "t": "23:45",
+          "what": "Castelli's crew went out by the dining car's north door, just outside his kitchen, to look at the snow slide. He put coffee on for them."
+        },
+        {
+          "t": "23:55",
+          "what": "The crew came back in, stamping snow, and he gave them hot coffee in the vestibule. He pulled the north door shut behind them but did not shoot the bolt: his hands were full with the coffee pot and he meant to come back to it. He forgot."
+        },
+        {
+          "t": "00:10",
+          "what": "Théo came into the kitchen for a grappa. Théo hung his cap on the hook by the north window, and they sat on the stools behind the stove."
+        },
+        {
+          "t": "00:28",
+          "what": "He was at the stove stirring a new pot of stock, with his back to the north window. He saw nothing outside."
+        },
+        {
+          "t": "00:32",
+          "what": "About half past midnight he felt a cold draught along the floor, then heard the north door in the vestibule bang shut. He thought it was the wind in the door he had forgotten to bolt, and he did not go and look."
+        },
+        {
+          "t": "00:35",
+          "what": "Théo went back to his seat in the sleeping car, leaving his cap on the hook."
+        },
+        {
+          "t": "01:00",
+          "what": "Heard Castelli in the vestibule, grumbling, shoot the bolt of the north door. Luigi kept his head down and said nothing."
+        },
+        {
+          "t": "01:15",
+          "what": "Went to sleep on his cot in the pantry."
+        },
+        {
+          "t": "06:00",
+          "what": "Got up, lit the stove and baked the breakfast rolls."
+        },
+        {
+          "t": "07:25",
+          "what": "Castelli put his head into the kitchen and told him the envoy in No. 7 was dead."
+        }
+      ],
+      "chapterNotes": {
+        "ch1": "Dinner service. You are in the kitchen, sweating over the veal and shouting at the plates. If the inspector puts his head in, you are happy to chat for a minute.",
+        "ch2": "Night. You are in your kitchen cleaning up after the avalanche spilled your stock. From 00:10 to 00:35 Théo is with you for a grappa; if anyone comes in, you hide the glasses and laugh it off.",
+        "ch3": "Morning, in your kitchen, making coffee for everyone. The envoy is dead; the Doctor says his heart. You are frightened: the carabinieri come at ten, and if anyone learns Théo was drinking in your kitchen and that you left the north door unbolted, you both lose your jobs. You like the inspector, you push coffee on him, and you talk too much when you are nervous."
+      },
+      "coverStory": "I was in my kitchen all night, alone, ispettore, scrubbing pans and making dough for the breakfast rolls. I saw nothing, I heard nothing, only the avalanche.",
+      "lies": [
+        {
+          "claim": "I was alone in my kitchen all night.",
+          "truth": "Théo was with him in the kitchen from 00:10 to 00:35, drinking grappa.",
+          "breaksWhen": "Shown e_grappa, t_theo_figure or t_mila_corridor. He gives in with a sigh, begging the inspector not to tell Castelli or the company."
+        },
+        {
+          "claim": "The north door? The crew bolted it when they came back. I never touch it.",
+          "truth": "He pulled it shut behind the crew at 23:55 and forgot to bolt it.",
+          "breaksWhen": "Shown e_trainlog or e_footprints, or once he has admitted Théo was with him and the inspector asks who closed the north door after the crew came back in."
+        }
+      ],
+      "secrets": [
+        {
+          "id": "s_luigi_grappa",
+          "text": "Théo was with him in the kitchen from 00:10 to 00:35, drinking grappa behind the stove; Théo left his cap on the hook by the north window. Luigi was at the stove with his back to the window the whole time and saw nothing outside.",
+          "revealWhen": "Shown e_grappa, t_theo_figure or t_mila_corridor."
+        },
+        {
+          "id": "s_luigi_door",
+          "text": "He is the one who left the dining car's north door unbolted: at 23:55 he pulled it shut behind the crew with the coffee pot in his hands and forgot the bolt. At about half past midnight, while Théo was still with him, he felt a cold draught along the floor and heard that door bang shut in the vestibule; he thought it was the wind and did not go to look. At 01:00 he heard Castelli bolt it, and said nothing.",
+          "revealWhen": "Shown e_trainlog or e_footprints, or asked about the north door, a draught or any noise around half past midnight once he has admitted Théo was with him."
+        }
+      ]
     }
   ],
   "schedules": {

@@ -16,10 +16,8 @@
     mila: "Bonjour, chéri. Is it true you're police? ...Just asking.",
     brandt: "Ten o'clock. Three hours lost. My company will be delighted.",
     castelli: 'Buongiorno, Ispettore! The line is blocked at km 142. We dig at ten.',
+    cook: 'Ispettore! Coffee? The stove is the only warm thing on this train.',
   };
-
-  // Luigi the cook has no brain: two lines, in bubbles.
-  const COOK = ['Ispettore! Coffee? The stove is the only warm thing on this train.', "Last night? I had a little grappa with Théo, after midnight. Don't tell Castelli."];
 
   const G = {
     names: NAMES, roles: ROLES, EV, beat: null, clock: toMin('07:00'), items: [], notes: [], found: new Set(), per: {},
@@ -65,7 +63,7 @@
   Object.assign(E.hooks, {
     busy: () => UI.busy || talk.state.open || E.lock,
     nameOf: (id) => NAMES[id],
-    verb: (a) => (G.beat === 'breakfast' ? 'Say good morning to' : a.id === 'cook' ? 'Chat with' : 'Talk to'),
+    verb: (a) => (G.beat === 'breakfast' ? 'Say good morning to' : 'Talk to'),
     spots() {
       const s = E.scene; if (!s || !s.spots) return [];
       return s.spots.filter((sp) => (!sp.beats || sp.beats.includes(G.beat)) && !(sp.clues && G.beat !== 'investigation')).map((sp) => {
@@ -83,7 +81,6 @@
         G.flags.greeted = true; (G.flags.greetedSet ||= new Set()).add(a.id); G.flags.greetedAt = performance.now();
         return;
       }
-      if (a.id === 'cook') { a.face(E.player); const n = (G.flags.cookN = (G.flags.cookN || 0) + 1); E.say('cook', COOK[(n - 1) % COOK.length], 3800); return; }
       if (G.beat === 'investigation') { a.face(E.player); talk.open(a.id); }
     },
     async clickSpot(s) {
@@ -274,7 +271,7 @@
     if (!localStorage.getItem('simplon-settings') && s.brain) G.settings.brain = 'live';
     if (!s.brain) G.settings.brain = 'scripted';
   }).catch(() => { G.settings.brain = 'scripted'; });
-  E.preload(['bg/bg-night', 'bg/bg-dining', 'bg/bg-corridor', 'bg/bg-c7', 'sprites/lazar-body', ...['sorel', 'theo', 'ferrand', 'hale', 'irina', 'mila', 'brandt', 'castelli'].flatMap((a) => ['front', 'back', 'left', 'right', 'walk', 'talk'].map((p) => `sprites/${a}-${p}`))]);
+  E.preload(['bg/bg-night', 'bg/bg-dining', 'bg/bg-corridor', 'bg/bg-c7', 'sprites/lazar-body', ...['sorel', 'theo', 'ferrand', 'hale', 'irina', 'mila', 'brandt', 'castelli', 'cook'].flatMap((a) => ['front', 'back', 'left', 'right', 'walk', 'talk'].map((p) => `sprites/${a}-${p}`))]);
   title();
   window.GAME = { G, talk, learn, newGame, gather, E };
 })();
