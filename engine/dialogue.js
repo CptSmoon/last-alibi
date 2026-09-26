@@ -196,44 +196,15 @@
       try { await T.listener.start(); } catch (e) { T.listening = false; box.classList.remove('listening'); hooks.toast('Microphone unavailable. Type your question instead.'); }
     }
     async function micUp() {
-      if (!T.listening) return; const auto = T.auto; T.auto = false; T.listening = false; box.classList.remove('listening');
+      if (!T.listening) return; T.listening = false; box.classList.remove('listening');
       const q = T.listener ? await T.listener.stop() : '';
-      if (q) ask(q); else { if (!auto) hooks.toast("Didn't catch that. Hold the mic (or Space) while you speak."); type(T.who, P().lines.filter((l) => l.who === T.who).slice(-1)[0]?.s || '', true); }
+      if (q) ask(q); else { hooks.toast("Didn't catch that. Hold the mic (or Space) while you speak."); type(T.who, P().lines.filter((l) => l.who === T.who).slice(-1)[0]?.s || '', true); }
     }
-
-    // ---- hands-free: when the character has finished speaking, the mic opens by itself; you just talk, and a
-    // pause of ~1.2 s after you speak sends the question. Nothing said within 10 s: it closes quietly. Typing,
-    // a tap on the mic or Space take over as usual. (Setting: G.settings.handsFree, on by default.)
-    function autoCancel() {
-      if (!T.listening || !T.auto) return; T.auto = false; T.listening = false; box.classList.remove('listening');
-      try { T.listener && T.listener.cancel(); } catch (_) {} T.listener = null;
-      if (T.open) type(T.who, P().lines.filter((l) => l.who === T.who).slice(-1)[0]?.s || '', true);
-    }
-    let quietSince = 0;
-    setInterval(() => {
-      if (!T.open || !T.who) return;
-      const now = performance.now();
-      if (T.listening && T.auto) {
-        const L = T.listener, lv = L ? (L.impl ? L.impl.level : L.level) || 0 : 0;
-        if (lv > 0.06) T.heardAt = now;
-        if (T.heardAt && now - T.heardAt > 1200) micUp();
-        else if (!T.heardAt && now - T.autoStart > 10000) autoCancel();
-        return;
-      }
-      const lines = P().lines, last = lines[lines.length - 1];
-      const calm = voiceMode() && G.settings.handsFree !== false && !T.listening && !T.busy && !pressStarted && !VOICE.player.speaking
-        && !hooks.panelOpen() && !document.hidden && document.activeElement !== input && !input.value && !cold();
-      if (!calm || !last || last.who !== T.who || T.autoSeen === lines.length) { quietSince = 0; return; }
-      if (!quietSince) { quietSince = now; return; }
-      if (now - quietSince < 450) return;                  // let the last word finish ringing
-      T.autoSeen = lines.length; T.auto = true; T.autoStart = now; T.heardAt = 0; quietSince = 0;
-      micDown().then(() => { if (!T.listening) T.auto = false; });
-    }, 120);
 
     // Leaving the game (Alt-Tab, another tab, another window) turns the microphone off at once: nothing more is
     // recorded or sent, and nothing is asked. Speaking again needs a new press of the mic.
     function micOff() {
-      if (!T.listening) return; T.listening = false; T.auto = false; box.classList.remove('listening');
+      if (!T.listening) return; T.listening = false; box.classList.remove('listening');
       T.listener && T.listener.cancel(); T.listener = null;
       hooks.toast('Microphone off: the game lost focus.');
       if (T.open) type(T.who, P().lines.filter((l) => l.who === T.who).slice(-1)[0]?.s || '', true);
@@ -252,7 +223,7 @@
     let pressAt = 0, pressStarted = false;
     const press = () => { pressAt = performance.now(); if (T.listening) { pressStarted = false; micUp(); } else { pressStarted = true; micDown(); } };
     const release = () => { if (!pressStarted) return; pressStarted = false; if (T.listening && performance.now() - pressAt > HOLD) micUp(); };
-    const micLabel = () => { mic.textContent = T.listening ? (T.auto ? '● Listening… just speak' : '● Listening… let go') : '🎙 Hold to talk'; mic.title = T.listening ? 'Let go (or tap again) to ask' : 'Hold (or hold Space) while you speak. A quick tap keeps listening until you tap again'; };
+    const micLabel = () => { mic.textContent = T.listening ? '● Listening… let go' : '🎙 Hold to talk'; mic.title = T.listening ? 'Let go (or tap again) to ask' : 'Hold (or hold Space) while you speak. A quick tap keeps listening until you tap again'; };
     mic.addEventListener('pointerdown', (e) => { e.preventDefault(); press(); });
     addEventListener('pointerup', release);
     new MutationObserver(micLabel).observe(box, { attributes: true, attributeFilter: ['class'] }); micLabel();
@@ -263,7 +234,7 @@
       if (e.key === 'Escape') api.close();
       if (e.key === 'Enter') skip();
       if (e.code === 'Tab') { e.preventDefault(); hooks.openShow(); }
-      if (e.key.length === 1 && /[a-z]/i.test(e.key) && !e.metaKey && !e.ctrlKey && e.code !== 'Space') { autoCancel(); input.focus(); }
+      if (e.key.length === 1 && /[a-z]/i.test(e.key) && !e.metaKey && !e.ctrlKey && e.code !== 'Space') { input.focus(); }
     });
 
     addEventListener('keyup', (e) => { if (e.code === 'Space' && T.open && document.activeElement !== input) release(); });
@@ -273,7 +244,7 @@
     let swallowUntil = 0;
     if (stageCanvas) {
       stageCanvas.addEventListener('pointerdown', (e) => {
-        if (!T.open || (T.listening && !T.auto) || pressStarted || hooks.panelOpen()) return;   // hands-free listening doesn't block leaving
+        if (!T.open || T.listening || pressStarted || hooks.panelOpen()) return;
         e.stopImmediatePropagation(); e.preventDefault(); swallowUntil = performance.now() + 600; if (window.ENGINE) ENGINE.swallowClickUntil = swallowUntil; api.close();
       }, true);
       for (const type of ['click', 'pointerup', 'mouseup']) stageCanvas.addEventListener(type, (e) => {
@@ -293,7 +264,7 @@
       },
       close() {
         if (!T.open) return;
-        if (T.listening) { T.listening = false; T.auto = false; box.classList.remove('listening'); try { T.listener && T.listener.cancel(); } catch (_) {} T.listener = null; }   // the mic never outlives the conversation
+        if (T.listening) { T.listening = false; box.classList.remove('listening'); try { T.listener && T.listener.cancel(); } catch (_) {} T.listener = null; }   // the mic never outlives the conversation
         brain().close(); VOICE.player.flush(); clearInterval(T.typer);
         T.open = false; box.hidden = true; const who = T.who, asked = T.asked; T.who = null; hooks.closed(who, asked);
       },
