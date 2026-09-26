@@ -190,6 +190,7 @@
     await new Promise((res) => {
       const iv = setInterval(() => {
         const s = (performance.now() - start) / 1000, since = (performance.now() - (G.flags.greetedAt || 0)) / 1000;
+        if (G.flags.moved || greeted()) skipBtn.hidden = true; // playing the breakfast now: Skip intro has done its job
         if (!nudged && s > 9 && !greeted()) { nudged = true; E.say('hale', 'Morning, Inspector! Snowed in, by Jove.', 3200); }
         if (r !== run || (greeted() >= 2 && since > 3.5) || (greeted() === 1 && s > 30 && since > 3.5) || s > 50) { clearInterval(iv); res(); }
       }, 250);
