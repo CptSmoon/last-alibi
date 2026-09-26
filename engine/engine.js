@@ -134,13 +134,25 @@
   // ---------- text helpers ----------
   const FONT = '"Nunito", "Trebuchet MS", system-ui, sans-serif';
   function roundRect(x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+  // A name tag. Text starting with "E  " is an action prompt: the E is drawn as a real keycap, so it reads
+  // as "press E", not as part of the name.
   function label(text, cx, y, o = {}) {
+    const key = /^E {2}/.test(text); if (key) text = text.slice(3);
     ctx.font = `700 ${o.size || 17}px ${FONT}`;
-    const w = ctx.measureText(text).width + 22, h = (o.size || 17) + 12, x = cx - w / 2;
+    const h = (o.size || 17) + 12, kw = key ? h - 6 : 0, w = ctx.measureText(text).width + 22 + (key ? kw + 8 : 0), x = cx - w / 2;
     ctx.fillStyle = 'rgba(40,24,12,.35)'; roundRect(x, y + 2, w, h, h / 2); ctx.fill();
     ctx.fillStyle = o.bg || '#f5ead0'; roundRect(x, y, w, h, h / 2); ctx.fill();
     ctx.strokeStyle = o.edge || '#b4893d'; ctx.lineWidth = 2; ctx.stroke();
-    ctx.fillStyle = o.color || '#3a2414'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(text, cx, y + h / 2 + 1);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    if (key) {
+      const kx = x + 5, ky = y + 3, pulse = (Math.sin(E.t / 10) + 1) / 2;
+      ctx.fillStyle = '#8a6224'; roundRect(kx, ky + 2, kw, kw, 5); ctx.fill();                 // key side
+      ctx.fillStyle = '#fffdf6'; roundRect(kx, ky - pulse * 1.5, kw, kw, 5); ctx.fill();         // key top, gently pressing
+      ctx.strokeStyle = '#8a6224'; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.fillStyle = '#3a2414'; ctx.font = `900 ${(o.size || 17) - 2}px ${FONT}`; ctx.fillText('E', kx + kw / 2, ky + kw / 2 + 1 - pulse * 1.5);
+      ctx.font = `700 ${o.size || 17}px ${FONT}`;
+    }
+    ctx.fillStyle = o.color || '#3a2414'; ctx.fillText(text, cx + (key ? (kw + 8) / 2 : 0), y + h / 2 + 1);
     return [x, y, w, h];
   }
   function wrapText(text, max) {

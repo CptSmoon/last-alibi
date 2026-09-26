@@ -132,12 +132,12 @@
     let h = null;
     if (G.beat === 'breakfast') {
       if (!f.moved) { if (E.player.moving) f.moved = true; h = 'Click the floor to walk <kbd>or WASD</kbd>'; }
-      else if (!f.greeted) h = 'Click someone to say good morning';
+      else if (!f.greeted) h = 'Say good morning: click someone, or walk up and press <kbd>E</kbd>';
       else if (f.greetedSet && f.greetedSet.size < 2) h = 'Say good morning to someone else';
     } else if (G.beat === 'investigation') {
       const contra = window.BOARD ? BOARD.contradictions.length : 0, st = window.BOARD ? BOARD.strength() : { n: 0 };
       if (!f.inC7) h = 'Examine the body: go into <b>compartment 7</b> (the open door)';
-      else if (!G.found.size) h = 'Look for clues: sparkles mark things worth a closer look. Click them.';
+      else if (!G.found.size) h = 'Look for clues: walk up to a ✦ sparkle and press <kbd>E</kbd> (or click it) to examine and pick it up';
       else if (!f.talked) h = 'Now question people about last night: click someone, or walk up and press <kbd>E</kbd>';
       else if (contra && !f.confronted) h = '⚠ Two statements disagree. In a conversation, <b>Show…</b> › Statements to confront them';
       else if (!f.showed && G.items.length) h = 'In a conversation, <b>Show…</b> them what you found and watch how they react';

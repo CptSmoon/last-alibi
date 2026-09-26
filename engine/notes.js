@@ -1,6 +1,6 @@
 // Quick notes: the inspector's own jottings, and a secretary that tidies them.
 // - N (or the pencil button) opens a small parchment input anywhere; in a conversation use Alt+N (or Ctrl+N)
-//   or the "Note" button. Enter saves, Esc cancels. Hold the mic button (or hold Space while the note is still
+//   or the "Note" button. Enter saves, Esc cancels. Click the mic button to dictate and again to stop (or Space while the note is still
 //   empty) to dictate, when Gradium voice is on.
 // - Each note keeps the game clock, the room, and who you were talking to. Stored in localStorage
 //   ('simplon-notes'), cleared by a new game.
@@ -160,12 +160,11 @@
 `;
     document.head.appendChild(css);
     pop = document.createElement('div'); pop.id = 'qnote'; pop.className = 'parch'; pop.hidden = true;
-    pop.innerHTML = `<div class="qmeta" id="qn-meta"></div><div class="qrow"><button id="qn-mic" class="pill" title="Hold to dictate (or hold Space while the note is empty)">🎙</button><input id="qn-input" class="note-input" maxlength="${MAX_CHARS}" placeholder="Jot it down…" autocomplete="off"><button id="qn-save" class="pill">Save</button></div><div class="qhelp"><kbd>Enter</kbd> save · <kbd>Esc</kbd> cancel</div>`;
+    pop.innerHTML = `<div class="qmeta" id="qn-meta"></div><div class="qrow"><button id="qn-mic" class="pill" title="Click to dictate, click again to stop (or Space while the note is empty)">🎙</button><input id="qn-input" class="note-input" maxlength="${MAX_CHARS}" placeholder="Jot it down…" autocomplete="off"><button id="qn-save" class="pill">Save</button></div><div class="qhelp"><kbd>Enter</kbd> save · <kbd>Esc</kbd> cancel</div>`;
     $('#stage').appendChild(pop);
     popIn = $('#qn-input'); popMic = $('#qn-mic');
     $('#qn-save').onclick = () => commit();
-    popMic.addEventListener('pointerdown', (e) => { e.preventDefault(); micDown(); });
-    addEventListener('pointerup', () => listening && micUp());
+    popMic.addEventListener('click', (e) => { e.preventDefault(); listening ? micUp() : micDown(); });   // a toggle, not hold-to-talk
     const btn = $('#btn-note'); if (btn) btn.onclick = () => open();
     const dbtn = $('#dlg-note'); if (dbtn) dbtn.onclick = () => open();
   }
@@ -219,6 +218,7 @@
       if (t === popIn) {
         if (e.key === 'Enter') { e.preventDefault(); commit(); }
         else if (e.key === 'Escape') { e.preventDefault(); close(); }
+        else if (e.code === 'Space' && listening) { e.preventDefault(); if (!e.repeat) micUp(); }
         else if (e.code === 'Space' && !popIn.value && voiceOn()) { e.preventDefault(); if (!e.repeat) micDown(); }
       } else if (e.key === 'Enter') { e.preventDefault(); t.dispatchEvent(new Event('commit')); }
       else if (e.key === 'Escape') { e.preventDefault(); t.blur(); }
@@ -232,7 +232,6 @@
     if (talking || (document.activeElement && ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName))) return;
     e.preventDefault(); e.stopImmediatePropagation(); open();
   }, true);
-  addEventListener('keyup', (e) => { if (e.code === 'Space' && listening && e.target === popIn) { e.stopImmediatePropagation(); micUp(); } }, true);
 
   // ---------- notebook tab ----------
   let tab = 'people', mount = null;

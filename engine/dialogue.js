@@ -156,7 +156,7 @@
     async function micUp() {
       if (!T.listening) return; T.listening = false; box.classList.remove('listening');
       const q = T.listener ? await T.listener.stop() : '';
-      if (q) ask(q); else { hooks.toast("Didn't catch that. Hold the mic while you speak."); type(T.who, P().lines.filter((l) => l.who === T.who).slice(-1)[0]?.s || '', true); }
+      if (q) ask(q); else { hooks.toast("Didn't catch that. Click Talk, speak, then click again."); type(T.who, P().lines.filter((l) => l.who === T.who).slice(-1)[0]?.s || '', true); }
     }
 
     // Leaving the game (Alt-Tab, another tab, another window) turns the microphone off at once: nothing more is
@@ -175,19 +175,21 @@
     $('#dlg-send').onclick = () => { ask(input.value); input.value = ''; };
     $('#dlg-leave').onclick = () => api.close();
     $('#dlg-show').onclick = () => hooks.openShow();
+    // The mic is a toggle: one click (or Space) starts listening, the next one stops and asks.
     const mic = $('#dlg-mic');
-    mic.addEventListener('pointerdown', (e) => { e.preventDefault(); micDown(); });
-    addEventListener('pointerup', () => micUp());
+    const micToggle = () => (T.listening ? micUp() : micDown());
+    const micLabel = () => { mic.textContent = T.listening ? '■ Stop & ask' : '🎙 Talk'; mic.title = T.listening ? 'Click (or Space) when you have finished speaking' : 'Click (or press Space), speak, then click again'; };
+    mic.addEventListener('click', (e) => { e.preventDefault(); micToggle(); });
+    new MutationObserver(micLabel).observe(box, { attributes: true, attributeFilter: ['class'] }); micLabel();
     addEventListener('keydown', (e) => {
       if (!T.open || document.activeElement === input || hooks.panelOpen()) return;
-      if (e.code === 'Space' && !e.repeat) { e.preventDefault(); micDown(); }
+      if (e.code === 'Space' && !e.repeat) { e.preventDefault(); micToggle(); }
       if (/^[1-3]$/.test(e.key)) { const b = chips.children[+e.key - 1]; b && b.click(); }
       if (e.key === 'Escape') api.close();
       if (e.key === 'Enter') skip();
       if (e.code === 'Tab') { e.preventDefault(); hooks.openShow(); }
       if (e.key.length === 1 && /[a-z]/i.test(e.key) && !e.metaKey && !e.ctrlKey && e.code !== 'Space') { input.focus(); }
     });
-    addEventListener('keyup', (e) => { if (e.code === 'Space' && T.open) micUp(); });
 
     const api = {
       state: T,
