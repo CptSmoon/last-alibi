@@ -78,6 +78,21 @@ Returns a short-lived, **single-use** Gradium token for one WebSocket (STT or TT
 
 `503` if `GRADIUM_API_KEY` is missing; `502` if Gradium refuses.
 
+## `POST /api/claims`
+
+Turns one answer a character just gave into structured claims, for the notebook's **Statements** tab and the
+contradiction check (`engine/board.js`). Called by the browser after every live answer.
+
+```json
+{ "speaker": "castelli", "question": "Did you see the doctor last night?", "answer": "I saw Dr Ferrand in the dining car at a quarter past one." }
+-> { "claims": [{ "about": "ferrand", "place": "dining", "from": "01:15", "to": "01:15", "how": "saw", "text": "Castelli says he saw Dr Ferrand in the dining car at 01:15." }] }
+```
+
+`place` is one of `c1`..`c7`, `corridor`, `dining`, `lounge`, `outside`, `unknown`. The model sees only the spoken
+question and answer, the cast, the rooms and who sleeps where; never the solution or secrets. Gemini
+(`brain.fallbackModel` first), JSON schema, temperature 0, about 1 s. Contradictions are found in the browser, not by
+the model: same person, overlapping times (10 min slack), different places. On the Worker it shares `TALK_LIMIT`.
+
 ## `POST /api/english`
 
 Rewrites a push-to-talk transcript in English. Gradium's `json_config.language: "en"` is only a hint: accented or

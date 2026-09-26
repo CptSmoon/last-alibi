@@ -18,6 +18,7 @@
   const WSS = 'wss://api.gradium.ai/api/speech';
   const RATE = 24000; // STT input "pcm" = 24 kHz; TTS output "pcm_24000"
   const DEFAULTS = { model: 'gradium-tts-beta', speed: -1.0, temp: 0.8 };
+  const FASTER = 2;
 
   async function token() {
     const t0 = performance.now();
@@ -50,7 +51,9 @@
     return {
       who: ch ? ch.id : null,
       model: over.model || v.gradiumModel || g.ttsModel || DEFAULTS.model,
-      speed: pick(over.speed, v.gradiumSpeed, g.gradiumSpeed, DEFAULTS.speed),
+      // QA (26 Sept): voices were too slow. Two notches faster than each character's tuned value keeps their
+      // relative pace (-1 -> -3 is ~15% shorter audio, measured); Player.rate does the rest.
+      speed: Math.max(-4, pick(over.speed, v.gradiumSpeed, g.gradiumSpeed, DEFAULTS.speed) - (over.speed != null ? 0 : FASTER)),
       temp: pick(over.temp, v.gradiumTemp, g.gradiumTemp, DEFAULTS.temp),
     };
   }
@@ -58,7 +61,9 @@
   // Gapless 24 kHz playback with a level meter for lip-flap. push() returns when the chunk will
   // play (AudioContext time), so a Speech can follow its own playhead for captions.
   class Player {
-    constructor() { this.ac = null; this.t = 0; this.src = new Set(); }
+    // rate: playback speed of the voices (Settings > Speech speed). Gradium's own speed control (padding_bonus)
+    // tops out at about +20%, so the rest is done here; a small rate keeps the voices recognisable.
+    constructor() { this.ac = null; this.t = 0; this.src = new Set(); this.rate = 1; }
     ensure() {
       if (!this.ac) { log.info('audio output ready', { sampleRate: RATE }); this.ac = new AudioContext({ sampleRate: RATE }); this.an = this.ac.createAnalyser(); this.an.fftSize = 512; this.an.connect(this.ac.destination); this.buf = new Float32Array(512); }
       if (this.ac.state === 'suspended') this.ac.resume();
@@ -66,11 +71,11 @@
     }
     push(f32) {
       const ac = this.ensure(), ab = ac.createBuffer(1, f32.length, RATE); ab.copyToChannel(f32, 0);
-      const s = ac.createBufferSource(); s.buffer = ab; s.connect(this.an);
+      const s = ac.createBufferSource(), rate = this.rate || 1; s.buffer = ab; s.playbackRate.value = rate; s.connect(this.an);
       // Start the first chunk right away (a few ms of headroom), then queue the rest back to back.
-      const at = (this.t = Math.max(this.t, ac.currentTime + 0.03)); s.start(at); this.t += ab.duration;
+      const at = (this.t = Math.max(this.t, ac.currentTime + 0.03)); s.start(at); this.t += ab.duration / rate;
       this.src.add(s); s.onended = () => this.src.delete(s);
-      return { at, dur: ab.duration };
+      return { at, dur: ab.duration, rate };
     }
     now() { return this.ac ? this.ac.currentTime : 0; }
     flush() { if (this.src.size) log.debug('playback flushed', { chunks: this.src.size }); for (const s of this.src) { try { s.stop(); } catch (_) {} } this.src.clear(); this.t = 0; }
@@ -156,7 +161,7 @@
     }
     play(f) {
       const p = player.push(f);
-      this.segs.push({ at: p.at, off: this.audioSec, dur: p.dur }); this.audioSec += p.dur;
+      this.segs.push({ at: p.at, off: this.audioSec, dur: p.dur, rate: p.rate }); this.audioSec += p.dur;
       if (!this.chunks++) {
         this.tAudio = performance.now();
         log.info('tts first audio', { who: this.cfg.who, model: this.cfg.model, speed: this.cfg.speed, temp: this.cfg.temp, ttfaMs: this.tText ? Math.round(this.tAudio - this.tText) : null, sinceOpenMs: Math.round(this.tAudio - this.t0) });
@@ -197,10 +202,10 @@
     // Seconds of this reply's audio that have played.
     played() {
       const now = player.now(); let s = 0;
-      for (const g of this.segs) { if (now < g.at) break; s = g.off + Math.min(g.dur, now - g.at); }
+      for (const g of this.segs) { if (now < g.at) break; s = g.off + Math.min(g.dur, (now - g.at) * g.rate); }
       return s;
     }
-    get finished() { return this.failed || (this.eos && (!this.segs.length || player.now() >= this.segs[this.segs.length - 1].at + this.segs[this.segs.length - 1].dur)); }
+    get finished() { return this.failed || (this.eos && (!this.segs.length || player.now() >= this.segs[this.segs.length - 1].at + this.segs[this.segs.length - 1].dur / this.segs[this.segs.length - 1].rate)); }
     // The part of `text` spoken so far, word by word. Falls back to the whole text when the voice
     // failed, finished, or has not produced audio 2.5 s after the first words were sent.
     caption(text) {
@@ -217,7 +222,7 @@
   class Listener {
     constructor(on = {}) { this.on = on; }
     async start() {
-      this.text = ''; this.queue = []; this.open = false; this.t0 = performance.now();
+      this.text = ''; this.queue = []; this.open = false; this.cancelled = false; this.t0 = performance.now();
       log.info('listening (push-to-talk)');
       const C = window.CASE || {};
       // Character and place names, boosted so "Ferrand" doesn't come back as "for hand".
@@ -243,6 +248,7 @@
       ws.onerror = () => log.error('stt socket error');
       try { this.stream = await mic; }
       catch (e) { log.error('microphone unavailable', { error: e.name + ': ' + e.message }); try { ws.close(); } catch (_) {} throw e; }
+      if (this.cancelled) { this.stream.getTracks().forEach((t) => t.stop()); try { ws.close(); } catch (_) {} return; } // cancelled while the mic was opening
       this.ac = new AudioContext({ sampleRate: RATE });
       const src = this.ac.createMediaStreamSource(this.stream);
       this.node = this.ac.createScriptProcessor(2048, 1, 1); // ~85 ms chunks; an AudioWorklet in production
@@ -253,6 +259,14 @@
       };
       src.connect(this.node); this.node.connect(this.ac.destination);
       log.debug('mic live', { ms: Math.round(performance.now() - this.t0) });
+    }
+    // Drop everything: mic off, socket closed, nothing transcribed or sent (e.g. the game lost focus).
+    cancel() {
+      this.cancelled = true;
+      try { this.node && this.node.disconnect(); } catch (_) {}
+      this.stream && this.stream.getTracks().forEach((t) => t.stop()); try { this.ac && this.ac.state !== 'closed' && this.ac.close(); } catch (_) {}
+      this.queue = []; this.open = false; try { this.ws && this.ws.close(); } catch (_) {}
+      log.info('listening cancelled');
     }
     async stop() {
       const t0 = performance.now();

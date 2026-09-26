@@ -9,7 +9,7 @@
 
   function create(G, hooks) {
     const box = $('#dialog'), txt = $('#dlg-text'), nm = $('#dlg-name'), pic = $('#dlg-portrait'), chips = $('#dlg-chips'), input = $('#dlg-input');
-    const T = { open: false, who: null, busy: false, speech: null, abort: null, listening: false, listener: null, typer: null, asked: 0, used: {} };
+    const T = { open: false, who: null, busy: false, speech: null, abort: null, listening: false, listener: null, typer: null, asked: 0, used: {}, lastQ: '', full: '' };
     const P = () => G.per[T.who];
     const name = (id) => G.names[id] || id;
     const voiceOf = (id) => (CASE.characters.find((c) => c.id === id)?.voice || {}).gradium;
@@ -19,20 +19,9 @@
     function portrait(id, mood) { pic.src = `game-assets/portraits/${id}-${EXPR[mood] ?? 0}.webp`; pic.alt = name(id); }
     function speaker(id) { nm.textContent = name(id); box.dataset.who = id === 'sorel' ? 'you' : 'them'; portrait(id, id === 'sorel' ? 'calm' : P().mood); }
     function type(id, text, instant) {
-      clearInterval(T.typer); speaker(id); txt.textContent = '';
+      clearInterval(T.typer); speaker(id); txt.textContent = ''; T.full = text;
       if (instant) { txt.textContent = text; return; }
       let i = 0; T.typer = setInterval(() => { i += 2; txt.textContent = text.slice(0, i); if (i >= text.length) clearInterval(T.typer); }, 16);
-    }
-    // With voice on, the words appear as they are spoken (Gradium word timestamps), not ahead of them.
-    function caption(sp, full, streaming) {
-      clearInterval(T.typer);
-      const tick = () => {
-        if (sp.cancelled) return clearInterval(tm);
-        const f = full().replace(/\s+/g, ' ').trim(), c = sp.caption(f);
-        txt.textContent = c;
-        if (!streaming() && c.length >= f.length) clearInterval(tm);
-      };
-      const tm = (T.typer = setInterval(tick, 40));
     }
     function renderChips() {
       chips.innerHTML = '';
@@ -41,7 +30,17 @@
       const list = [...(T.who === 'castelli' && G.canGather() ? ['Gather everyone. I am ready to accuse.'] : []), ...((DEMO[T.who] || {}).ch3?.suggest || []).filter((s) => !used.has(s))].slice(0, 3);
       list.forEach((s, i) => { const b = document.createElement('button'); b.className = 'chip'; b.innerHTML = `<kbd>${i + 1}</kbd>${s}`; b.onclick = () => ask(s, true); chips.appendChild(b); });
     }
-    function thinking(on) { T.busy = on; box.classList.toggle('thinking', on); }
+    // Immediate feedback: the box says who is thinking the moment you ask, even before the model answers.
+    function thinking(on) {
+      T.busy = on; box.classList.toggle('thinking', on);
+      if (on && T.who) { clearInterval(T.typer); speaker(T.who); txt.textContent = `${name(T.who).replace(/^(Dr|Countess|Major|Herr) /, '')} is thinking`; }
+    }
+    // Skip: stop the voice and show the whole line (click the text, or Enter with nothing typed).
+    function skip() {
+      if (T.busy || T.listening) return;
+      clearInterval(T.typer); if (T.full) txt.textContent = T.full;
+      if (T.speech) { T.speech.cancel(); T.speech = null; } VOICE.player.flush();
+    }
 
     // ---- effects ----
     function reveal(secretId, unlock) {
@@ -85,7 +84,7 @@
         const who = T.who, p = P(), hist = (p.history.ch3 ||= []);
         thinking(true); T.speech && T.speech.cancel();
         // Open the voice now, while Gemini thinks: token + socket + setup are ready for the first sentence.
-        let text = '', started = false, streaming = true;
+        let text = '', started = false;
         const speech = voiceMode() && voiceOf(who) ? (T.speech = new VOICE.Speech(voiceOf(who), {})) : null;
         const ctrl = new AbortController(); T.abort = ctrl;
         try {
@@ -101,27 +100,28 @@
               if (!line.startsWith('data:') || who !== T.who || !T.open) continue;
               const m = JSON.parse(line.slice(5));
               if (m.type === 'text') {
-                if (!started) { started = true; thinking(false); clearInterval(T.typer); speaker(who); if (speech) caption(speech, () => text, () => streaming); }
-                text += m.delta; if (!speech) txt.textContent = text.replace(/\s+/g, ' ').trim(); speech && speech.text(m.delta);
+                if (!started) { started = true; thinking(false); clearInterval(T.typer); speaker(who); }
+                // The whole text shows as it streams in (QA: reading is faster than listening); the voice follows.
+                text += m.delta; T.full = txt.textContent = text.replace(/\s+/g, ' ').trim(); speech && !speech.cancelled && speech.text(m.delta);
               } else if (m.type === 'tool' && m.ok) {
                 if (m.name === 'reveal_secret') reveal(m.args.secret_id, m.unlock);
                 if (m.name === 'set_mood') mood(m.args.mood, m.args.trust);
                 if (m.name === 'end_interview') p.done = true;
-              } else if (m.type === 'done') { hist.push(...m.turns); if (text) { p.lines.push({ who, s: text.trim() }); hooks.speaking(who, text.trim()); } }
+              } else if (m.type === 'done') { hist.push(...m.turns); if (text) { p.lines.push({ who, s: text.trim() }); hooks.speaking(who, text.trim()); hooks.said(who, input.kind === 'greet' ? '' : T.lastQ, text.trim()); } }
               else if (m.type === 'error') throw new Error(m.message);
             }
           }
-          speech && speech.end();
+          speech && !speech.cancelled && speech.end();
         } catch (e) { if (speech && speech === T.speech) speech.cancel(); if (e.name !== 'AbortError') { console.warn('[talk]', e); type(who, '...', true); } }
-        finally { streaming = false; thinking(false); renderChips(); }
+        finally { thinking(false); renderChips(); }
       },
       greet() {
         const p = P(), hist = (p.history.ch3 ||= []), g = scripted.d().greet;
         if (hist.length || !g) return this.turn({ kind: 'greet' });
         hist.push({ role: 'user', parts: [{ text: '[DIRECTOR: The inspector has just walked up to you. Greet him.]' }] }, { role: 'model', parts: [{ text: g }] });
         p.lines.push({ who: T.who, s: g }); hooks.speaking(T.who, g);
-        if (voiceMode() && voiceOf(T.who)) { const sp = (T.speech = new VOICE.Speech(voiceOf(T.who), {})); sp.text(g); sp.end(); clearInterval(T.typer); speaker(T.who); caption(sp, () => g, () => false); }
-        else type(T.who, g);
+        if (voiceMode() && voiceOf(T.who)) { const sp = (T.speech = new VOICE.Speech(voiceOf(T.who), {})); sp.text(g); sp.end(); }
+        type(T.who, g);
         renderChips();
       },
       ask(q) { return this.turn({ kind: 'say', text: q }); },
@@ -135,7 +135,7 @@
       q = (q || '').trim(); if (!q || !T.open || P().done || T.busy) return;
       if (quick) (T.used[T.who] ||= new Set()).add(q);
       if (T.who === 'castelli' && G.canGather() && /gather|accuse|ready|everyone|assemble/i.test(q)) { type('sorel', q, true); setTimeout(() => hooks.gather(), 700); return; }
-      T.asked++; type('sorel', q, true); P().lines.push({ who: 'sorel', s: q });
+      T.asked++; T.lastQ = q; type('sorel', q, true); P().lines.push({ who: 'sorel', s: q });
       setTimeout(() => brain().ask(q), 350);
     }
     function present(ev) {
@@ -143,7 +143,7 @@
       T.asked++; P().shown.add(ev);
       const e = CASE.evidence.find((x) => x.id === ev);
       const line = e.take ? `Look at this: ${e.name.toLowerCase()}.` : `I know about this: ${e.name.replace(/^[^:]+: /, '').toLowerCase()}.`;
-      type('sorel', line, true); P().lines.push({ who: 'sorel', s: line }); hooks.shown(ev);
+      T.lastQ = line; type('sorel', line, true); P().lines.push({ who: 'sorel', s: line }); hooks.shown(ev);
       setTimeout(() => brain().present(ev), 350);
     }
     async function micDown() {
@@ -159,8 +159,19 @@
       if (q) ask(q); else { hooks.toast("Didn't catch that. Hold the mic while you speak."); type(T.who, P().lines.filter((l) => l.who === T.who).slice(-1)[0]?.s || '', true); }
     }
 
+    // Leaving the game (Alt-Tab, another tab, another window) turns the microphone off at once: nothing more is
+    // recorded or sent, and nothing is asked. Speaking again needs a new press of the mic.
+    function micOff() {
+      if (!T.listening) return; T.listening = false; box.classList.remove('listening');
+      T.listener && T.listener.cancel(); T.listener = null;
+      hooks.toast('Microphone off: the game lost focus.');
+      if (T.open) type(T.who, P().lines.filter((l) => l.who === T.who).slice(-1)[0]?.s || '', true);
+    }
+    addEventListener('blur', micOff); document.addEventListener('visibilitychange', () => document.hidden && micOff());
+
     // ---- wiring ----
-    input.addEventListener('keydown', (e) => { e.stopPropagation(); if (e.key === 'Enter') { ask(input.value); input.value = ''; } if (e.key === 'Escape') input.blur(); });
+    input.addEventListener('keydown', (e) => { e.stopPropagation(); if (e.key === 'Enter') { if (!input.value.trim()) skip(); else { ask(input.value); input.value = ''; } } if (e.key === 'Escape') input.blur(); });
+    txt.addEventListener('click', skip); txt.title = 'Click to skip';
     $('#dlg-send').onclick = () => { ask(input.value); input.value = ''; };
     $('#dlg-leave').onclick = () => api.close();
     $('#dlg-show').onclick = () => hooks.openShow();
@@ -172,6 +183,7 @@
       if (e.code === 'Space' && !e.repeat) { e.preventDefault(); micDown(); }
       if (/^[1-3]$/.test(e.key)) { const b = chips.children[+e.key - 1]; b && b.click(); }
       if (e.key === 'Escape') api.close();
+      if (e.key === 'Enter') skip();
       if (e.code === 'Tab') { e.preventDefault(); hooks.openShow(); }
       if (e.key.length === 1 && /[a-z]/i.test(e.key) && !e.metaKey && !e.ctrlKey && e.code !== 'Space') { input.focus(); }
     });

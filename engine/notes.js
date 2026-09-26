@@ -202,6 +202,14 @@
     popIn.focus();
   }
 
+  // Leaving the game (Alt-Tab, another tab) turns the microphone off at once: nothing more is heard or sent.
+  function micOff() {
+    if (!listening) return; listening = false; pop.classList.remove('listening'); popIn.placeholder = 'Jot it down…';
+    listener && listener.cancel(); listener = null; log.info('dictation cancelled: the game lost focus');
+    window.UI && UI.toast('Microphone off: the game lost focus.', null, 'alert');
+  }
+  addEventListener('blur', micOff); document.addEventListener('visibilitychange', () => document.hidden && micOff());
+
   // ---------- keys (window capture: runs before the game's and the dialogue's handlers) ----------
   addEventListener('keydown', (e) => {
     const t = e.target;
@@ -230,8 +238,9 @@
   let tab = 'people', mount = null;
   function notebook(body) {
     const people = body.innerHTML;
-    body.innerHTML = `<nav class="nb-tabs"><button data-tab="people">People &amp; clues</button><button data-tab="notes">My notes<span class="nb-count" id="nb-count">${S.notes.length}</span></button></nav>
+    body.innerHTML = `<nav class="nb-tabs"><button data-tab="people">People &amp; clues</button><button data-tab="statements">Statements${window.BOARD ? `<span class="nb-count">${BOARD.claims.length}</span>${BOARD.contradictions.length ? `<span class="nb-count warn">⚠ ${BOARD.contradictions.length}</span>` : ''}` : ''}</button><button data-tab="notes">My notes<span class="nb-count" id="nb-count">${S.notes.length}</span></button></nav>
       <div data-pane="people">${people}</div>
+      <div data-pane="statements"><div id="nb-statements"></div></div>
       <div data-pane="notes"><div class="nb-notes"><div><div class="nb-add"><input id="nb-new" class="note-input" maxlength="${MAX_CHARS}" placeholder="Add a note…" autocomplete="off"><button class="pill" id="nb-addbtn">Add</button></div><div class="nb-list" id="nb-list"></div></div><div id="nb-org"></div></div></div>`;
     mount = body;
     const show = (k) => {
@@ -239,6 +248,7 @@
       body.querySelectorAll('.nb-tabs button').forEach((b) => b.classList.toggle('on', b.dataset.tab === k));
       body.querySelectorAll('[data-pane]').forEach((p) => (p.hidden = p.dataset.pane !== k));
       if (k === 'notes') { renderList(); renderOrg(); schedule(); }
+      if (k === 'statements' && window.BOARD) BOARD.renderStatements(body.querySelector('#nb-statements'));
     };
     body.querySelectorAll('.nb-tabs button').forEach((b) => (b.onclick = () => show(b.dataset.tab)));
     const inp = body.querySelector('#nb-new'), go = () => { if (add(inp.value)) inp.value = ''; inp.focus(); };

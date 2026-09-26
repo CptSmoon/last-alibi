@@ -36,7 +36,7 @@
         btn.onclick = done; addEventListener('keydown', key, true); btn.focus();
       });
     },
-    get busy() { return !$('#examine').hidden || !$('#panel').hidden || !$('#menu').hidden || !$('#accuse').hidden || !$('#ending').hidden; },
+    get busy() { return !$('#examine').hidden || !$('#panel').hidden || !$('#brief').hidden || !$('#menu').hidden || !$('#accuse').hidden || !$('#ending').hidden; },
     panelOpen: () => !$('#panel').hidden,
 
     // ---- panels ----
@@ -57,6 +57,13 @@
           b.onmouseenter = b.onfocus = () => { const e = G.EV[b.dataset.id]; $('#slot-detail').innerHTML = `<b>${esc(e.name)}</b> <span class="kind">${KIND[e.kind] || ''}</span><br>${esc(e.description)}`; };
           b.onclick = () => { if (o.show) { close(); o.onPick(b.dataset.id); } else b.onfocus(); };
         });
+        // Statements others made (engine/board.js): put them to this person, e.g. to confront a contradiction.
+        const st = o.show && window.BOARD ? BOARD.confrontable(o.who) : [];
+        if (st.length) {
+          const hot = new Set(BOARD.contradictions.flatMap((x) => [x.a, x.b]));
+          body.insertAdjacentHTML('beforeend', `<div class="show-sec">Statements: put one to ${esc(G.names[o.who])}</div><div class="show-stmts">${st.map((c) => `<button data-s="${c.id}" class="${hot.has(c.id) ? 'hot' : ''}">${hot.has(c.id) ? '⚠ ' : ''}${esc(c.text)}</button>`).join('')}</div>`);
+          body.querySelectorAll('.show-stmts button').forEach((b) => (b.onclick = () => { close(); o.onStatement && o.onStatement(st.find((c) => c.id === b.dataset.s)); }));
+        }
       }
       if (kind === 'notebook') {
         $('#panel-title').textContent = 'Notebook';
@@ -79,12 +86,14 @@
         const draw = () => {
           body.innerHTML = row('set-brain', 'Characters', s.brain === 'live' ? 'Live AI' : 'Scripted', !G.server.brain, G.server.brain ? 'Live AI: ask anything, by voice or text' : 'Live AI needs the game server (npm start)')
             + row('set-voice', 'Spoken voices', s.voice && s.brain === 'live' ? 'On' : 'Off', !G.server.voice || s.brain !== 'live', 'Gradium voices, and the microphone')
+            + row('set-rate', 'Speech speed', `${(s.speechRate || 1).toFixed(2).replace(/0$/, '')}×`, !G.server.voice || s.brain !== 'live' || !s.voice, 'How fast the characters talk. Click to change')
             + row('set-music', 'Music', s.music !== false ? 'On' : 'Off', false, 'Score by Lyria (Gemini)')
             + slider('set-musicvol', 'Music volume', s.musicVol ?? 0.7, s.music === false)
             + row('set-sound', 'Sound effects', s.sound ? 'On' : 'Off', false, 'Footsteps, doors, wind, the train')
             + slider('set-sfxvol', 'Effects volume', s.sfxVol ?? 0.8, !s.sound);
           $('#set-brain').onclick = () => { s.brain = s.brain === 'live' ? 'scripted' : 'live'; o.onChange(); draw(); };
           $('#set-voice').onclick = () => { s.voice = !s.voice; o.onChange(); draw(); };
+          $('#set-rate').onclick = () => { const R = [1, 1.15, 1.3], i = R.indexOf(s.speechRate || 1); s.speechRate = R[(i + 1) % R.length]; o.onChange(); draw(); };
           $('#set-sound').onclick = () => { s.sound = !s.sound; o.onChange(); window.AUDIO && AUDIO.apply(); draw(); };
           $('#set-music').onclick = () => { s.music = s.music === false; o.onChange(); window.AUDIO && AUDIO.apply(); draw(); };
           [['set-musicvol', 'musicVol'], ['set-sfxvol', 'sfxVol']].forEach(([id, k]) => { const r = $('#' + id);
@@ -160,7 +169,7 @@
       const e = $('#ending'); e.hidden = false;
       const H = { solved: ['Death on the Simplon: the doctor signed his own victim\'s certificate'], weak: ['Orient Express: doctor detained, but judges call the case "thin"'], wrong: ['Envoy\'s death: wrong passenger arrested, the killer takes the train'] }[R.verdict];
       const body = { solved: 'Inspector Marc Sorel of the Paris Sûreté proved that Dr Paul Ferrand killed the envoy Anton Lazăr with morphine, then left by the window into the snow. Lazăr had blackmailed him since a patient died at his Passy clinic in 1927.',
-        weak: "Dr Ferrand was taken off the train at Domodossola, but the magistrate says the inspector's case leaves too many questions. He may walk free.",
+        weak: R.who === 'ferrand' ? "Dr Ferrand was taken off the train at Domodossola, but the magistrate says the inspector's case leaves too many questions: the motive, or the proofs, did not hold up. He may walk free." : "The magistrate says the inspector's case leaves too many questions. The suspect may walk free.",
         wrong: `The carabinieri took ${G.names[R.who] || 'a passenger'} off the train. A quiet French doctor continued to Belgrade. Lazăr's heart, he said, simply stopped.` }[R.verdict];
       $('#end-head').textContent = H[0]; $('#end-body').textContent = body;
       $('#end-found').innerHTML = `Key proofs found: <b>${R.found.length} of ${R.found.length + R.missed.length}</b>` + (R.missed.length ? `<br>Missed: ${R.missed.map((m) => esc(G.EV[m].name)).join(', ')}` : '');

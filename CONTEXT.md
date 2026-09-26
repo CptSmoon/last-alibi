@@ -57,6 +57,16 @@ avalanche, stop) -> **Breakfast** (dining car, tutorial hints: walk, E to say go
 everyone via Castelli (quick option 1) -> **The accusation** (in-game: who, why, 3 proofs) -> newspaper.
 The dinner and night chapters (`ch1`, `ch2`) are still in `scenario/orient.json`, but the game follows `flow`.
 
+## QA pass (26 Sept)
+A briefing after the body is found states the goal and the loop (Investigate, Question, Compare, Accuse); the HUD shows
+**case strength** (key proofs held, of 10) and a count of contradictions; asking Castelli to gather first shows a
+readiness check with "Keep investigating". Every live answer becomes statements (`/api/claims`, `engine/board.js`),
+listed in the notebook's Statements tab; clashing statements are flagged and can be put to someone via Show… >
+Statements. Walking is faster (`E.WALK` / `E.HURRY`), people have a larger click area and an "E  Talk to …" prompt,
+the map fast-travels to visited rooms, answers show in full at once (click the text or Enter to skip the voice),
+voices are faster (Gradium `padding_bonus` 2 notches lower, plus Settings > Speech speed), and the microphone stops
+when the game loses focus.
+
 ## Controls
 WASD/arrows walk · Shift hurry · E talk/examine · I inventory (items you took) · J notebook (People page + What I know) ·
 Esc menu. In a talk: type and Enter to ask, 1-3 quick questions, hold SPACE to speak (live mode), TAB to show an item or

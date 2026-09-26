@@ -10,6 +10,7 @@
 //               shown: [evidence ids shown to this character], revealed: [secret ids already out] }
 //        events: text {delta} · tool {name, args, ok, unlock?} · done {turns} · error {message}
 // - POST /api/notes/organize  -> the player's quick notes, organised by Gemini (server/notes.mjs; public facts only)
+// - POST /api/claims          -> the factual claims in one answer, for the statements notebook (server/claims.mjs)
 // - POST /api/english         -> { text } rewritten in English when speech-to-text drifted into another language (server/english.mjs)
 // The prompt, the solution and the confession text only exist in this process.
 // Logging: server/log.mjs. LOG_LEVEL=debug shows every static file, SSE event and prompt size.
@@ -21,6 +22,7 @@ import { fileURLToPath } from 'node:url';
 import { logger, reqId } from './log.mjs';
 import { organize as organizeNotes } from './notes.mjs';
 import { toEnglish } from './english.mjs';
+import { extractClaims } from './claims.mjs';
 import { loadScenario, buildSystemInstruction, TOOLS, evidenceMessage, directorNote, CONFESSION_NEEDS, confessionSecret, revealable, toMin, fmt } from '../prompts/build-prompt.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -193,6 +195,7 @@ createServer(async (req, res) => {
     if (p === '/api/gradium-token') return gradiumToken(res);
     if (p === '/api/talk' && req.method === 'POST') return talk(req, res);
     if (p === '/api/notes/organize' && req.method === 'POST') { const r = await organizeNotes(S, GEMINI, await body(req).catch(() => null), reqId()); return json(res, r.body, r.status); }
+    if (p === '/api/claims' && req.method === 'POST') { const r = await extractClaims(S, GEMINI, await body(req).catch(() => null), reqId()); return json(res, r.body, r.status); }
     if (p === '/api/english' && req.method === 'POST') { const r = await toEnglish(S, GEMINI, await body(req).catch(() => null), reqId()); return json(res, r.body, r.status); }
     if (p === '/api/reload' && req.method === 'POST') { reload(); return json(res, { ok: true }); }
     serveStatic(req, res);

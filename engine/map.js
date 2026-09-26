@@ -1,7 +1,8 @@
 // The train map panel ("The train", M): an illustrated cut-away of the snowbound train
 // (game-assets/ui/train-map.webp, no text in the art) with crisp HTML over it: car plates, room tags,
 // a pulsing "you are here" pin, visited / not-yet-visited rooms, who is where in this story beat,
-// and hover tooltips. Read-only: no fast travel. UI.openPanel('map', o) delegates to MAP.render(body, o).
+// and hover tooltips. Fast travel: click a room you've already visited (o.travel(id), during the investigation).
+// UI.openPanel('map', o) delegates to MAP.render(body, o).
 // Room boxes are in map-image pixels (1584 x 672) and placed in %, so everything scales with the panel;
 // all sizes are in em, so it follows UI.fit like the rest of the parchment UI.
 (function () {
@@ -32,7 +33,7 @@
   background: #e8eef4 url(${SRC}) center / 100% 100% no-repeat; box-shadow: inset 0 0 0 .12em #fff6dc, 0 .2em .5em rgba(58,36,20,.25); }
 .tmap .z { position: absolute; border-radius: .3em; transition: background .15s, box-shadow .15s; }
 .tmap .z.unseen { background: repeating-linear-gradient(135deg, rgba(58,36,20,.15) 0 .3em, rgba(58,36,20,.05) .3em .6em); backdrop-filter: saturate(.35); -webkit-backdrop-filter: saturate(.35); }
-.tmap .z.static { cursor: default; }
+.tmap .z.static { cursor: default; } .tmap .z.go { cursor: pointer; }
 .tmap .z:hover, .tmap .z:focus-visible { outline: none; background: rgba(255,240,196,.16); box-shadow: 0 0 0 .14em #f0c46a, 0 0 .9em .2em rgba(240,196,106,.55); backdrop-filter: none; -webkit-backdrop-filter: none; }
 .tmap .z.here { box-shadow: 0 0 0 .14em #f0c46a, inset 0 0 1.2em rgba(240,196,106,.45); background: rgba(255,236,170,.12); backdrop-filter: none; -webkit-backdrop-filter: none; }
 .tmap .lbl { position: absolute; transform: translate(-50%, -50%); pointer-events: none; white-space: nowrap; }
@@ -85,6 +86,7 @@
     const seen = (id) => id === here || !!flags['been_' + id];
     const known = (id) => !!(window.SCENES && SCENES[id]);
     const who = (id) => Object.keys(beat[id] || {}).filter((p) => p !== 'sorel');
+    const canGo = (id) => !!o.travel && id !== here && seen(id) && known(id) && !SCENES[id].cinematic && !!(o.canTravel && o.canTravel(id));
     const people = (id) => {
       const list = who(id);
       if (id === 'c7' && (flags.been_c7 || flags.inC7)) list.push('lazar');
@@ -141,7 +143,7 @@
       } else {
         const ppl = people(id).filter((p) => p !== 'lazar').map((p) => names[p] || p);
         if (id === here) h += '<p class="st me">You are here</p>';
-        else if (id !== 'night' && known(id)) h += seen(id) ? '<p class="st">Visited</p>' : '<p class="st no">Not visited yet</p>';
+        else if (id !== 'night' && known(id)) h += seen(id) ? `<p class="st">${canGo(id) ? 'Visited · <b>click to go there</b>' : 'Visited'}</p>` : '<p class="st no">Not visited yet</p>';
         if (ppl.length) h += `<p class="st">Here now: ${esc(ppl.join(', '))}</p>`;
       }
       tip.innerHTML = h; tip.hidden = false;
@@ -153,6 +155,7 @@
       tip.style.left = left + 'px'; tip.style.top = top + 'px';
     };
     const hide = () => { tip.hidden = true; };
+    map.querySelectorAll('.z').forEach((el) => { if (canGo(el.dataset.id)) { el.classList.add('go'); el.addEventListener('click', () => o.travel(el.dataset.id)); el.addEventListener('keydown', (e) => e.key === 'Enter' && o.travel(el.dataset.id)); } });
     map.querySelectorAll('.z, .dot').forEach((el) => {
       el.addEventListener('mouseenter', () => show(el)); el.addEventListener('mouseleave', hide);
       el.addEventListener('focus', () => show(el)); el.addEventListener('blur', hide);

@@ -149,12 +149,20 @@
     if (cur) lines.push(cur); return lines;
   }
   // The nearest other person within talking range of the player (what E acts on), or null.
-  function nearestActor() {
+  // What E acts on: the nearest person, or a clue spot not searched yet. People win unless a spot is clearly
+  // closer, so E never re-opens an old clue when you're standing next to someone (QA, 26 Sept).
+  const REACH = 175;
+  function target() {
     const p = E.player; if (!p || E.lock) return null;
-    let best = null, bd = 150;
-    for (const a of E.actors.values()) { if (a === p || !a.visible) continue; const d = Math.hypot(a.x - p.x, a.y - p.y); if (d < bd) { bd = d; best = a; } }
+    let best = null, bd = REACH;
+    for (const a of E.actors.values()) { if (a === p || !a.visible) continue; const d = Math.hypot(a.x - p.x, a.y - p.y); if (d < bd) { bd = d; best = { kind: 'actor', a }; } }
+    for (const sp of E.hooks.spots ? E.hooks.spots() : []) {
+      if (sp.done || !sp.clues) continue;
+      const d = Math.hypot(sp.stand[0] - p.x, sp.stand[1] - p.y) + 40; if (d < bd) { bd = d; best = { kind: 'spot', s: sp }; }
+    }
     return best;
   }
+  function nearestActor() { const t = target(); return t && t.kind === 'actor' ? t.a : null; }
   function bubble(b, placed) {
     const a = E.actors.get(b.who); if (!a || !a.box) return;
     const name = a === E.player ? null : E.hooks.nameOf(b.who);
@@ -183,6 +191,7 @@
   const E = {
     W, H, canvas: cv, ctx, img, preload, scene: null, sceneId: null, actors: new Map(), player: null, bubbles: [], t: 0,
     fade: 0, fadeTarget: 0, shake: 0, hover: null, lock: false, onArrive: null, beat: null,
+    WALK: 6.4, HURRY: 9.5, // the player's speed, px per frame (was 3.4 / 5.2: QA found walking too slow). Shift hurries.
     hooks: { spots: () => [], people: () => [], clickActor() {}, clickSpot() {}, exitLocked() {}, entered() {} },
 
     async load(id, spawn) {
@@ -216,14 +225,15 @@
     fadeIn: (ms = 450) => E.fadeTo(0, ms),
     fadeTo(v, ms) { return new Promise((r) => { if (E.fade === v) { E.fadeTarget = v; return r(); } E.fadeTarget = v; E.fadeSpeed = 1 / (ms / 16.7); E.fadeDone = r; }); },
     async goto(id, spawn) { E.lock = true; window.AUDIO && AUDIO.sfx('door'); await E.fadeOut(); await E.load(id, spawn); await E.fadeIn(); E.lock = false; },
-    findPath, walkable, nearestWalkable, scaleAt, label, Actor,
+    findPath, walkable, nearestWalkable, scaleAt, label, Actor, target,
   };
 
   // ---------- input ----------
   const keys = {};
   function toCanvas(ev) { const r = cv.getBoundingClientRect(); return [((ev.clientX - r.left) * W) / r.width, ((ev.clientY - r.top) * H) / r.height]; }
   function hitTest(x, y) {
-    for (const a of [...E.actors.values()].sort((p, q) => q.y - p.y)) if (a !== E.player && a.box && x >= a.box[0] + a.box[2] * 0.15 && x <= a.box[0] + a.box[2] * 0.85 && y >= a.box[1] && y <= a.box[1] + a.box[3]) return { kind: 'actor', a };
+    // Generous: the whole sprite plus a margin, so a person is hard to miss (QA, 26 Sept).
+    for (const a of [...E.actors.values()].sort((p, q) => q.y - p.y)) if (a !== E.player && a.box && x >= a.box[0] - 18 && x <= a.box[0] + a.box[2] + 18 && y >= a.box[1] - 14 && y <= a.box[1] + a.box[3] + 22) return { kind: 'actor', a };
     for (const s of E.hooks.spots()) if (Math.hypot(x - s.at[0], y - s.at[1]) < s.r) return { kind: 'spot', s };
     for (const e of E.scene.exits || []) if (E.hooks.exitOpen(e) && x >= e.rect[0] && x <= e.rect[0] + e.rect[2] && y >= e.rect[1] - 40 && y <= e.rect[1] + e.rect[3] + 40) return { kind: 'exit', e };
     return null;
@@ -232,10 +242,17 @@
   cv.addEventListener('click', (ev) => {
     if (E.lock || !E.player || E.scene.cinematic || E.hooks.busy()) return;
     const [x, y] = toCanvas(ev), h = hitTest(x, y), p = E.player;
-    if (h && h.kind === 'actor') { const a = h.a, side = p.x < a.x ? -1 : 1; p.walkTo(a.x + side * 70, a.y + 6, () => { p.face(a); E.hooks.clickActor(a); }); return; }
-    if (h && h.kind === 'spot') { const s = h.s; p.walkTo(s.stand[0], s.stand[1], () => { E.hooks.clickSpot(s); }); return; }
-    if (h && h.kind === 'exit') { const e = h.e; p.walkTo(e.rect[0] + e.rect[2] / 2, e.rect[1] + e.rect[3] / 2); return; }
-    E.ripple = { x, y, t: 20 }; p.walkTo(x, y);
+    const sp = ev.shiftKey ? E.HURRY : E.WALK;
+    if (h && h.kind === 'actor') {
+      // Instant feedback: a ring under them and a click, then talk at once if they're within reach.
+      const a = h.a; E.ping = { x: a.x, y: a.y, t: 24 }; window.AUDIO && AUDIO.sfx('click');
+      if (Math.hypot(a.x - p.x, a.y - p.y) < REACH) { p.stop(); p.face(a); E.hooks.clickActor(a); return; }
+      const side = p.x < a.x ? -1 : 1, [tx, ty] = nearestWalkable(a.x + side * 80, a.y + 6);
+      p.walkTo(tx, ty, () => { p.face(a); E.hooks.clickActor(a); }, sp); return;
+    }
+    if (h && h.kind === 'spot') { const s = h.s; p.walkTo(s.stand[0], s.stand[1], () => { E.hooks.clickSpot(s); }, sp); return; }
+    if (h && h.kind === 'exit') { const e = h.e; p.walkTo(e.rect[0] + e.rect[2] / 2, e.rect[1] + e.rect[3] / 2, null, sp); return; }
+    E.ripple = { x, y, t: 20 }; p.walkTo(x, y, null, sp);
   });
   addEventListener('keydown', (e) => { if (document.activeElement && ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return; keys[e.code] = true; });
   addEventListener('keyup', (e) => { keys[e.code] = false; });
@@ -246,7 +263,7 @@
     let dx = (keys.KeyD || keys.ArrowRight ? 1 : 0) - (keys.KeyA || keys.ArrowLeft ? 1 : 0), dy = (keys.KeyS || keys.ArrowDown ? 1 : 0) - (keys.KeyW || keys.ArrowUp ? 1 : 0);
     if (!dx && !dy) return false;
     p.path = []; p.then = null;
-    const n = Math.hypot(dx, dy), sp = keys.ShiftLeft || keys.ShiftRight ? 5.2 : 3.6;
+    const n = Math.hypot(dx, dy), sp = keys.ShiftLeft || keys.ShiftRight ? E.HURRY : E.WALK;
     const nx = p.x + (dx / n) * sp, ny = p.y + (dy / n) * sp;
     if (walkable(nx, ny)) { p.x = nx; p.y = ny; } else if (walkable(nx, p.y)) p.x = nx; else if (walkable(p.x, ny)) p.y = ny;
     p.dir = Math.abs(dx) >= Math.abs(dy) && dx ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'front' : 'back';
@@ -388,8 +405,10 @@
         const hov = E.hover && E.hover.kind === 'actor' && E.hover.a === a;
         if (!hov && a !== near && !E.showNames && !keys.AltLeft && !keys.AltRight && E.t > (E.namesUntil || 0)) continue;
         const name = E.hooks.nameOf(a.id);
-        if (name) label(name, a.x, a.box[1] - 26, hov || a === near ? { bg: '#fff3c4', edge: '#e0a72e', size: 15 } : { size: 15 });
+        if (name) label(a === near ? `E  ${E.hooks.verb ? E.hooks.verb(a) : 'Talk to'} ${name}` : name, a.x, a.box[1] - 26, hov || a === near ? { bg: '#fff3c4', edge: '#e0a72e', size: a === near ? 16 : 15 } : { size: 15 });
       }
+      const tg = target(); if (tg && tg.kind === 'spot' && !(E.hover && E.hover.kind === 'spot' && E.hover.s === tg.s)) label('E  Examine: ' + tg.s.label, tg.s.at[0], tg.s.at[1] - tg.s.r - 34, { bg: '#fff3c4', edge: '#e0a72e', size: 15 });
+      if (E.ping && E.ping.t-- > 0) { const k = E.ping.t / 24; ctx.save(); ctx.globalAlpha = k; ctx.strokeStyle = '#ffe28a'; ctx.lineWidth = 4; ctx.beginPath(); ctx.ellipse(E.ping.x, E.ping.y, 70 - k * 36, (70 - k * 36) * 0.35, 0, 0, 7); ctx.stroke(); ctx.restore(); }
       if (E.hover && E.hover.kind === 'spot') label(E.hover.s.label, E.hover.s.at[0], E.hover.s.at[1] - E.hover.s.r - 34, { bg: '#fff3c4', edge: '#e0a72e' });
       // Signed exits highlight themselves on hover; compartment-door badges get a full name tag.
       if (E.hover && E.hover.kind === 'exit' && /^No\. \d$/.test(E.hover.e.label) && E.hover.e.rect[1] < 300) { const e = E.hover.e; label('Compartment ' + e.label.slice(4), e.rect[0] + e.rect[2] / 2, e.rect[1] - 14, { bg: '#fff3c4', edge: '#e0a72e', size: 15 }); }

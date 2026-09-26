@@ -23,11 +23,12 @@
 
   const G = {
     names: NAMES, roles: ROLES, EV, beat: null, clock: toMin('07:00'), items: [], notes: [], found: new Set(), per: {},
-    settings: { brain: 'scripted', voice: true, sound: true, music: true, musicVol: 0.7, sfxVol: 0.8 }, server: { brain: false, voice: false }, flags: {},
+    settings: { brain: 'scripted', voice: true, sound: true, music: true, musicVol: 0.7, sfxVol: 0.8, speechRate: 1.15 }, server: { brain: false, voice: false }, flags: {},
     canGather: () => G.beat === 'investigation',
   };
   try { Object.assign(G.settings, JSON.parse(localStorage.getItem('simplon-settings') || '{}')); } catch (_) {}
-  const saveSettings = () => { try { localStorage.setItem('simplon-settings', JSON.stringify(G.settings)); } catch (_) {} };
+  const saveSettings = () => { try { localStorage.setItem('simplon-settings', JSON.stringify(G.settings)); } catch (_) {} VOICE.player.rate = G.settings.speechRate || 1; };
+  VOICE.player.rate = G.settings.speechRate || 1;
   const resetPer = () => { for (const c of CASE.characters) G.per[c.id] = { mood: 'calm', trust: 2, shown: new Set(), revealed: new Set(), done: false, history: {}, lines: [] }; };
   const known = (id) => G.items.includes(id) || G.notes.includes(id);
 
@@ -37,11 +38,12 @@
     (e.take ? G.items : G.notes).push(id);
     if (!quiet) UI.toast((e.take ? 'Added: ' : 'Noted: ') + e.name.replace(/^[^:]+: /, ''), e.take ? id : null, e.take ? 'item' : 'note');
     if (G.beat === 'investigation' && !quiet) advance(2);
+    window.BOARD && BOARD.hud();
     L.info('learned', id);
   }
   function advance(min) {
     G.clock += min; tickClock();
-    if (G.beat === 'investigation' && G.clock >= toMin('10:00') && !G.flags.gathering) { UI.toast('10:00. The relief train whistles.', null, 'alert'); gather(); }
+    if (G.beat === 'investigation' && G.clock >= toMin('10:00') && !G.flags.gathering) { UI.toast('10:00. The relief train whistles.', null, 'alert'); gather(true); }
   }
   const tickClock = () => UI.clock(fmt(G.clock) + (G.beat === 'investigation' ? '  ·  relief at 10:00' : ''), G.beat === 'investigation' && G.clock >= toMin('09:30'));
 
@@ -52,8 +54,9 @@
     speaking: () => {},
     shown: () => {},
     toast: (s) => UI.toast(s),
-    gather: () => gather(),
-    openShow: () => UI.openPanel('inventory', { G, show: true, who: talk.state.who, onPick: (id) => talk.present(id) }),
+    gather: () => gather(false),
+    said: (who, q, a) => window.BOARD && BOARD.heard(who, q, a),
+    openShow: () => UI.openPanel('inventory', { G, show: true, who: talk.state.who, onPick: (id) => talk.present(id), onStatement: (c) => { G.flags.confronted = true; talk.ask(BOARD.confrontLine(c)); } }),
     panelOpen: () => UI.panelOpen(),
     closed: (who, asked) => { const a = E.actors.get(who); if (a) a.talking = false; if (asked) advance(8); },
   });
@@ -62,6 +65,7 @@
   Object.assign(E.hooks, {
     busy: () => UI.busy || talk.state.open || E.lock,
     nameOf: (id) => NAMES[id],
+    verb: (a) => (G.beat === 'breakfast' ? 'Say good morning to' : a.id === 'cook' ? 'Chat with' : 'Talk to'),
     spots() {
       const s = E.scene; if (!s || !s.spots) return [];
       return s.spots.filter((sp) => (!sp.beats || sp.beats.includes(G.beat)) && !(sp.clues && G.beat !== 'investigation')).map((sp) => {
@@ -93,24 +97,32 @@
     frame() { hints(); },
   });
 
-  // E: act on the nearest person or clue
+  // E: act on what the "E ..." prompt shows (engine.js target(): the nearest person, or an unsearched clue)
   addEventListener('keydown', (e) => {
     if (e.code !== 'KeyE' || E.hooks.busy() || !E.player || E.scene.cinematic) return;
-    const p = E.player, near = [];
-    for (const a of E.actors.values()) if (a !== p) near.push({ d: Math.hypot(a.x - p.x, a.y - p.y), go: () => { p.face(a); E.hooks.clickActor(a); } });
-    for (const s of E.hooks.spots()) near.push({ d: Math.hypot(s.stand[0] - p.x, s.stand[1] - p.y), go: () => E.hooks.clickSpot(s) });
-    near.sort((a, b) => a.d - b.d); if (near[0] && near[0].d < 150) near[0].go();
+    const t = E.target(), p = E.player; if (!t) return;
+    if (t.kind === 'actor') { p.stop(); p.face(t.a); E.ping = { x: t.a.x, y: t.a.y, t: 24 }; E.hooks.clickActor(t.a); } else E.hooks.clickSpot(t.s);
   });
   addEventListener('keydown', (e) => {
     if (E.hooks.busy() || !E.player || E.scene.cinematic || document.activeElement?.tagName === 'INPUT') return;
     if (e.code === 'KeyI' && G.beat === 'investigation') UI.openPanel('inventory', { G });
     if (e.code === 'KeyJ' && G.beat === 'investigation') UI.openPanel('notebook', { G });
-    if (e.code === 'KeyM') UI.openPanel('map', { G, here: E.sceneId, hereName: E.scene.name });
+    if (e.code === 'KeyM') UI.openPanel('map', mapOpts());
     if (e.key === 'Escape') UI.openPanel('settings', { G, onChange: saveSettings });
   });
-  document.getElementById('btn-map').onclick = () => UI.openPanel('map', { G, here: E.sceneId, hereName: E.scene?.name });
+  document.getElementById('btn-map').onclick = () => UI.openPanel('map', mapOpts());
   document.getElementById('btn-people').onclick = () => UI.openPanel('notebook', { G });
   document.getElementById('btn-bag').onclick = () => UI.openPanel('inventory', { G });
+  // Fast travel (map): arrive where the door into that room would put you. Only rooms already visited, only
+  // while investigating (QA: walking between rooms was downtime).
+  function spawnFor(id) {
+    for (const sc of Object.values(SCENES)) for (const x of sc.exits || []) if (x.to === id && E.hooks.exitOpen(x) && !x.locked) return x.spawn;
+    return null;
+  }
+  const mapOpts = () => ({ G, here: E.sceneId, hereName: E.scene?.name,
+    canTravel: (id) => G.beat === 'investigation' && !E.lock && !!spawnFor(id),
+    travel: (id) => { const sp = spawnFor(id); if (!sp || E.lock) return; document.getElementById('panel-close').click(); L.info('fast travel', { from: E.sceneId, to: id }); E.goto(id, sp); } });
+  document.getElementById('casepill').onclick = () => BOARD.briefing({ again: true });
   document.getElementById('btn-settings').onclick = () => UI.openPanel('settings', { G, onChange: saveSettings });
 
   // ---------- tutorial hints ----------
@@ -123,11 +135,14 @@
       else if (!f.greeted) h = 'Click someone to say good morning';
       else if (f.greetedSet && f.greetedSet.size < 2) h = 'Say good morning to someone else';
     } else if (G.beat === 'investigation') {
-      if (!f.inC7) h = 'Go into compartment 7: <b>the open door</b>';
-      else if (!G.found.size) h = 'Sparkles mark things worth a closer look. Click them.';
-      else if (!f.talked) h = 'Question people: click them. <kbd>I</kbd> inventory, <kbd>J</kbd> notebook';
-      else if (!f.showed && G.items.length) h = 'In a conversation, <b>Show</b> them what you found';
-      else if (G.clock >= toMin('09:00') || G.found.size >= 8) h = 'Ready? Ask <b>Castelli</b> to gather everyone';
+      const contra = window.BOARD ? BOARD.contradictions.length : 0, st = window.BOARD ? BOARD.strength() : { n: 0 };
+      if (!f.inC7) h = 'Examine the body: go into <b>compartment 7</b> (the open door)';
+      else if (!G.found.size) h = 'Look for clues: sparkles mark things worth a closer look. Click them.';
+      else if (!f.talked) h = 'Now question people about last night: click someone, or walk up and press <kbd>E</kbd>';
+      else if (contra && !f.confronted) h = '⚠ Two statements disagree. In a conversation, <b>Show…</b> › Statements to confront them';
+      else if (!f.showed && G.items.length) h = 'In a conversation, <b>Show…</b> them what you found and watch how they react';
+      else if (st.n >= 3 && (G.clock >= toMin('09:00') || st.n >= 5)) h = 'Your case can hold. When ready, ask <b>Castelli</b> to gather everyone';
+      else if (G.clock >= toMin('09:15')) h = 'Time is short: the carabinieri come at 10:00. Ask <b>Castelli</b> to gather everyone when ready';
     }
     UI.hint(h);
   }
@@ -193,7 +208,8 @@
     await E.fadeOut(500);
     window.AUDIO && AUDIO.sfx('reveal');
     await UI.card(['You run after Théo to the sleeping car.', 'Castelli forces the bolt of No. 7.', 'Anton Lazăr is dead in his berth.'], 3000);
-    G.beat = 'investigation'; E.beat = 'investigation'; G.clock = toMin('07:20');
+    await BOARD.briefing(); // the goal and the loop, before the player can act (QA: the objective wasn't clear)
+    G.beat = 'investigation'; E.beat = 'investigation'; G.clock = toMin('07:20'); BOARD.hud();
     window.AUDIO && AUDIO.music('investigation');
     await E.load('corridor', [700, 500, 'right']); tickClock(); await E.fadeIn(500);
     E.lock = false;
@@ -201,9 +217,12 @@
     await E.wait(4400); E.say('ferrand', 'His heart, Inspector. About half past one. I am sorry.', 3600);
   }
 
-  async function gather() {
+  // forced: 10:00 has come, no more waiting. Otherwise the player first sees how strong the case is, and can go
+  // back to investigating (QA: people accused with a weak case without knowing it).
+  async function gather(forced) {
     if (G.flags.gathering) return; G.flags.gathering = true;
     if (talk.state.open) talk.close();
+    if (!(await BOARD.readiness({ canWait: !forced && G.clock < toMin('10:00') }))) { G.flags.gathering = false; E.lock = false; L.info('accusation postponed', { strength: BOARD.strength().n }); return; }
     E.lock = true; window.AUDIO && AUDIO.music('accusation'); await E.fadeOut(500);
     await UI.card(['Castelli gathers everyone in the dining car.'], 2000);
     E.beat = 'breakfast'; await E.load('dining', [700, 540, 'back']); E.beat = 'investigation';
@@ -220,7 +239,7 @@
   }
 
   function newGame() {
-    G.items = []; G.notes = []; G.found = new Set(); G.flags = {}; resetPer(); window.NOTES && NOTES.reset(); opening();
+    G.items = []; G.notes = []; G.found = new Set(); G.flags = {}; G.beat = null; resetPer(); window.NOTES && NOTES.reset(); window.BOARD && BOARD.reset(); opening();
   }
   function title() {
     UI.hud(false); E.scene = null; E.player = null; window.AUDIO && (AUDIO.music('title'), AUDIO.ambience(false));
