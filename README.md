@@ -1,6 +1,10 @@
+<p align="center"><img src="art/logo/last-alibi-logo.png" alt="Last Alibi logo" width="220"></p>
+
 # 🔎 Last Alibi
 
 **A live-voice detective game where you interrogate AI agents to uncover a truth that never changes.**
+
+![Last Alibi: breakfast in the dining car, Castelli brings the news](docs/img/screenshot-breakfast.jpg)
 
 ## What is it?
 
