@@ -442,6 +442,15 @@
     }
     if (!s.cinematic) {
       followTick();
+      // Whoever is speaking, or in conversation with the inspector, looks at him (and he looks back).
+      if (E.player) {
+        const inTalk = E.hooks.inTalk ? E.hooks.inTalk() : null;
+        for (const a of E.actors.values()) {
+          if (a === E.player || a.moving || !(a.talking || a.id === inTalk)) continue;
+          a.face(E.player);
+          if (a.id === inTalk && !E.player.moving) E.player.face(a);
+        }
+      }
       if (!keyboardMove()) for (const a of E.actors.values()) a.update(); else for (const a of E.actors.values()) if (a !== E.player) a.update();
       for (const pr of s.props || []) { const im = img(pr.img); if (ready(im)) { const h = (im.naturalHeight * pr.w) / im.naturalWidth; ctx.save(); if (pr.flip) { ctx.translate(pr.x * 2 + pr.w, 0); ctx.scale(-1, 1); } ctx.drawImage(im, pr.x, pr.y, pr.w, h); ctx.restore(); } }
       drawSpotMarkers();

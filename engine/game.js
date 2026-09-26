@@ -107,6 +107,7 @@
     },
     // at breakfast a click greets from where you stand: no walking over to their table
     quick: (a) => G.beat === 'breakfast' && !E.lock,
+    inTalk: () => (talk.state.open ? talk.state.who : null),   // they face the inspector for the whole conversation
     frame() {
       hints();
       // walk away from someone you've just greeted and they go back to their breakfast
