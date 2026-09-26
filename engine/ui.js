@@ -170,7 +170,6 @@
       const back = v.querySelector('.back'); back.onclick = () => { removeEventListener('keydown', key, true); onBack(); };
       const key = (e) => { if (e.key === 'Escape' && !v.hidden && !$('#menu').hidden) { e.stopPropagation(); open ? putBack() : back.onclick(); } };
       addEventListener('keydown', key, true);
-      v.querySelector('.pc:not(.soon) .pc-front')?.focus({ preventScroll: true });
     },
     hideMenu() { $('#menu').hidden = true; },
 
