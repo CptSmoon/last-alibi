@@ -7,3 +7,8 @@ dist/
 dist-itch.zip
 .dev.vars
 .wrangler/
+
+# generation workspace (large candidate images)
+tools/assets/*/rounds/
+tools/assets/*/refs/
+tools/assets/*/approved/

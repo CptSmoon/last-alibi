@@ -1,0 +1,16 @@
+Draw one screen of a cozy top-down pixel-art mystery game, in EXACTLY the art style of image 1 (Gather.town-like RPG pixel art, slight 3/4 top-down tilt, warm amber lamp light, rich wood panelling, brass, green and wine-red Art Deco patterns, soft pixel shading, dark outlines, chibi characters).
+
+THE SCENE: the private sleeping compartment of Countess Irina Voss, an elegant Austrian widow, aboard the Simplon-Orient Express, December 1931. The train is stopped in deep snow in the Alps; it is morning.
+
+ONE CHARACTER, for scale: the man from image 2 (camel trench coat, brown fedora) stands on the carpet in the lower middle of the room, facing the camera. He is exactly one third of the image height. Every object in the room must be drawn at a REALISTIC size compared to him, as in real life: the room is a small train compartment and he is a normal adult man.
+
+CAMERA AND ROOM: the room fills the whole 16:9 frame as a rectangle: back wall along the top, left and right side walls slanting in slightly, the floor with a long green and wine-red Art Deco carpet running left to right, a thin dark frame at the bottom edge (the corridor door is behind the camera).
+
+LAYOUT:
+- Back wall, centre: a big window with a brass frame and dusty-rose curtains. Outside: only deep snow, a snowbank up to the lower part of the glass, snow-laden pine trees, falling snow, pale morning sky. NO railway tracks, NO rails, NO fence, NO buildings.
+- Right side: a single bed along the right wall, head against the back wall. Its length equals about 1.3 times the man's height, its width about half his height, the mattress at his knee height. Dusty-rose and cream bedding with a lace edge, a lace pillow, a pale silk dressing gown folded on it. A small bedside shelf by the pillow holding a tiny silver photo frame (a young man in uniform) and a tiny vase of wilted red roses. A fur coat on a hanger on the wall above the foot of the bed, shorter than the man.
+- Left side: a marquetry washstand cabinet reaching the man's waist, with a small oval mirror, tiny perfume bottles and a hand mirror. Beside it a small fold-down table (waist-high, tea-tray size) with a small open jewellery case showing pearls and a sapphire brooch. Two small round striped hat boxes on the floor, each the size of the man's head.
+- A brass double wall sconce on the back wall, left of the window.
+- Lots of free floor in the middle and front: the room must feel uncluttered.
+
+No text, no letters, no numbers, no name labels, no UI, no speech bubbles anywhere.

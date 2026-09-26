@@ -5,9 +5,10 @@
 (function () {
   const INV = ['investigation'], BF = ['breakfast'];
 
-  // Compartments 1, 3, 4 and 5 share one template (desk left, berth top right, carpet along the bottom);
-  // the corridor door is behind the camera, at the bottom edge.
-  const COMP_WALK = [[[330, 585], [1340, 585], [1350, 712], [560, 712], [330, 712]]];
+  // Compartments 1-6 share one room shell (window centred on the back wall, berth along a side wall:
+  // right for odd numbers, left for even ones, so No. 6's shelf sits against No. 7); the corridor door is
+  // behind the camera, at the bottom edge.
+  const CDEPTH = [505, 745, 0.95, 1.05];
   const compExit = (k, x) => ({ id: 'to-corridor', rect: [560, 706, 300, 62], to: 'corridor', spawn: [x, 470, 'front'], label: 'Corridor' });
   const DOOR_X = { 1: 207, 2: 397, 3: 577, 4: 727, 5: 897, 6: 1042 };
 
@@ -48,7 +49,7 @@
     },
 
     c7: {
-      name: 'Compartment 7', bg: 'bg-c7', base: 190, depth: [470, 700, 1.0, 1.1],
+      name: 'Compartment 7', bg: 'bg-c7', base: 245, depth: [470, 700, 1.0, 1.1],
       walk: [[[300, 480], [1255, 472], [1262, 602], [818, 602], [818, 712], [604, 712], [604, 602], [300, 602]]],
       exits: [{ id: 'to-corridor', rect: [604, 706, 214, 62], to: 'corridor', spawn: [1200, 480, 'front'], label: 'Corridor' }],
       props: [{ img: 'sprites/lazar-body', x: 822, y: 262, w: 450, flip: true }],
@@ -104,48 +105,53 @@
     },
 
     c1: {
-      name: 'Compartment 1', bg: 'bg-c1', base: 250, depth: [585, 712, 1.0, 1.06], walk: COMP_WALK, exits: [compExit(1, DOOR_X[1])],
-      spots: [{ id: 'mine', at: [200, 500], stand: [420, 650], r: 60, label: 'Your suitcase', text: 'Your own compartment. Your suitcase, yesterday\'s Figaro, and your fedora\'s empty hook. You slept through the whole thing.' }],
+      name: 'Compartment 1', bg: 'bg-c1', base: 250, depth: CDEPTH,
+      walk: [[[330, 515], [1045, 515], [1045, 745], [355, 745], [355, 625], [60, 625], [60, 585], [330, 585]]], exits: [compExit(1, DOOR_X[1])],
+      spots: [
+        { id: 'mine', at: [272, 690], stand: [410, 690], r: 60, label: 'Your suitcase', text: 'Your own compartment. Your suitcase, yesterday\'s Figaro, and your fedora\'s empty hook. You slept through the whole thing.' },
+        { id: 'desk', at: [405, 370], stand: [420, 535], r: 50, label: 'Your writing case', text: 'Your writing case, the Figaro and the Sûreté file for Belgrade. Nothing in it prepared you for this.' },
+      ],
     },
     c2: {
-      name: 'Compartment 2', bg: 'bg-c2', base: 250, depth: [585, 712, 1.0, 1.06],
-      walk: [[[705, 592], [1340, 592], [1350, 712], [330, 712], [330, 674], [705, 674]]], exits: [compExit(2, DOOR_X[2])],
+      name: 'Compartment 2', bg: 'bg-c2', base: 250, depth: CDEPTH,
+      walk: [[[350, 550], [1020, 550], [1020, 595], [1300, 595], [1330, 745], [350, 745]]], exits: [compExit(2, DOOR_X[2])],
       spots: [
-        { id: 'cards', at: [855, 485], stand: [855, 640], r: 60, label: 'Cards on the seat', clues: ['e_marked_cards'] },
-        { id: 'whisky', at: [450, 480], stand: [450, 690], r: 60, label: 'Whisky and a photograph', text: 'A bottle of Scotch, two-thirds gone, and a regimental photograph. One face has been scratched out.' },
+        { id: 'cards', at: [200, 565], stand: [390, 610], r: 60, label: 'Cards on the berth', clues: ['e_marked_cards'] },
+        { id: 'whisky', at: [990, 345], stand: [990, 560], r: 60, label: 'Whisky and a photograph', text: 'A bottle of Scotch, two-thirds gone, and a regimental photograph. One face has been scratched out.' },
       ],
     },
     c3: {
-      name: 'Compartment 3', bg: 'bg-c3', base: 250, depth: [585, 712, 1.0, 1.06], walk: COMP_WALK, exits: [compExit(3, DOOR_X[3])],
+      name: 'Compartment 3', bg: 'bg-c3', base: 250, depth: CDEPTH,
+      walk: [[[330, 515], [890, 515], [890, 590], [1040, 590], [1040, 745], [305, 745], [305, 565], [330, 565]]], exits: [compExit(3, DOOR_X[3])],
       spots: [
-        { id: 'medbag', at: [1000, 530], stand: [1000, 645], r: 50, label: "The doctor's bag", clues: ['e_medbag'], prop: 'e_medbag', w: 96 },
-        { id: 'shoes', at: [825, 495], stand: [825, 640], r: 45, label: 'Shoes under the berth', clues: ['e_wet_shoes'] },
-        { id: 'books', at: [430, 530], stand: [470, 650], r: 60, label: 'Medical books', text: 'A pharmacopoeia and a book of patience games, both well thumbed.' },
+        { id: 'medbag', at: [1000, 690], stand: [920, 700], r: 45, label: "The doctor's bag", clues: ['e_medbag'], prop: 'e_medbag', w: 62 },
+        { id: 'shoes', at: [970, 540], stand: [880, 610], r: 45, label: 'Shoes by the berth', clues: ['e_wet_shoes'] },
+        { id: 'books', at: [150, 625], stand: [340, 665], r: 60, label: 'Medical books', text: 'A pharmacopoeia and a book of patience games, both well thumbed. A game of patience is laid out, abandoned halfway.' },
       ],
     },
     c4: {
-      name: 'Compartment 4', bg: 'bg-c4', base: 250, depth: [585, 712, 1.0, 1.06],
-      walk: [[[330, 620], [1010, 610], [1340, 620], [1350, 712], [330, 712]]], exits: [compExit(4, DOOR_X[4])],
+      name: 'Compartment 4', bg: 'bg-c4', base: 250, depth: CDEPTH,
+      walk: [[[350, 505], [1240, 505], [1300, 745], [350, 745]]], exits: [compExit(4, DOOR_X[4])],
       spots: [
-        { id: 'vanity', at: [415, 480], stand: [470, 650], r: 60, label: 'A vanity case', clues: ['e_passports'] },
-        { id: 'photo', at: [925, 490], stand: [925, 650], r: 45, label: 'A photograph', text: 'An old woman in a Zagreb studio portrait. On the back, in pencil: "Mama, 1929".' },
+        { id: 'vanity', at: [990, 345], stand: [990, 530], r: 60, label: 'A vanity case', clues: ['e_passports'] },
+        { id: 'photo', at: [1120, 210], stand: [1120, 530], r: 45, label: 'A photograph', text: 'An old woman in a Zagreb studio portrait. On the back, in pencil: "Mama, 1929".' },
       ],
     },
     c5: {
-      name: 'Compartment 5', bg: 'bg-c5', base: 250, depth: [585, 712, 1.0, 1.06],
-      walk: [[[330, 610], [1100, 600], [1340, 620], [1350, 712], [330, 712]]], exits: [compExit(5, DOOR_X[5])],
+      name: 'Compartment 5', bg: 'bg-c5', base: 250, depth: CDEPTH,
+      walk: [[[330, 525], [1030, 525], [1030, 640], [935, 640], [935, 745], [60, 745], [60, 590], [330, 590]]], exits: [compExit(5, DOOR_X[5])],
       spots: [
-        { id: 'jewels', at: [420, 480], stand: [470, 650], r: 60, label: 'A jewellery case', text: 'Pearls, a sapphire brooch, earrings. Everything is here. She offered them to someone, and they were refused.' },
-        { id: 'photo', at: [790, 495], stand: [800, 650], r: 45, label: 'A young officer', text: 'A silver frame: a young man in an Austrian diplomatic uniform. Her son.' },
+        { id: 'jewels', at: [405, 350], stand: [420, 545], r: 60, label: 'A jewellery case', text: 'Pearls, a sapphire brooch, earrings. Everything is here. She offered them to someone, and they were refused.' },
+        { id: 'photo', at: [960, 350], stand: [960, 550], r: 45, label: 'A young officer', text: 'A silver frame: a young man in an Austrian diplomatic uniform. Her son.' },
       ],
     },
     c6: {
-      name: 'Compartment 6', bg: 'bg-c6', base: 168, depth: [470, 705, 0.97, 1.06],
-      walk: [[[205, 472], [880, 472], [880, 592], [1188, 592], [1188, 708], [230, 708], [205, 640]]],
-      exits: [{ id: 'to-corridor', rect: [560, 702, 300, 66], to: 'corridor', spawn: [DOOR_X[6], 470, 'front'], label: 'Corridor' }],
+      name: 'Compartment 6', bg: 'bg-c6', base: 250, depth: CDEPTH,
+      walk: [[[355, 505], [1215, 505], [1300, 745], [1150, 745], [1150, 640], [1000, 640], [1000, 745], [355, 745]]],
+      exits: [compExit(6, DOOR_X[6])],
       spots: [
-        { id: 'tumbler', at: [330, 372], stand: [330, 520], r: 34, label: 'The shelf', clues: ['e_tumbler'], prop: 'e_tumbler', w: 26 },
-        { id: 'attache', at: [1040, 420], stand: [1000, 640], r: 60, label: 'An attaché case', text: 'Oil company letterhead, maps of Ploiești, a cheque book with three stubs torn out.' },
+        { id: 'tumbler', at: [1184, 257], stand: [1150, 525], r: 34, label: 'The shelf', clues: ['e_tumbler'], prop: 'e_tumbler', w: 22 },
+        { id: 'attache', at: [985, 345], stand: [985, 525], r: 60, label: 'An attaché case', text: 'Oil company letterhead, maps of Ploiești, a cheque book with three stubs torn out.' },
       ],
     },
   };

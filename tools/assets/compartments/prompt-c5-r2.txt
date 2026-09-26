@@ -1,0 +1,17 @@
+Image 1 is a draft of a game room with two characters standing in it at their EXACT in-game size (about 250 pixels tall in a 1376x768 frame, about 90 pixels wide). Image 2 is the art-style reference. Redraw this sleeping-car compartment of the Simplon-Orient Express (December 1931, snowbound in the Alps, morning) as an EMPTY background plate: NO characters, NO people, NO UI, NO text.
+
+THE ONE PROBLEM TO FIX: in image 1 all the furniture and objects are far too big for the characters. Keep the SAME room box, camera, walls, floor, carpet, window and overall layout, but redraw every piece of furniture and every object at a realistic size for those characters, roughly 60 percent of its size in image 1, so the room feels roomier:
+- the single bed: about 1.5 times as long as a standing character is tall and about as wide as a character is tall, mattress at the character's knee height; it stays in the bottom-right, head against the right wall, with free floor around it;
+- the washstand cabinet on the left: its top at a character's waist, about 1.5 characters wide, with a small mirror;
+- the small folding table: waist-high, the size of a tea tray;
+- the jewellery case: small, about the size of a character's head, open, with pearls and a sapphire brooch;
+- perfume bottles and hand mirror: tiny;
+- the two round hat boxes: each about the size of a character's head;
+- the fur coat on a hanger: shorter than a character;
+- the silver photo frame of a young man in uniform and the small vase of wilted red roses: tiny, on a small bedside shelf by the pillow;
+- the pale silk dressing gown on the bed: small, in proportion to the bed.
+Leave more empty floor and more visible carpet.
+
+Keep: the big window in the centre of the back wall with its curtains, showing only deep snow, a snowbank, snowy pine trees and falling snow (NO tracks, NO rails, NO fence, NO buildings); the dusty-rose and cream lace bedding; the warm brass wall sconce; the wood panelling; the green and wine-red Art Deco carpet.
+
+Art style: EXACTLY the reference game art: cozy top-down RPG pixel art like Gather.town, slight 3/4 tilt, soft pixel shading, dark outlines, same pixel density, palette and outline weight as image 1. No text, no letters, no numbers, no labels, no UI anywhere in the image.

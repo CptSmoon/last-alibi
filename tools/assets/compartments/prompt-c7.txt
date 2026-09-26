@@ -1,0 +1,12 @@
+Image 1 is the current crime-scene room of a cozy top-down pixel-art mystery game: compartment 7 of the Simplon-Orient Express sleeping car (December 1931, snowbound in the Alps, morning), drawn in its own special cut-away framing (the room shown as a box, an open corridor door at the bottom, the wall of avalanche snow outside on the left). Image 2 shows the correct SCALE: the inspector (camel trench coat, brown fedora) standing in another compartment, with furniture at realistic size around him.
+
+Redraw image 1 ZOOMED IN so that the room is at the same scale as image 2: add the same inspector standing on the carpet in the middle of the room, at the same size as in image 2 (a standing man is about 40 percent of the image height). The room box now fills almost the whole 16:9 frame; keep only a thin strip of the snow wall on the left and keep the open corridor door at the bottom centre. Keep EVERYTHING that makes image 1 this room, at a realistic size compared to the man:
+- the small window in the back wall, its catch unfastened, snow packed on the sill, and outside a snowbank rising almost to the sill (only snow outside: NO tracks, NO rails, NO fence);
+- a small puddle of melted snow on the floor below the window;
+- the single berth on the right with a rumpled wine-red blanket and a pillow, EMPTY (no person in it), about 1.4 times as long as the man is tall;
+- the fold-down table on the left wall, EMPTY on top;
+- the open, EMPTY attaché case on the floor at the bottom left;
+- the brass wall sconce, the wood panelling, the green and wine-red Art Deco carpet.
+Do not add any other objects.
+
+Art style: EXACTLY image 1: cozy Gather.town-like RPG pixel art, slight 3/4 tilt, soft pixel shading, dark outlines. No text, no letters, no numbers, no name labels, no UI anywhere.

@@ -13,11 +13,11 @@ for d in ('bg', 'sprites', 'portraits', 'items'): (OUT / d).mkdir(parents=True, 
 manifest = {'bg': [], 'sprites': {}, 'portraits': {}, 'items': []}
 
 # Colour grade for the few plates that drift from the lamp-lit palette of the rest (measured: the kitchen's
-# grey-cream tiles and compartment 6 are brighter and colder than the other interiors). warm = how far
+# grey-cream tiles are brighter and colder than the other interiors). warm = how far
 # to multiply towards lamp light, bright / sat = ImageEnhance factors.
 from PIL import ImageEnhance, ImageChops
 FLIP = {'bg-kitchen'}
-GRADE = {'bg-kitchen': dict(warm=0.30, bright=0.86, sat=1.12), 'bg-c6': dict(warm=0.18, bright=0.9, sat=1.08)}
+GRADE = {'bg-kitchen': dict(warm=0.30, bright=0.86, sat=1.12)}
 LAMP = (255, 196, 128)
 def grade(im, warm=0.0, bright=1.0, sat=1.0):
     if warm: im = Image.blend(im, ImageChops.multiply(im, Image.new('RGB', im.size, LAMP)), warm)
