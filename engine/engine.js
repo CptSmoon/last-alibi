@@ -107,7 +107,12 @@
     // Seated: a real sitting sprite (faces right, mirrored for left). A speaker only breathes, no pose swaps.
     if (a.seated) { const sit = s('sit'); if (ready(sit)) return { im: sit, flip: a.dir === 'left', bob: a.talking && Math.floor(a.t / 14) % 2 ? 1 : 0, sit: true }; }
     // Standing speaker: hold the gesture pose for the whole line instead of flickering between poses.
-    if (a.talking) return { im: s('talk'), flip: a.dir === 'left', bob: Math.floor(a.t / 14) % 2 };
+    // Talking: the gesture sprites were each drawn half-turned toward a different side, so flipping them can't
+    // point them at a listener. Turned sideways, a speaker uses the (correct) side profile with a talking bob;
+    // the gesture pose is kept for when they face forward.
+    if (a.talking) return a.dir === 'left' || a.dir === 'right'
+      ? { im: s(a.dir), flip: false, bob: Math.floor(a.t / 10) % 2 }
+      : { im: s('talk'), flip: false, bob: Math.floor(a.t / 14) % 2 };
     return { im: s(a.dir), flip: false, bob: 0 };
   }
   function drawActor(a) {
@@ -452,7 +457,7 @@
         for (const a of E.actors.values()) {
           if (a === E.player || a.moving || !(a.talking || a.id === inTalk || a === nearTalker)) continue;
           a.face(E.player);
-          if (a.id === inTalk && !E.player.moving) E.player.face(a);
+          if ((a.id === inTalk || a.talking) && !E.player.moving && !E.player.path.length) E.player.face(a);   // and he turns to whoever speaks
         }
       }
       if (!keyboardMove()) for (const a of E.actors.values()) a.update(); else for (const a of E.actors.values()) if (a !== E.player) a.update();
