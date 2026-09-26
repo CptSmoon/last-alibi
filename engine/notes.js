@@ -13,10 +13,11 @@
   const $ = (s) => document.querySelector(s);
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const KEY = 'simplon-notes';
-  const PEOPLE = ['lazar', 'ferrand', 'irina', 'hale', 'mila', 'brandt', 'theo', 'castelli'];
+  const PEOPLE = ['lazar', 'ferrand', 'irina', 'hale', 'mila', 'brandt', 'theo', 'castelli', 'cook'];
   const ALIAS = {
     lazar: /\b(lazar|lazăr|envoy|victim|anton)\b/i, ferrand: /\b(ferrand|doctor|doc|dr\.?|physician)\b/i, irina: /\b(irina|countess|voss)\b/i,
     hale: /\b(hale|major)\b/i, mila: /\b(mila|novak|singer)\b/i, brandt: /\b(brandt|stefan)\b/i, theo: /\b(th[eé]o|conductor)\b/i, castelli: /\b(castelli|chef de train|bruno)\b/i,
+    cook: /\b(luigi|cook|mancuso|kitchen)\b/i,
   };
   const TIME_RE = /\b([01]?\d|2[0-3])[:h.]([0-5]\d)\b/;
   const G = () => window.GAME && GAME.G;
