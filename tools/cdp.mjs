@@ -57,7 +57,7 @@ export async function launch(url, { width = 1280, height = 900, port = 9333 } = 
       writeFileSync(file, Buffer.from(r.result.data, 'base64')); log.debug('screenshot', { file }); return file;
     },
     // Screenshot of just the game canvas.
-    async canvasShot(file) { const box = await b.eval(`(() => { const r = document.getElementById('screen').getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width, height: r.height }; })()`); return b.shot(file, box); },
+    async canvasShot(file) { const box = await b.eval(`(() => { const r = (document.getElementById('game') || document.getElementById('screen')).getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width, height: r.height }; })()`); return b.shot(file, box); },
     sleep,
     async close() { try { ws.close(); } catch (_) {} proc.kill(); log.info('chrome closed', { consoleLines: logs.length }); },
   };
