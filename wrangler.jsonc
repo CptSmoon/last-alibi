@@ -5,7 +5,7 @@
 // Secrets: wrangler secret put GEMINI_API_KEY / GRADIUM_API_KEY (never in this file).
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "simplon-orient",
+  "name": "last-alibi",
   // Personal account (bd96kais@gmail.com). Pinned so a deploy can never land on another logged-in account.
   "account_id": "b23d1748734924e02ec038742f418125",
   "main": "worker/index.mjs",

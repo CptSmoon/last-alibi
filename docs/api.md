@@ -1,6 +1,6 @@
 # Server API
 
-`server/server.mjs` locally (default `http://localhost:5173`). In production, `worker/index.mjs` serves the same endpoints at https://simplon-orient.kaisspace.workers.dev, adding per-IP rate limits (`429` with `{ error }`) and CORS for itch.io; `/api/reload` exists only locally. See the README's *Deployment* section.
+`server/server.mjs` locally (default `http://localhost:5173`). In production, `worker/index.mjs` serves the same endpoints at https://last-alibi.kaisspace.workers.dev, adding per-IP rate limits (`429` with `{ error }`) and CORS for itch.io; `/api/reload` exists only locally. See the README's *Deployment* section.
 
 The local server has no dependencies and no session state; each request carries what it needs. Every `/api/*` request is logged with its status and duration (see [logging.md](logging.md)).
 

@@ -3,11 +3,11 @@
 Full context: `CONTEXT.md`. Setup and layout: `README.md` and `docs/`.
 
 ## After every push, deploy (you do it: there is no CI)
-- The game is live at **https://simplon-orient.kaisspace.workers.dev** (Cloudflare Worker `simplon-orient`, personal account bd96kais@gmail.com, pinned by `account_id` in `wrangler.jsonc`).
+- The game is live at **https://last-alibi.kaisspace.workers.dev** (Cloudflare Worker `last-alibi`, personal account bd96kais@gmail.com, pinned by `account_id` in `wrangler.jsonc`).
 - **Every time you push to `main`, run `npm run deploy` straight after.** There is no GitHub Actions workflow on purpose; do not add one.
 - `npm run deploy` (`tools/deploy.mjs`) checks that wrangler is logged into the right account and deploys exactly the committed `HEAD` from a clean checkout, never uncommitted work from other sessions.
   If it says the account is wrong, stop and ask the user; never deploy to the Rowads "Extra Staging" account.
-- Then check it's live: `curl -s https://simplon-orient.kaisspace.workers.dev/api/status` should return `"live":true`. Report the deployed commit (`wrangler deployments list` shows `git <hash>`).
+- Then check it's live: `curl -s https://last-alibi.kaisspace.workers.dev/api/status` should return `"live":true`. Report the deployed commit (`wrangler deployments list` shows `git <hash>`).
 - A change is not done until it is pushed **and** deployed.
 
 ## Deploy safety

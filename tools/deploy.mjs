@@ -29,7 +29,7 @@ try {
   log.info('building HEAD in a clean checkout', { head });
   execFileSync('node', ['tools/build-web.mjs'], { cwd: dir, stdio: 'inherit' });
   execFileSync('wrangler', ['deploy', '--message', `git ${head}`], { cwd: dir, stdio: 'inherit' });
-  log.info('deployed', { head, url: 'https://simplon-orient.kaisspace.workers.dev' });
+  log.info('deployed', { head, url: 'https://last-alibi.kaisspace.workers.dev' });
 } finally {
   try { sh('git', ['worktree', 'remove', '--force', dir]); } catch (_) { rmSync(dir, { recursive: true, force: true }); }
 }

@@ -110,7 +110,7 @@ spoken voices sound to a human.
   - Verified with a real-click headless walkthrough: every stage is reachable in both directions, and every spot clue can be collected.
 
 ## Deployment (Cloudflare, 26 Sept)
-- Live: https://simplon-orient.kaisspace.workers.dev (Cloudflare account bd96kais@gmail.com; Worker `simplon-orient`).
+- Live: https://last-alibi.kaisspace.workers.dev (Cloudflare account bd96kais@gmail.com; Worker `last-alibi`).
 - `worker/index.mjs` serves `dist/` (static-assets binding) and the API. `/api/talk` duplicates `server/server.mjs` talk(): keep them in step.
   Secrets are `GEMINI_API_KEY` and `GRADIUM_API_KEY` (wrangler secret put). Per-IP rate limits are in `wrangler.jsonc`. CORS allows the page itself, itch.io frames and `ALLOWED_ORIGINS`.
 - `npm run deploy` builds `dist/` (tools/build-web.mjs, allow-list only) and runs `wrangler deploy`. `npm run dev:worker` runs a local test (.dev.vars).

@@ -127,7 +127,7 @@ The game is served in two ways, and both expose the same API contract:
 
 | | Local | Production |
 |---|---|---|
-| **Code** | `server/server.mjs` (Node) | `worker/index.mjs`, a Cloudflare Worker at https://simplon-orient.kaisspace.workers.dev |
+| **Code** | `server/server.mjs` (Node) | `worker/index.mjs`, a Cloudflare Worker at https://last-alibi.kaisspace.workers.dev |
 | **Static files** | Served from the repo through the allow-list | `dist/`, built by `tools/build-web.mjs` from an allow-list. The scenario is bundled into the Worker and never served |
 | **Keys** | `.env` | Worker secrets (`wrangler secret put`) |
 | **Limits** | None | Per-IP rate limits: talk 20/min, voice tokens 30/min, notes 6/min |
