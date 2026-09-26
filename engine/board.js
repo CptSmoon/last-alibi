@@ -92,7 +92,7 @@
   function hud() {
     const el = $('#casepill'), bulb = $('#btn-brief'); if (!el) return;
     const g = G(), on = g && g.beat === 'investigation';
-    el.hidden = !on; if (bulb) { bulb.hidden = !on; bulb.classList.toggle('blink', on && !g.flags.briefed); } if (!on) return;
+    el.hidden = !on; if (bulb) { bulb.hidden = !on; bulb.classList.remove('blink'); }   // no blinking (QA): the bulb just sits there if (!on) return;
     const s = strength();
     el.className = 'parch ' + s.tone;
     el.innerHTML = `<span class="lab">Case</span><span class="dots">${Array.from({ length: s.of }, (_, i) => `<i class="${i < s.n ? 'on' : ''}"></i>`).join('')}</span><b>${s.n}/${s.of}</b><span class="lab">${esc(s.label)}</span>${S.contra.length ? `<span class="warn" title="Contradictions found">⚠ ${S.contra.length}</span>` : ''}`;
