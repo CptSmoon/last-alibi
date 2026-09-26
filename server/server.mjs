@@ -24,6 +24,7 @@ import { organize as organizeNotes } from './notes.mjs';
 import { toEnglish } from './english.mjs';
 import { extractClaims } from './claims.mjs';
 import { judge } from './judge.mjs';
+import { sidekick } from './sidekick.mjs';
 import { loadScenario, buildSystemInstruction, TOOLS, evidenceMessage, directorNote, CONFESSION_NEEDS, confessionSecret, revealable, toMin, fmt } from '../prompts/build-prompt.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -197,6 +198,7 @@ createServer(async (req, res) => {
     if (p === '/api/gradium-token') return gradiumToken(res);
     if (p === '/api/talk' && req.method === 'POST') return talk(req, res);
     if (p === '/api/notes/organize' && req.method === 'POST') { const r = await organizeNotes(S, GEMINI, await body(req).catch(() => null), reqId()); return json(res, r.body, r.status); }
+    if (p === '/api/sidekick' && req.method === 'POST') { const r = await sidekick(S, GEMINI, await body(req).catch(() => null), reqId()); return json(res, r.body, r.status); }
     if (p === '/api/judge' && req.method === 'POST') { const r = await judge(S, GEMINI, await body(req).catch(() => null), reqId()); return json(res, r.body, r.status); }
     if (p === '/api/claims' && req.method === 'POST') { const r = await extractClaims(S, GEMINI, await body(req).catch(() => null), reqId()); return json(res, r.body, r.status); }
     if (p === '/api/english' && req.method === 'POST') { const r = await toEnglish(S, GEMINI, await body(req).catch(() => null), reqId()); return json(res, r.body, r.status); }

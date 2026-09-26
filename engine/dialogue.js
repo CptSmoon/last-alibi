@@ -27,7 +27,8 @@
       chips.innerHTML = '';
       if (P().done) return;
       const used = (T.used[T.who] ||= new Set());
-      const list = [...(T.who === 'castelli' && G.canGather() ? ['Gather everyone. I am ready to accuse.'] : []), ...((DEMO[T.who] || {}).ch3?.suggest || []).filter((s) => !used.has(s))].slice(0, 3);
+      const list = T.who === 'castelli' && window.SIDEKICK && SIDEKICK.active() ? SIDEKICK.chips()
+        : [...(T.who === 'castelli' && G.canGather() ? ['Gather everyone. I am ready to accuse.'] : []), ...((DEMO[T.who] || {}).ch3?.suggest || []).filter((s) => !used.has(s))].slice(0, 3);
       list.forEach((s, i) => { const b = document.createElement('button'); b.className = 'chip'; b.innerHTML = `<kbd>${i + 1}</kbd>${s}`; b.onclick = () => ask(s, true); chips.appendChild(b); });
     }
     // Immediate feedback: the box says who is thinking the moment you ask, even before the model answers.
@@ -134,13 +135,33 @@
       present(ev) { return this.turn({ kind: 'present', evidence: ev }); },
       close() { T.abort && T.abort.abort(); T.speech && T.speech.cancel(); T.speech = null; },
     };
-    const brain = () => (G.settings.brain === 'live' && G.server.brain ? live : scripted);
+    // ---- Castelli as the inspector's sidekick (engine/sidekick.js, /api/sidekick): help, and errands ----
+    const side = {
+      say(text) {
+        type('castelli', text); P().lines.push({ who: 'castelli', s: text });
+        if (voiceMode() && voiceOf('castelli')) { const sp = (T.speech = new VOICE.Speech(voiceOf('castelli'), {})); sp.text(text); sp.end(); }
+      },
+      greet() { this.say(SIDEKICK.greet()); renderChips(); },
+      async ask(q) {
+        thinking(true);
+        const r = await SIDEKICK.ask(q).catch((e) => { console.warn('[sidekick]', e); return null; });
+        if (!T.open || T.who !== 'castelli') return;
+        thinking(false);
+        this.say((r && r.text) || 'Scusi, Ispettore, I did not follow. Again?');
+        renderChips();
+        // An errand: he leaves once he has said so.
+        if (r && r.actions && r.actions[0] && SIDEKICK.run(r.actions[0])) setTimeout(() => T.open && T.who === 'castelli' && api.close(), 1600);
+      },
+      present(ev) { const e = CASE.evidence.find((x) => x.id === ev); return this.ask(`Look at this, Castelli: ${e.name}. ${e.description} What do you make of it?`); },
+      close() { T.speech && T.speech.cancel(); T.speech = null; },
+    };
+    const brain = () => (G.settings.brain === 'live' && G.server.brain ? (T.who === 'castelli' && window.SIDEKICK && SIDEKICK.active() ? side : live) : scripted);
 
     // ---- actions ----
     function ask(q, quick) {
       q = (q || '').trim(); if (!q || !T.open || P().done || T.busy) return;
       if (quick) (T.used[T.who] ||= new Set()).add(q);
-      if (T.who === 'castelli' && G.canGather() && /gather|accuse|ready|everyone|assemble/i.test(q)) { type('sorel', q, true); setTimeout(() => hooks.gather(), 700); return; }
+      if (T.who === 'castelli' && G.canGather() && /\b(gather|assemble)\b|ready to accuse|i('| a)m ready/i.test(q)) { type('sorel', q, true); setTimeout(() => hooks.gather(), 700); return; }
       T.asked++; T.lastQ = q; type('sorel', q, true); P().lines.push({ who: 'sorel', s: q });
       setTimeout(() => brain().ask(q), 350);
     }

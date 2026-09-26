@@ -78,6 +78,23 @@ Returns a short-lived, **single-use** Gradium token for one WebSocket (STT or TT
 
 `503` if `GRADIUM_API_KEY` is missing; `502` if Gradium refuses.
 
+## `POST /api/sidekick`
+
+Castelli, the inspector's AI assistant during the investigation (`engine/sidekick.js`). He keeps his own character
+prompt and gets a CASE FILE from the client (evidence found, statements, contradictions, his errand reports, who
+has been questioned, how many clues are left per room). He can help you think, or run one errand via a tool:
+`fetch_person(person)`, `search_room(room)` or `interview(person, question)`. The game runs the errand: he walks
+out, and 10 to 12 s later comes back with the person, with the clues left in that room, or with the answer
+(asked through `/api/talk` as that person; the answer also becomes statements).
+
+```json
+{ "input": "Please search compartment 3", "now": 470, "history": [], "file": { "found": [], "unsearched": { "c3": 2 } } }
+-> { "text": "", "actions": [{ "kind": "search", "room": "c3" }] }
+```
+
+Each player line is framed as "the inspector says to his assistant…": Gemini's safety filter blocks a bare
+"Bring me Mila Novak" (`PROHIBITED_CONTENT`) but not in context. An empty answer is retried on the other model.
+
 ## `POST /api/judge`
 
 The accusation's motive and proofs are spoken or typed. The magistrate maps the player's words to a motive id
