@@ -78,6 +78,25 @@ Returns a short-lived, **single-use** Gradium token for one WebSocket (STT or TT
 
 `503` if `GRADIUM_API_KEY` is missing; `502` if Gradium refuses.
 
+## `POST /api/english`
+
+Rewrites a push-to-talk transcript in English. Gradium's `json_config.language: "en"` is only a hint: accented or
+noisy English sometimes comes back as Spanish or French (measured 2026-09-26: a Spanish-sounding clip stayed Spanish
+in 5 of 5 runs, even with `temp: 0`). `assets/voice.js` calls this only when a transcript looks non-English
+(accented letters, or foreign function words such as `usted`, `vous`, `você`); English transcripts never hit it.
+
+```json
+{ "text": "¿Dónde estaba usted anoche a la una?" }
+-> { "text": "Where were you last night at one o'clock?", "changed": true }
+```
+
+Gemini (`brain.fallbackModel` first for speed, then `brain.model`), temperature 0, about 0.5 s. Max 400 characters.
+Errors: 400 (no text / too long), 503 (no `GEMINI_API_KEY`), 502 (both models failed); the browser then keeps the
+original transcript. On the Worker it shares `VOICE_LIMIT`.
+
+The speech-to-text client also sends 1 s of silence before `flush` when the player releases the mic: without it the
+model held back its last ~800 ms and dropped the final word ("last night" came back as "last").
+
 ## `POST /api/notes/organize`
 
 The notebook secretary (`server/notes.mjs`). Sorts the player's own quick notes, plus the public facts he has found, into an organised notebook. It is a secretary, not a detective: it never sees the solution, secrets, lies or unfound evidence, and it is told not to guess the killer.

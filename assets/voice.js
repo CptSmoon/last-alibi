@@ -260,16 +260,47 @@
       this.stream && this.stream.getTracks().forEach((t) => t.stop()); this.ac && this.ac.close();
       if (this.ws && this.ws.readyState <= 1) {
         await new Promise((res) => {
-          let flushed = false; this.resolveFlush = () => { flushed = true; res(); }; const go = () => this.ws.send(JSON.stringify({ type: 'flush', flush_id: 1 }));
-          if (this.open) go(); else this.queue.push(JSON.stringify({ type: 'flush', flush_id: 1 }));
-          setTimeout(() => { if (flushed) return; log.warn('stt flush timed out, using partial text'); res(); }, 1500);
+          let flushed = false; this.resolveFlush = () => { flushed = true; res(); };
+          // Flush alone drops the last word: the model holds back ~800 ms (delay_in_frames 10) waiting for
+          // context. One second of silence first lets it finish the sentence (measured 2026-09-26).
+          const silence = JSON.stringify({ type: 'audio', audio: b64FromF32(new Float32Array(2000)) });
+          const tail = [...Array(12).fill(silence), JSON.stringify({ type: 'flush', flush_id: 1 })];
+          if (this.open) tail.forEach((m) => this.ws.send(m)); else this.queue.push(...tail);
+          setTimeout(() => { if (flushed) return; log.warn('stt flush timed out, using partial text'); res(); }, 2500);
         });
         try { this.ws.send(JSON.stringify({ type: 'end_of_stream' })); this.ws.close(); } catch (_) {}
       }
       log.info('heard', { text: this.text.trim() || '(nothing)', flushMs: Math.round(performance.now() - t0) });
-      return this.text.trim();
+      return english(this.text.trim());
     }
   }
 
-  window.VOICE = { Player, player, Speech, Listener, token, settingsFor, nextChunk };
+  // The game is English only, but Gradium's `language: 'en'` is a hint, not a lock: an accent or a noisy mic can
+  // come back as Spanish or French. When a transcript looks non-English, the server (server/english.mjs, Gemini)
+  // rewrites it as the English sentence the player meant. English transcripts skip this and cost nothing.
+  const FOREIGN = new Set(('el los las que usted ustedes estaba dónde donde qué por con una pero cuando anoche está esta eso esto muy también ' +
+    'señor usted cómo porque vous nous je est pas avec où une des du dans sur qui quoi était êtes monsieur pourquoi comment ' +
+    'você não uma com der das und ist nicht sie ich wo wer warum il di che non sono de del').split(' '));
+  function looksForeign(text) {
+    const C = window.CASE || {};
+    const names = new Set((C.characters || []).flatMap((c) => String(c.name || '').toLowerCase().split(/[\s'’.-]+/)));
+    const words = text.toLowerCase().replace(/[^\p{L}\s'’-]/gu, ' ').split(/\s+/).filter((w) => w && !names.has(w));
+    if (!words.length) return false;
+    if (/[¿¡ñãõßáíóúàèìòùâêîôûäöüç]/.test(words.join(' '))) return true;
+    const hits = words.filter((w) => FOREIGN.has(w)).length;
+    return hits >= 2 || (hits >= 1 && words.length <= 3);
+  }
+  async function english(text) {
+    if (!text || !looksForeign(text)) return text;
+    const t0 = performance.now();
+    try {
+      const r = await fetch((window.API_BASE || '') + '/api/english', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ text }), signal: AbortSignal.timeout(4000) });
+      if (!r.ok) throw new Error('status ' + r.status);
+      const out = (await r.json()).text || text;
+      log.info('rewrote in English', { from: text, to: out, ms: Math.round(performance.now() - t0) });
+      return out;
+    } catch (e) { log.warn('could not rewrite in English, keeping the transcript', { text, error: String(e.message || e) }); return text; }
+  }
+
+  window.VOICE = { Player, player, Speech, Listener, token, settingsFor, nextChunk, english, looksForeign };
 })();

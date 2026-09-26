@@ -3,12 +3,14 @@
 //   GET  /api/gradium-token   -> { token, expires_at }  single-use Gradium WebSocket token
 //   POST /api/talk            -> Server-Sent Events from the Gemini brain (same contract as server/server.mjs)
 //   POST /api/notes/organize  -> the notebook secretary (server/notes.mjs)
+//   POST /api/english         -> a transcript rewritten in English (server/english.mjs)
 // Secrets (wrangler secret put): GEMINI_API_KEY, GRADIUM_API_KEY. The scenario (with the solution) is bundled
 // into this Worker and never served: static files come only from dist/ (tools/build-web.mjs, an allow-list).
 // Keep /api/talk in step with server/server.mjs talk(): same inputs, same events, same confession gate.
 import scenario from '../scenario/orient.json';
 import { buildSystemInstruction, TOOLS, evidenceMessage, directorNote, CONFESSION_NEEDS, confessionSecret, revealable, toMin, fmt } from '../prompts/prompt-core.mjs';
 import { organize as organizeNotes } from '../server/notes.mjs';
+import { toEnglish } from '../server/english.mjs';
 import { logger, reqId } from '../server/log.mjs';
 
 const S = scenario;
@@ -169,6 +171,11 @@ export default {
       if (p === '/api/notes/organize' && req.method === 'POST') {
         if (await limited(env, 'NOTES_LIMIT', ip)) return withCors(json({ error: 'Too many requests, slow down.' }, 429), origin);
         const r = await organizeNotes(S, env.GEMINI_API_KEY, await req.json().catch(() => null), reqId());
+        return withCors(json(r.body, r.status), origin);
+      }
+      if (p === '/api/english' && req.method === 'POST') {
+        if (await limited(env, 'VOICE_LIMIT', ip)) return withCors(json({ error: 'Too many voice requests, slow down.' }, 429), origin);
+        const r = await toEnglish(S, env.GEMINI_API_KEY, await req.json().catch(() => null), reqId());
         return withCors(json(r.body, r.status), origin);
       }
       return withCors(json({ error: 'not found' }, 404), origin);
