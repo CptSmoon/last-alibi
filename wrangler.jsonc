@@ -16,10 +16,11 @@
     // Extra origins allowed to call the API (comma-separated). itch.io game frames are always allowed.
     "ALLOWED_ORIGINS": ""
   },
-  // Per-IP limits, so a public page cannot drain the Gemini / Gradium credits.
+  // Per-IP limits, so a public page cannot drain the Gemini / Gradium credits. Sized for a demo room where many
+  // players share one public IP (a question = 1 talk + 1 claims request; 1-3 voice tokens).
   "ratelimits": [
-    { "name": "TALK_LIMIT", "namespace_id": "1931", "simple": { "limit": 20, "period": 60 } },
-    { "name": "VOICE_LIMIT", "namespace_id": "1932", "simple": { "limit": 30, "period": 60 } },
+    { "name": "TALK_LIMIT", "namespace_id": "1931", "simple": { "limit": 150, "period": 60 } },
+    { "name": "VOICE_LIMIT", "namespace_id": "1932", "simple": { "limit": 200, "period": 60 } },
     { "name": "NOTES_LIMIT", "namespace_id": "1933", "simple": { "limit": 6, "period": 60 } }
   ],
   "observability": { "enabled": true }

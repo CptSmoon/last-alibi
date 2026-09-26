@@ -149,31 +149,44 @@
   }
 
   // ---------- story ----------
+  // Skip intro (demo): each run of the intro has a token; skipping starts a new run, so the abandoned cutscene
+  // stops at its next step and the investigation starts at once.
+  let run = 0;
+  const skipBtn = document.getElementById('skip');
+  skipBtn.onclick = () => skipIntro();
+  function skipIntro() {
+    const r = ++run; L.info('intro skipped');
+    UI.caption(null); document.getElementById('card').hidden = true; E.clearBubbles(); E.shake = 0;
+    if (!E.player) E.player = new E.Actor('sorel', 700, 500, 'right');
+    E.fade = 1; E.fadeTarget = 1; E.fadeDone = null;
+    startInvestigation(r);
+  }
   async function opening() {
+    const r = ++run; skipBtn.hidden = false;
     UI.hideMenu(); UI.hud(false);
     window.AUDIO && AUDIO.music('avalanche');
-    E.beat = null; await E.load('night'); await E.fadeIn(600);
+    E.beat = null; await E.load('night'); if (r !== run) return; await E.fadeIn(600);
     UI.caption(['23:39, 18 December 1931', 'The Simplon-Orient Express, above Iselle']);
-    await E.wait(2200);
+    await E.wait(2200); if (r !== run) return;
     E.shake = 70; rumble(); UI.caption(['23:40. An avalanche.', 'The train will not move again until morning.']);
-    await E.wait(2600); UI.caption(null);
+    await E.wait(2600); if (r !== run) return; UI.caption(null);
     await E.fadeOut(600);
-    await UI.card(['07:00, the next morning.', 'The dining car.'], 1800);
-    await breakfast();
+    await UI.card(['07:00, the next morning.', 'The dining car.'], 1800); if (r !== run) return;
+    await breakfast(r);
   }
   function rumble() { if (!G.settings.sound) return; if (window.AUDIO) return AUDIO.sfx('rumble'); try { const ac = VOICE.player.ensure(); const o = ac.createOscillator(), g = ac.createGain(); o.type = 'sawtooth'; o.frequency.value = 38; g.gain.value = 0.12; g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 2.2); o.connect(g); g.connect(ac.destination); o.start(); o.stop(ac.currentTime + 2.2); } catch (_) {} }
 
   // Breakfast is the tutorial: one thing happens at a time. Sorel walks in from the sleeping car,
   // Castelli makes his announcement, then the room is yours until you've greeted two people.
-  async function breakfast() {
+  async function breakfast(r) {
     G.beat = 'breakfast'; E.beat = 'breakfast'; G.clock = toMin('07:00');
     window.AUDIO && AUDIO.music('breakfast');
     E.player = new E.Actor('sorel', 40, 540, 'right');
     E.lock = true;
-    await E.load('dining'); UI.hud(true); tickClock(); await E.fadeIn(500);
+    await E.load('dining'); if (r !== run) return; UI.hud(true); tickClock(); await E.fadeIn(500);
     await E.player.walkTo(300, 540, null, 3);
-    await E.wait(300);
-    await E.say('castelli', 'Buongiorno, signori! The relief train comes at ten. Coffee is on the house.', 3800);
+    await E.wait(300); if (r !== run) return;
+    await E.say('castelli', 'Buongiorno, signori! The relief train comes at ten. Coffee is on the house.', 3800); if (r !== run) return;
     E.lock = false;
     const start = performance.now(), greeted = () => (G.flags.greetedSet ? G.flags.greetedSet.size : 0);
     let nudged = false;
@@ -181,13 +194,14 @@
       const iv = setInterval(() => {
         const s = (performance.now() - start) / 1000, since = (performance.now() - (G.flags.greetedAt || 0)) / 1000;
         if (!nudged && s > 9 && !greeted()) { nudged = true; E.say('hale', 'Morning, Inspector! Snowed in, by Jove.', 3200); }
-        if ((greeted() >= 2 && since > 3.5) || (greeted() === 1 && s > 30 && since > 3.5) || s > 50) { clearInterval(iv); res(); }
+        if (r !== run || (greeted() >= 2 && since > 3.5) || (greeted() === 1 && s > 30 && since > 3.5) || s > 50) { clearInterval(iv); res(); }
       }, 250);
     });
-    await theoArrives();
+    if (r !== run) return;
+    await theoArrives(r);
   }
 
-  async function theoArrives() {
+  async function theoArrives(r) {
     E.lock = true; UI.hint(null); E.clearBubbles();
     if (E.sceneId !== 'dining') await E.goto('dining', [420, 540, 'left']);
     E.lock = true;
@@ -203,15 +217,19 @@
     theo.face(p); p.face(theo);
     ['irina', 'ferrand', 'hale', 'mila', 'brandt', 'castelli'].forEach((id) => E.actors.get(id)?.face(theo));
     await E.wait(250);
-    await E.say('theo', "No. 7! The envoy won't wake, and his door is bolted from inside. Castelli is breaking it open. Come, please!", 4600, { alert: true });
-    await E.say('irina', 'Mein Gott...', 1500);
-    await E.say('ferrand', "I'm a doctor. I'll come with you.", 2200);
+    await E.say('theo', "No. 7! The envoy won't wake, and his door is bolted from inside. Castelli is breaking it open. Come, please!", 4600, { alert: true }); if (r !== run) return;
+    await E.say('irina', 'Mein Gott...', 1500); if (r !== run) return;
+    await E.say('ferrand', "I'm a doctor. I'll come with you.", 2200); if (r !== run) return;
     await E.fadeOut(500);
     window.AUDIO && AUDIO.sfx('reveal');
-    await UI.card(['You run after Théo to the sleeping car.', 'Castelli forces the bolt of No. 7.', 'Anton Lazăr is dead in his berth.'], 3000);
+    await UI.card(['You run after Théo to the sleeping car.', 'Castelli forces the bolt of No. 7.', 'Anton Lazăr is dead in his berth.'], 3000); if (r !== run) return;
+    await startInvestigation(r);
+  }
+  async function startInvestigation(r) {
+    skipBtn.hidden = true; UI.hint(null); E.lock = true;
     G.beat = 'investigation'; E.beat = 'investigation'; G.clock = toMin('07:20'); BOARD.hud();
     window.AUDIO && AUDIO.music('investigation');
-    await E.load('corridor', [700, 500, 'right']); tickClock(); await E.fadeIn(500);
+    await E.load('corridor', [700, 500, 'right']); if (r !== run) return; UI.hud(true); tickClock(); await E.fadeIn(500);
     E.lock = false;
     E.say('castelli', 'Ispettore, please. Find out what happened before the carabinieri come at ten.', 4200);
     await E.wait(4400); E.say('ferrand', 'His heart, Inspector. About half past one. I am sorry.', 3600);
@@ -242,7 +260,7 @@
     G.items = []; G.notes = []; G.found = new Set(); G.flags = {}; G.beat = null; resetPer(); window.NOTES && NOTES.reset(); window.BOARD && BOARD.reset(); opening();
   }
   function title() {
-    UI.hud(false); E.scene = null; E.player = null; window.AUDIO && (AUDIO.music('title'), AUDIO.ambience(false));
+    run++; skipBtn.hidden = true; UI.hud(false); E.scene = null; E.player = null; window.AUDIO && (AUDIO.music('title'), AUDIO.ambience(false));
     UI.menu([['Play', chooseCase], ['Settings', () => UI.openPanel('settings', { G, onChange: saveSettings })]],
       'A murder mystery game · more cases coming soon');
   }

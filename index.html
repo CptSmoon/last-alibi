@@ -46,6 +46,7 @@ button { font-family: var(--ui); }
 #card { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; background: #120b07; color: #f5ead0; transition: opacity .5s; }
 #card p { margin: .3em 0; font: 700 1.55em var(--ui); } #card p:first-child { font: 800 2.1em var(--ui); color: #f0c46a; }
 #card.out { opacity: 0; }
+#skip { position: absolute; right: 1.2em; bottom: 1.2em; z-index: 5; font: 800 1em var(--ui); padding: .5em 1.2em; opacity: .85; cursor: pointer; } #skip:hover { opacity: 1; }
 
 /* dialogue */
 #dialog { position: absolute; left: 50%; bottom: 1em; transform: translateX(-50%); width: 60em; display: grid; grid-template-columns: 8.2em 1fr; gap: 0 1em; padding: .8em 1em .8em .8em; }
@@ -199,6 +200,7 @@ button { font-family: var(--ui); }
 
   <div id="panel" class="parch" hidden><header><div id="panel-title"></div><button id="panel-close" class="pill ghost">Close</button></header><div id="panel-body"></div></div>
   <div id="card" hidden></div>
+  <button id="skip" class="pill" hidden>Skip intro ›</button>
   <div id="brief" hidden></div>
   <div id="menu" hidden><div class="view" id="menu-main"><img id="menu-logo" src="game-assets/ui/last-alibi-logo.webp" alt="Last Alibi"><div id="menu-list"></div><div id="menu-sub"></div></div><div class="view" id="menu-cases" hidden></div></div>
   <div id="accuse" hidden><div class="inner parch"><h2 id="acc-title"></h2><div id="acc-body"></div></div></div>
