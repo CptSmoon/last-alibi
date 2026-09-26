@@ -73,7 +73,7 @@ button { font-family: var(--ui); }
 #ex-act { justify-self: end; grid-column: 2; }
 
 /* panels */
-#panel { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 56em; max-height: 36em; display: grid; grid-template-rows: auto 1fr; padding: 1em 1.2em; }
+#panel { z-index: 3; /* above #menu, which comes later in the page: Settings opens from the title menu */ position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 56em; max-height: 36em; display: grid; grid-template-rows: auto 1fr; padding: 1em 1.2em; }
 #panel header { display: flex; justify-content: space-between; align-items: center; margin-bottom: .6em; }
 #panel-title { font: 900 1.4em var(--ui); }
 #panel-body { overflow: auto; }
