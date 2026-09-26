@@ -31,6 +31,7 @@ Evidence found: ${file.found.length ? file.found.map((e) => `${e.name} (${e.desc
 Statements heard: ${file.statements.length ? file.statements.join(' | ') : 'none yet'}
 Contradictions spotted: ${file.contradictions.length ? file.contradictions.join(' | ') : 'none yet'}
 Your errand reports: ${file.reports.length ? file.reports.join(' | ') : 'none yet'}
+In the room with the inspector right now${file.room ? ` (${ROOMS[file.room]})` : ''}: ${file.here.length ? file.here.map((id) => (S.characters.find((c) => c.id === id) || {}).name || id).join(', ') + '. They are RIGHT HERE: never offer or agree to fetch them; suggest he simply talks to them' : 'nobody else'}.
 Questioned so far: ${file.questioned.length ? file.questioned.join(', ') : 'nobody'}. Not questioned yet: ${file.notQuestioned.length ? file.notQuestioned.join(', ') : 'nobody'}.
 Rooms with things still to find (count only): ${Object.keys(file.unsearched).length ? Object.entries(file.unsearched).map(([r, n]) => `${ROOMS[r] || r}: ${n}`).join(', ') : 'none that you know of'}.`;
 
@@ -68,6 +69,8 @@ export async function sidekick(S, key, b, rid) {
     contradictions: (Array.isArray(f.contradictions) ? f.contradictions : []).slice(-10).map((x) => clamp(x, 400)).filter(Boolean),
     reports: (Array.isArray(f.reports) ? f.reports : []).slice(-10).map((x) => clamp(x, 500)).filter(Boolean),
     questioned: questioned.map(name), notQuestioned: peopleIds.filter((id) => !questioned.includes(id)).map(name),
+    here: [...new Set(Array.isArray(f.here) ? f.here : [])].filter((id) => peopleIds.includes(id)),
+    room: ROOMS[f.room] ? f.room : null,
     unsearched: Object.fromEntries(Object.entries(f.unsearched || {}).filter(([r, n]) => ROOMS[r] && Number.isInteger(n) && n > 0).slice(0, 12)),
   };
   const now = Number.isInteger(b?.now) ? b.now : undefined;
@@ -94,7 +97,8 @@ export async function sidekick(S, key, b, rid) {
       for (const p of parts) {
         const c = p.functionCall; if (!c) continue;
         const a = c.args || {};
-        if (c.name === 'fetch_person' && peopleIds.includes(a.person)) actions.push({ kind: 'fetch', person: a.person });
+        if (c.name === 'fetch_person' && file.here.includes(a.person)) log.info('fetch refused: already here', { rid, person: a.person });
+        else if (c.name === 'fetch_person' && peopleIds.includes(a.person)) actions.push({ kind: 'fetch', person: a.person });
         else if (c.name === 'search_room' && ROOMS[a.room]) actions.push({ kind: 'search', room: a.room });
         else if (c.name === 'interview' && peopleIds.includes(a.person) && clamp(a.question, 300)) actions.push({ kind: 'interview', person: a.person, question: clamp(a.question, 300) });
         else log.warn('bad tool call dropped', { rid, name: c.name, args: a });

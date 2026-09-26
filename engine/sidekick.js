@@ -46,6 +46,9 @@
       unsearched: clueRooms(),
       away: false,
       phase: g.beat,
+      // who is in the room with the inspector right now: never offer to fetch them
+      room: window.ENGINE ? ENGINE.sceneId : null,
+      here: window.ENGINE ? [...ENGINE.actors.keys()].filter((id) => id !== 'sorel' && id !== 'castelli') : [],
     };
   }
 
