@@ -280,6 +280,7 @@
   }
   cv.addEventListener('mousemove', (ev) => { if (!E.scene || E.scene.cinematic) return; const [x, y] = toCanvas(ev); E.hover = hitTest(x, y); cv.style.cursor = E.hover ? 'pointer' : 'default'; });
   cv.addEventListener('click', (ev) => {
+    if (performance.now() < (E.swallowClickUntil || 0)) { E.swallowClickUntil = 0; return; }   // this click closed a conversation: nothing else
     if (E.lock || !E.player || E.scene.cinematic || E.hooks.busy()) return;
     const [x, y] = toCanvas(ev), h = hitTest(x, y), p = E.player;
     const sp = ev.shiftKey ? E.HURRY : E.WALK;

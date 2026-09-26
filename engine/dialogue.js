@@ -239,11 +239,18 @@
 
     addEventListener('keyup', (e) => { if (e.code === 'Space' && T.open && document.activeElement !== input) release(); });
     // Leaving should be obvious: a click or tap anywhere on the scene outside the conversation box closes it.
+    // That click only closes: it must not also walk the inspector there or act on what's under it.
     const stageCanvas = document.getElementById('game');
-    if (stageCanvas) stageCanvas.addEventListener('pointerdown', (e) => {
-      if (!T.open || T.listening || pressStarted || hooks.panelOpen()) return;
-      e.stopPropagation(); api.close();
-    }, true);
+    let swallowUntil = 0;
+    if (stageCanvas) {
+      stageCanvas.addEventListener('pointerdown', (e) => {
+        if (!T.open || T.listening || pressStarted || hooks.panelOpen()) return;
+        e.stopImmediatePropagation(); e.preventDefault(); swallowUntil = performance.now() + 600; if (window.ENGINE) ENGINE.swallowClickUntil = swallowUntil; api.close();
+      }, true);
+      for (const type of ['click', 'pointerup', 'mouseup']) stageCanvas.addEventListener(type, (e) => {
+        if (performance.now() < swallowUntil) { e.stopImmediatePropagation(); e.preventDefault(); if (type === 'click') swallowUntil = 0; }
+      }, true);
+    }
 
     const api = {
       state: T,
