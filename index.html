@@ -159,6 +159,12 @@ button { font-family: var(--ui); }
 .pc .rubber { position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%) rotate(-9deg); padding: .25em .8em; pointer-events: none;
   font: 900 1.25em var(--ui); letter-spacing: .14em; text-transform: uppercase; color: rgba(190,40,40,.88); border: .18em solid currentColor; border-radius: .25em;
   background: rgba(246,238,219,.18); mix-blend-mode: multiply; }
+/* a solved case: a red SOLVED stamp across the corner of the picture (the case stays playable) */
+.pc .rubber.done { left: auto; right: .6em; top: 1.1em; transform: rotate(12deg); display: grid; justify-items: center; line-height: 1; padding: .3em .7em .25em;
+  font-size: 1.35em; color: rgba(178,30,30,.92); background: rgba(246,238,219,.55); box-shadow: 0 0 0 .1em rgba(246,238,219,.5); mix-blend-mode: normal; }
+.pc .rubber.done small { font: 800 .42em var(--ui); letter-spacing: .08em; margin-top: .2em; }
+.pc.open .rubber.done { opacity: 0; }
+.pc-back .record { font: 700 .72em var(--ui); color: var(--wine); margin: -.2em 0 .4em; }
 .pc.nudge { animation: pc-nudge .45s; }
 @keyframes pc-nudge { 25% { transform: rotate(calc(var(--r) + 1.6deg)); } 55% { transform: rotate(calc(var(--r) - 1.1deg)); } 80% { transform: rotate(calc(var(--r) + .4deg)); } }
 /* the back: the pitch written by hand, a stamp, a postmark, and the way in */

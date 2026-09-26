@@ -137,7 +137,8 @@
     cases(list, onPick, onBack) {
       const v = $('#menu-cases'); $('#menu').hidden = false; $('#menu-main').hidden = true; v.hidden = false; v.classList.remove('focus');
       const tilt = [-3, 2.2, -1.6, 2.8, -2.4], bg = (c) => (c.art ? `style="background-image:url('${esc(c.art)}')"` : '');
-      v.innerHTML = `<h2>Choose a case</h2><div class="cases">${list.map((c, i) => `<div class="pc${c.ready ? '' : ' soon'}" data-i="${i}" style="--r:${tilt[i % tilt.length]}deg">
+      const prog = (c) => (window.PROGRESS && PROGRESS.get(c.id)) || {}, day = (iso) => { try { return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }); } catch (_) { return ''; } };
+      v.innerHTML = `<h2>Choose a case</h2><div class="cases">${list.map((c, i) => `<div class="pc${c.ready ? '' : ' soon'}${prog(c).solvedAt ? ' solved' : ''}" data-i="${i}" style="--r:${tilt[i % tilt.length]}deg">
         <div class="pc-flip">
           <button class="pc-front" ${c.ready ? '' : 'aria-disabled="true"'} aria-label="${esc(c.title)}${c.ready ? '' : ', coming soon'}">
             <div class="art" ${bg(c)}>${c.art ? '' : '<b>?</b>'}</div>
@@ -147,9 +148,10 @@
             <div class="l"><div class="m">${esc(c.year)} · ${esc(c.place)}</div><div class="t">${esc(c.title)}</div>${c.blurb ? `<p class="d">${esc(c.blurb)}</p>` : ''}</div>
             <div class="r"><div class="stamp"><i ${bg(c)}></i></div><div class="postmark"><span>${esc(c.postmark || '')}</span><b>${esc(c.year)}</b></div>
               <div class="addr"><span>To the detective</span><i></i><i></i><i></i></div>
-              <div class="acts"><button class="play">Open the case</button><button class="putback">Put it back</button></div></div>
+              ${prog(c).plays ? `<div class="record">${prog(c).solvedAt ? `Solved on ${esc(day(prog(c).solvedAt))}` : 'Not solved yet'} · ${prog(c).plays} ${prog(c).plays === 1 ? 'attempt' : 'attempts'}</div>` : ''}
+              <div class="acts"><button class="play">${prog(c).plays ? 'Play again' : 'Open the case'}</button><button class="putback">Put it back</button></div></div>
           </div>` : ''}
-        </div><span class="tape"></span>${c.ready ? '' : '<span class="rubber">Coming soon</span>'}</div>`).join('')}</div><div class="cases-shade"></div><button class="back">← Back</button>`;
+        </div><span class="tape"></span>${c.ready ? '' : '<span class="rubber">Coming soon</span>'}${prog(c).solvedAt ? `<span class="rubber done">Solved<small>${esc(day(prog(c).solvedAt))}</small></span>` : ''}</div>`).join('')}</div><div class="cases-shade"></div><button class="back">← Back</button>`;
       let open = null;
       const peel = (pc) => { // take the card off the wall: fly it to the middle of the menu, then turn it over
         const r = pc.getBoundingClientRect(), m = $('#menu').getBoundingClientRect();

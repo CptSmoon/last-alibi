@@ -267,6 +267,7 @@
     L.info('accusation', { who: r.who, motive: r.why, proofs: r.picks, words: r.words });
     const req = CASE.accusation.requires, keys = r.picks.filter((e) => req.evidenceAnyThreeOf.includes(e));
     const verdict = r.who === req.suspect && r.why === req.motive && keys.length >= 3 ? 'solved' : r.who === req.suspect ? 'weak' : 'wrong';
+    window.PROGRESS && PROGRESS.record((window.CASES && CASES[0] && CASES[0].id) || 'simplon-orient', verdict);   // remembered on the case postcard
     if (verdict !== 'wrong') { E.actors.get(r.who)?.face(E.player); await E.say(r.who, verdict === 'solved' ? '...Colette. She was nineteen. I am so tired, Inspector.' : 'You cannot prove any of this.', 3000); }
     const all = [...new Set(req.evidenceAnyThreeOf)];
     window.AUDIO && AUDIO.music(verdict === 'solved' ? 'solved' : 'failed', { fade: 1.5 });

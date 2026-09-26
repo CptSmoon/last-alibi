@@ -1,5 +1,6 @@
 // The case library shown on the Last Alibi menu. Each scenario is one case; only `ready` ones can be played.
-// To add a scenario: append an entry here (art is a 16:9 image under game-assets/ or assets/art/, postmark the town stamped on the back of its postcard).
+// To add a scenario: append an entry here (art is a 16:9 image under game-assets/: only engine/ and game-assets/ are
+// deployed, so an image elsewhere will 404 live; postmark is the town stamped on the back of its postcard).
 window.CASES = [
   { id: 'simplon-orient', title: 'Last Stop, Simplon-Orient', year: '1931', place: 'A night train, snowbound in the Alps',
     blurb: 'An avalanche stops the express above Iselle. By breakfast, the envoy in No. 7 is dead behind a bolted door.',
@@ -11,3 +12,21 @@ window.CASES = [
     blurb: 'A storm cuts the rock off from the mainland. The beam still turns, the lantern lies smashed, and the keeper is gone.',
     art: 'game-assets/ui/case-ker-avel.webp', postmark: 'Ker-Avel', ready: false },
 ];
+
+// What the player has achieved in each case, kept in this browser: solved (and when), best verdict, attempts.
+// A solved case stays playable; its postcard gets a SOLVED stamp.
+window.PROGRESS = (function () {
+  const KEY = 'lastalibi-progress', RANK = { wrong: 0, weak: 1, solved: 2 };
+  const read = () => { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (_) { return {}; } };
+  return {
+    get: (id) => read()[id] || null,
+    record(id, verdict) {
+      const all = read(), p = all[id] || { plays: 0 };
+      p.plays = (p.plays || 0) + 1; p.last = verdict; p.lastAt = new Date().toISOString();
+      if (!p.best || RANK[verdict] > RANK[p.best]) p.best = verdict;
+      if (verdict === 'solved' && !p.solvedAt) p.solvedAt = p.lastAt;
+      all[id] = p; try { localStorage.setItem(KEY, JSON.stringify(all)); } catch (_) {}
+      return p;
+    },
+  };
+})();
