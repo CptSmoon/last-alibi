@@ -244,5 +244,20 @@
     },
   };
   addEventListener('resize', UI.fit);
+
+  // Fullscreen: a small button in the bottom-left corner and the F key. On itch.io the game is embedded in a frame;
+  // this fills the screen from inside it (the frame allows it). Hidden where fullscreen isn't allowed.
+  (function () {
+    const d = document, root = d.documentElement, can = d.fullscreenEnabled || d.webkitFullscreenEnabled;
+    const btn = d.createElement('button'); btn.id = 'fs-btn'; btn.className = 'parch';
+    const draw = () => { const on = !!(d.fullscreenElement || d.webkitFullscreenElement); btn.title = on ? 'Exit fullscreen (F)' : 'Fullscreen (F)'; btn.setAttribute('aria-label', btn.title);
+      btn.innerHTML = on ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>' : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>'; };
+    const toggle = () => { if (d.fullscreenElement || d.webkitFullscreenElement) (d.exitFullscreen || d.webkitExitFullscreen).call(d); else { const r = (root.requestFullscreen || root.webkitRequestFullscreen).call(root); r && r.catch && r.catch(() => {}); } };
+    btn.onclick = toggle; btn.hidden = !can; draw();
+    d.addEventListener('fullscreenchange', () => { draw(); setTimeout(UI.fit, 50); }); d.addEventListener('webkitfullscreenchange', () => { draw(); setTimeout(UI.fit, 50); });
+    addEventListener('keydown', (e) => { if (e.code !== 'KeyF' || e.repeat || e.metaKey || e.ctrlKey || e.altKey || !can) return; const t = d.activeElement; if (t && ['INPUT', 'TEXTAREA'].includes(t.tagName)) return; toggle(); });
+    const mount = () => ($('#stage') || d.body).appendChild(btn);
+    if (d.readyState === 'loading') addEventListener('DOMContentLoaded', mount); else mount();
+  })();
   window.UI = UI;
 })();
