@@ -274,6 +274,8 @@
     for (const a of [...E.actors.values()].sort((p, q) => q.y - p.y)) if (a !== E.player && a.box && x >= a.box[0] - 18 && x <= a.box[0] + a.box[2] + 18 && y >= a.box[1] - 14 && y <= a.box[1] + a.box[3] + 22) return { kind: 'actor', a };
     for (const s of E.hooks.spots()) if (Math.hypot(x - s.at[0], y - s.at[1]) < s.r) return { kind: 'spot', s };
     for (const e of E.scene.exits || []) if (E.hooks.exitOpen(e) && x >= e.rect[0] && x <= e.rect[0] + e.rect[2] && y >= e.rect[1] - 40 && y <= e.rect[1] + e.rect[3] + 40) return { kind: 'exit', e };
+    // the pool of light and chevrons in front of an exit count too (they sit just outside the exit's zone)
+    for (const e of E.scene.exits || []) if (E.hooks.exitOpen(e) && !/^No\. \d$/.test(e.label || '') || (E.hooks.exitOpen(e) && e.rect[1] >= 300)) { const [ax, ay] = exitAnchor(e); if (Math.hypot(x - ax, (y - ay) * 1.6) < 70) return { kind: 'exit', e }; }
     return null;
   }
   cv.addEventListener('mousemove', (ev) => { if (!E.scene || E.scene.cinematic) return; const [x, y] = toCanvas(ev); E.hover = hitTest(x, y); cv.style.cursor = E.hover ? 'pointer' : 'default'; });
@@ -290,7 +292,8 @@
       p.walkTo(tx, ty, () => { p.face(a); E.hooks.clickActor(a); }, sp); return;
     }
     if (h && h.kind === 'spot') { const s = h.s; p.walkTo(s.stand[0], s.stand[1], () => { E.hooks.clickSpot(s); }, sp); return; }
-    if (h && h.kind === 'exit') { const e = h.e; p.walkTo(e.rect[0] + e.rect[2] / 2, e.rect[1] + e.rect[3] / 2, null, sp); return; }
+    // an exit: walk to it and leave on arrival (door exits sit in a wall you can't walk into, so don't rely on stepping into the zone)
+    if (h && h.kind === 'exit') { const e = h.e, [ax, ay] = nearestWalkable(...exitAnchor(e)); p.walkTo(ax, ay, () => { if (E.sceneId !== undefined && !E.lock) { if (e.locked) E.hooks.exitLocked(e); else if (e.to) { p.stop(); E.goto(e.to, e.spawn); } } }, sp); return; }
     E.ripple = { x, y, t: 20 }; p.walkTo(x, y, null, sp);
   });
   addEventListener('keydown', (e) => { if (document.activeElement && ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return; keys[e.code] = true; });
@@ -444,9 +447,9 @@
       followTick();
       // Whoever is speaking, or in conversation with the inspector, looks at him (and he looks back).
       if (E.player) {
-        const inTalk = E.hooks.inTalk ? E.hooks.inTalk() : null;
+        const inTalk = E.hooks.inTalk ? E.hooks.inTalk() : null, nt = target(), nearTalker = nt && nt.kind === 'actor' && !E.player.moving ? nt.a : null;   // the one you're about to talk to turns to you
         for (const a of E.actors.values()) {
-          if (a === E.player || a.moving || !(a.talking || a.id === inTalk)) continue;
+          if (a === E.player || a.moving || !(a.talking || a.id === inTalk || a === nearTalker)) continue;
           a.face(E.player);
           if (a.id === inTalk && !E.player.moving) E.player.face(a);
         }
