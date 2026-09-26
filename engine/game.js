@@ -227,7 +227,7 @@
     const c = E.addActor('castelli', 30, ay, 'right');
     L.info('castelli arrives');
     window.AUDIO && (AUDIO.sfx('sting'), AUDIO.music(null, { fade: 1 }));
-    E.say('castelli', 'Ispettore! Ispettore!', 1800, { alert: true });
+    E.say('castelli', 'Inspector! Inspector!', 1800, { alert: true });
     await c.walkTo(Math.max(120, p.x - 110), p.y, null, 7); if (r !== run) return;   // he comes right up to you first
     c.face(p); p.face(c);
     ['irina', 'ferrand', 'hale', 'mila', 'brandt'].forEach((id) => E.actors.get(id)?.face(c));
@@ -254,7 +254,7 @@
     window.AUDIO && AUDIO.music('investigation');
     await E.load('corridor', [700, 500, 'right']); if (r !== run) return; UI.hud(true); tickClock(); await E.fadeIn(500);
     E.lock = false;
-    E.say('castelli', 'Here, Ispettore. I stay with you: call me whenever you need me.', 4200);
+    E.say('castelli', 'Here, Inspector. I stay with you: call me whenever you need me.', 4200);
     window.SIDEKICK && SIDEKICK.hud();
     UI.toast('Castelli follows you. Click his portrait (bottom right) or press C to call him.', null, 'note');
     await E.wait(4400); E.say('ferrand', 'His heart, Inspector. About half past one. I am sorry.', 3600);

@@ -22,7 +22,7 @@
   const active = () => { const g = GG(); return !!g && (g.beat === 'investigation' || g.beat === 'alarm') && live(); };   // the AI sidekick
   const handles = () => { const g = GG(); return !!g && (g.beat === 'alarm' || active()); };                          // his lines, AI or canned
   // Without the AI (scripted mode), the opening still works with canned lines.
-  const offline = () => ({ text: 'In compartment 7, Ispettore, in the sleeping car. Théo found the door bolted from inside; we forced it. Come, I will take you there.', actions: [] });
+  const offline = () => ({ text: 'In compartment 7, Inspector, in the sleeping car. Théo found the door bolted from inside; we forced it. Come, I will take you there.', actions: [] });
   const away = () => !!(st() && st().errand);
 
   // ---------- the case file he sees ----------
@@ -52,15 +52,15 @@
   // ---------- conversation ----------
   function greet() {
     const s = st();
-    if (GG().beat === 'alarm') return 'Ispettore, forgive me, your breakfast... It is Signor Lazăr, in compartment 7. Théo found his door bolted from the inside. We forced it. He is dead, Ispettore.';
-    if (!s.met) { s.met = true; return 'Ispettore, I am at your service. I can fetch someone for you, search a room, or go and ask someone a question. Or we think it through together.'; }
-    return s.reports.length ? 'Ispettore? Shall I go somewhere else for you?' : 'Ispettore. What can I do?';
+    if (GG().beat === 'alarm') return 'Inspector, forgive me, your breakfast... It is Signor Lazăr, in compartment 7. Théo found his door bolted from the inside. We forced it. He is dead, Inspector.';
+    if (!s.met) { s.met = true; return 'Inspector, I am at your service. I can fetch someone for you, search a room, or go and ask someone a question. Or we think it through together.'; }
+    return s.reports.length ? 'Inspector? Shall I go somewhere else for you?' : 'Inspector. What can I do?';
   }
   async function ask(input) {
     const s = st(), g = GG();
     const r = await fetch(API() + '/api/sidekick', { method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ input, now: g.clock, history: s.history.slice(-16), file: file() }) });
-    if (r.status === 429) return { text: 'Piano, Ispettore: too many questions at once. A moment, please.', actions: [] };
+    if (r.status === 429) return { text: 'Piano, Inspector: too many questions at once. A moment, please.', actions: [] };
     if (!r.ok) throw new Error('sidekick ' + r.status);
     const out = await r.json();
     if (!out.text && out.actions.length) out.text = going(out.actions[0]);
@@ -68,9 +68,9 @@
     log.info('asked', { input: input.slice(0, 120), actions: out.actions.map((a) => a.kind + ':' + (a.person || a.room)) });
     return out;
   }
-  const going = (a) => a.kind === 'fetch' ? `Subito, Ispettore. I'll bring ${name(a.person)} to you.`
-    : a.kind === 'search' ? `Sì, Ispettore. I'll search ${ROOM[a.room]} and come straight back.`
-      : `I'll go and ask ${name(a.person)}, Ispettore, and tell you what they say.`;
+  const going = (a) => a.kind === 'fetch' ? `Subito, Inspector. I'll bring ${name(a.person)} to you.`
+    : a.kind === 'search' ? `Sì, Inspector. I'll search ${ROOM[a.room]} and come straight back.`
+      : `I'll go and ask ${name(a.person)}, Inspector, and tell you what they say.`;
 
   // ---------- errands ----------
   function run(a) {
@@ -87,10 +87,10 @@
     const mine = s;
     const done = (report, extra) => { if (GG() && GG().flags.side === mine) back(a, report, extra); };
     if (a.kind === 'search') setTimeout(() => done(...search(a.room)), TIME.search);
-    else if (a.kind === 'fetch') setTimeout(() => done(`I found ${name(a.person)}. Here, Ispettore.`, () => bring(a.person)), TIME.fetch);
+    else if (a.kind === 'fetch') setTimeout(() => done(`I found ${name(a.person)}. Here, Inspector.`, () => bring(a.person)), TIME.fetch);
     else if (a.kind === 'interview') {
       const t0 = Date.now();
-      interview(a.person, a.question).then((ans) => setTimeout(() => done(ans ? `I asked ${name(a.person)}: "${a.question}" ${short(a.person)} said: "${ans}"` : `${name(a.person)} would not answer me, Ispettore.`,
+      interview(a.person, a.question).then((ans) => setTimeout(() => done(ans ? `I asked ${name(a.person)}: "${a.question}" ${short(a.person)} said: "${ans}"` : `${name(a.person)} would not answer me, Inspector.`,
         () => ans && window.BOARD && BOARD.heard(a.person, a.question, ans)), Math.max(0, TIME.interview - (Date.now() - t0))));
     }
     return true;
@@ -105,7 +105,7 @@
       for (const id of sp.clues) if (!g.found.has(id)) { g.found.add(id); got.push(id); }
     }
     const names = got.map((id) => g.EV[id].name.replace(/^[^:]+: /, '').toLowerCase());
-    const report = got.length ? `In ${ROOM[room]} I found: ${names.join(', ')}. I brought it all to you.` : `I searched ${ROOM[room]} from top to bottom, Ispettore. Nothing new there.`;
+    const report = got.length ? `In ${ROOM[room]} I found: ${names.join(', ')}. I brought it all to you.` : `I searched ${ROOM[room]} from top to bottom, Inspector. Nothing new there.`;
     return [report, () => got.forEach((id) => GAME.learn(id))];
   }
 
@@ -186,7 +186,7 @@
     if (c && Math.hypot(c.x - p.x, c.y - p.y) < 260) { E.follow('castelli'); c.face(p); GAME.talk.open('castelli'); return; }
     L('summoned', { room: E.sceneId });
     const a = arrive('castelli', 110); if (!a) return;
-    E.say('castelli', 'Sì, Ispettore? I am coming!', 1800);
+    E.say('castelli', 'Sì, Inspector? I am coming!', 1800);
     const t = setInterval(() => { if (!a.moving || Math.hypot(a.x - p.x, a.y - p.y) < 140) { clearInterval(t); E.follow('castelli'); if (!GAME.talk.state.open && !E.lock) { a.face(p); GAME.talk.open('castelli'); } } }, 150);
   }
   btn.onclick = summon;

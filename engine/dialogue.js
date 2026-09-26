@@ -155,7 +155,7 @@
         const r = await (SIDEKICK.active() ? SIDEKICK.ask(q) : Promise.resolve(SIDEKICK.offline(q))).catch((e) => { console.warn('[sidekick]', e); return null; });
         if (!T.open || T.who !== 'castelli') return;
         thinking(false);
-        this.say((r && r.text) || 'Scusi, Ispettore, I did not follow. Again?');
+        this.say((r && r.text) || 'Scusi, Inspector, I did not follow. Again?');
         renderChips();
         // An errand: he leaves once he has said so.
         if (r && r.actions && r.actions[0] && SIDEKICK.run(r.actions[0])) setTimeout(() => T.open && T.who === 'castelli' && api.close(), 1600);
@@ -173,7 +173,7 @@
       // The opening: "take me there" (or any way of saying let's go) and Castelli leads you to No. 7.
       if (T.who === 'castelli' && G.beat === 'alarm' && /\b(take|bring|lead|show|walk)\b.*\b(me|us)\b|\blet'?s go\b|\bgo there\b|\blead the way\b|\ballons\b|\bcome on\b|\bon y va\b/i.test(q)) {
         T.lastQ = q; type('sorel', q, true); P().lines.push({ who: 'sorel', s: q });
-        setTimeout(() => { if (T.open) side.say('Sì, Ispettore, subito. This way, follow me!'); hooks.lead && hooks.lead(); }, 400); return;
+        setTimeout(() => { if (T.open) side.say('Sì, Inspector, subito. This way, follow me!'); hooks.lead && hooks.lead(); }, 400); return;
       }
       if (T.who === 'castelli' && G.canGather() && /\b(gather|assemble)\b|ready to accuse|i('| a)m ready/i.test(q)) { type('sorel', q, true); setTimeout(() => hooks.gather(), 700); return; }
       T.asked++; T.lastQ = q; type('sorel', q, true); P().lines.push({ who: 'sorel', s: q });
