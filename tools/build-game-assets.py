@@ -16,6 +16,7 @@ manifest = {'bg': [], 'sprites': {}, 'portraits': {}, 'items': []}
 # grey-cream tiles and compartment 6 are brighter and colder than the other interiors). warm = how far
 # to multiply towards lamp light, bright / sat = ImageEnhance factors.
 from PIL import ImageEnhance, ImageChops
+FLIP = {'bg-kitchen'}
 GRADE = {'bg-kitchen': dict(warm=0.30, bright=0.86, sat=1.12), 'bg-c6': dict(warm=0.18, bright=0.9, sat=1.08)}
 LAMP = (255, 196, 128)
 def grade(im, warm=0.0, bright=1.0, sat=1.0):
@@ -26,7 +27,11 @@ def grade(im, warm=0.0, bright=1.0, sat=1.0):
 
 # backgrounds: full size (1376x768), webp
 for f in sorted((SRC / 'backgrounds').glob('*.jpg')):
-    grade(Image.open(f).convert('RGB'), **GRADE.get(f.stem, {})).save(OUT / 'bg' / f'{f.stem}.webp', 'WEBP', quality=90, method=6)
+    im = Image.open(f).convert('RGB')
+    # The kitchen sits between the dining car and the lounge (as on the map), so its plate is mirrored:
+    # the dining car must be on its left. engine/scenes.js uses the mirrored coordinates.
+    if f.stem in FLIP: im = im.transpose(Image.FLIP_LEFT_RIGHT)
+    grade(im, **GRADE.get(f.stem, {})).save(OUT / 'bg' / f'{f.stem}.webp', 'WEBP', quality=90, method=6)
     manifest['bg'].append(f.stem)
 
 # sprites: poses from the slices, normalised to 300 px tall, feet at the bottom edge

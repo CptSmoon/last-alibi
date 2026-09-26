@@ -282,6 +282,73 @@
     ctx.save(); ctx.globalCompositeOperation = 'soft-light'; ctx.fillStyle = L.wash; ctx.fillRect(0, 0, W, H); ctx.restore();
     ctx.drawImage(vignette, 0, 0);
   }
+  // Ways out are marked in the world, not with signs: a soft pool of light on the floor at every exit, with
+  // chevrons drifting the way you'd walk. Its name fades in only when you're close or pointing at it.
+  // Compartment doors in the corridor instead carry their number engraved on the door's own brass plate.
+  function exitSide(e) {
+    const [x, y, w, h] = e.rect;
+    return x < 60 ? 'left' : x + w > W - 60 ? 'right' : y + h > H - 70 ? 'down' : 'up';
+  }
+  function exitAnchor(e) {                                   // a point on the floor at the exit, and the way out
+    const [x, y, w, h] = e.rect, side = exitSide(e);
+    if (side === 'left') return [x + w + 20, y + h * 0.62, -1, 0];
+    if (side === 'right') return [x - 20, y + h * 0.62, 1, 0];
+    if (side === 'down') return [x + w / 2, y - 12, 0, 1];
+    return [x + w / 2, y + h + 8, 0, -1];
+  }
+  function drawExits() {
+    const cold = E.sceneId === 'outside', p = E.player, pulse = (Math.sin(E.t / 22) + 1) / 2, placed = [];
+    for (const e of E.scene.exits || []) {
+      if (!E.hooks.exitOpen(e)) continue;
+      const [x, y, w, h] = e.rect, hov = E.hover && E.hover.kind === 'exit' && E.hover.e === e;
+      const num = /^No\. (\d)$/.exec(e.label || '');
+      if (num && y < 300) {                                   // a compartment door: engrave the number on its plate
+        const cx = x + w / 2, cy = y + 57;
+        ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `600 italic 17px Georgia, "Times New Roman", serif`;
+        ctx.fillStyle = 'rgba(255,236,190,.55)'; ctx.fillText(num[1], cx, cy + 1.5);        // highlight under the cut
+        ctx.fillStyle = hov ? '#2a1606' : '#4a2c12'; ctx.fillText(num[1], cx, cy);
+        if (hov) { ctx.globalAlpha = 0.35 + pulse * 0.25; ctx.strokeStyle = '#ffe3a0'; ctx.lineWidth = 2; roundRect(cx - 27, cy - 9, 54, 18, 3); ctx.stroke(); }
+        ctx.restore(); continue;
+      }
+      const [ax, ay, dx, dy] = exitAnchor(e), locked = !!e.locked;
+      // the pool of light
+      const rx = dy ? 62 : 46, ry = dy ? 18 : 30, g = ctx.createRadialGradient(ax, ay, 2, ax, ay, rx);
+      const col = locked ? '200,190,175' : cold ? '215,235,255' : '255,214,140', a0 = locked ? 0.12 : (hov ? 0.42 : 0.24) + pulse * 0.1;
+      g.addColorStop(0, `rgba(${col},${a0})`); g.addColorStop(1, `rgba(${col},0)`);
+      ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.translate(ax, ay); ctx.scale(1, ry / rx); ctx.translate(-ax, -ay);
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(ax, ay, rx, 0, 7); ctx.fill(); ctx.restore();
+      // chevrons drifting outwards (none on a locked way)
+      if (!locked) {
+        const ph = (E.t / 40) % 1, sq = dy ? 0.55 : 1;
+        ctx.save(); ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.lineWidth = 3; ctx.shadowColor = cold ? 'rgba(90,130,190,.6)' : 'rgba(120,70,10,.55)'; ctx.shadowBlur = 5;
+        for (let k = 0; k < 3; k++) {
+          const t = (k / 3 + ph) % 1, d = -14 + t * 34, fade = Math.sin(t * Math.PI);
+          const cx = ax + dx * d, cy = ay + dy * d * sq, s = 7;
+          ctx.globalAlpha = fade * (hov ? 0.95 : 0.7); ctx.strokeStyle = cold ? '#f4fbff' : '#fff1cf';
+          ctx.beginPath();
+          if (dx) { ctx.moveTo(cx - dx * s, cy - s); ctx.lineTo(cx, cy); ctx.lineTo(cx - dx * s, cy + s); }
+          else { ctx.moveTo(cx - s * 1.3, cy - dy * s * sq); ctx.lineTo(cx, cy); ctx.lineTo(cx + s * 1.3, cy - dy * s * sq); }
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+      // the name, only when it matters
+      const near = p ? Math.hypot(p.x - ax, p.y - ay) : 1e9, show = hov || near < 240 || E.t < (E.namesUntil || 0);
+      e.labelA = Math.max(0, Math.min(1, (e.labelA || 0) + (show ? 0.08 : -0.06)));
+      if (e.labelA > 0.02) {
+        const text = (locked ? '🔒 ' : '') + (num ? 'Compartment ' + num[1] : e.label);
+        ctx.save(); ctx.font = `800 16px ${FONT}`; ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+        const tw = ctx.measureText(text).width;
+        let tx = dx < 0 ? ax - 16 : dx > 0 ? ax + 16 - tw : ax - tw / 2, ty = dy ? ay - (dy < 0 ? 30 : 28) : ay - 34;
+        tx = Math.max(10, Math.min(W - tw - 10, tx));
+        for (let k = 0; k < 4; k++) { const hit = placed.find((r) => tx < r[0] + r[2] + 8 && tx + tw + 8 > r[0] && Math.abs(ty - r[1]) < 22); if (!hit) break; ty = hit[1] - 24; }
+        placed.push([tx, ty, tw]);
+        ctx.globalAlpha = e.labelA; ctx.shadowColor = 'rgba(16,8,2,.9)'; ctx.shadowBlur = 7; ctx.shadowOffsetY = 1;
+        ctx.fillStyle = locked ? '#d8ccb8' : cold ? '#ffffff' : '#fff3da'; ctx.fillText(text, tx, ty);
+        ctx.restore();
+      }
+    }
+  }
   function drawSpotMarkers() {
     for (const s of E.hooks.spots()) {
       if (s.prop) { const im = img('items/' + s.prop); if (ready(im)) { const w = s.w || 48, h = (im.naturalHeight * w) / im.naturalWidth; ctx.drawImage(im, s.at[0] - w / 2, s.at[1] - h / 2, w, h); } }
@@ -312,6 +379,7 @@
       const list = [...E.actors.values()].filter((a) => a.visible).sort((a, b) => a.y - b.y);
       for (const a of list) drawActor(a);
       drawLight(s);
+      drawExits();
       // Name labels only where they help: the person under the cursor, and the one E would talk to.
       // Speakers carry their name inside the bubble, so a crowded room stays readable.
       const near = nearestActor(), talking = new Set(E.bubbles.map((b) => b.who));
@@ -323,7 +391,8 @@
         if (name) label(name, a.x, a.box[1] - 26, hov || a === near ? { bg: '#fff3c4', edge: '#e0a72e', size: 15 } : { size: 15 });
       }
       if (E.hover && E.hover.kind === 'spot') label(E.hover.s.label, E.hover.s.at[0], E.hover.s.at[1] - E.hover.s.r - 34, { bg: '#fff3c4', edge: '#e0a72e' });
-      if (E.hover && E.hover.kind === 'exit') { const e = E.hover.e; label((e.locked ? '🔒 ' : '→ ') + e.label, e.rect[0] + e.rect[2] / 2, e.rect[1] - 30, { bg: '#fff3c4' }); }
+      // Signed exits highlight themselves on hover; compartment-door badges get a full name tag.
+      if (E.hover && E.hover.kind === 'exit' && /^No\. \d$/.test(E.hover.e.label) && E.hover.e.rect[1] < 300) { const e = E.hover.e; label('Compartment ' + e.label.slice(4), e.rect[0] + e.rect[2] / 2, e.rect[1] - 14, { bg: '#fff3c4', edge: '#e0a72e', size: 15 }); }
       checkExits();
     }
     E.bubbles = E.bubbles.filter((b) => { b.t++; if (--b.left <= 0) { const a = E.actors.get(b.who); if (a) a.talking = false; b.done && b.done(); return false; } return true; });

@@ -103,19 +103,25 @@
       if (r.tag) html += `<div class="lbl tag${u}" style="${pos(id === 'corridor' ? 742 : r.at[0], id === 'corridor' ? 404 : id === 'kitchen' ? 298 : r.at[1] - 36)}">${esc(r.tag)}</div>`;
       if (r.num) html += `<div class="lbl num${u}${r.num === 7 ? ' seven' : ''}" style="${pos(r.at[0], 298)}">${r.num}</div>`;
     }
-    // people (portrait dots), spread in a row around the room's anchor; shifted right of the "you" pin
+    // Who is where: the "you" pin and the portrait dots are laid out INSIDE each room's box. The pin takes the
+    // left of the room you're in, the dots fill the rest in rows, so nothing spills over into the next car.
+    const DOT = 47;                                            // dot pitch, in map pixels (the dot itself is 1.7em)
     for (const id of Object.keys(ROOMS)) {
-      const list = people(id); if (!list.length || (id === here && ROOMS[id].num)) continue; // a compartment is too small for the pin and dots together
-      const r = ROOMS[id], step = r.num ? 34 : 44;
-      const x0 = r.at[0] - (list.length - 1) * step / 2 + (id === here ? 20 : 0);
-      const y = r.num ? 338 : r.at[1];
+      const r = ROOMS[id], mine = id === here && !r.num;
+      const list = people(id); if (!list.length || (id === here && r.num)) continue; // a compartment is too small for the pin and dots together
+      const [bx, by, bw, bh] = r.box;
+      if (r.num) { list.slice(0, 1).forEach((p) => { html += `<div class="dot${p === 'lazar' ? ' dead' : ''}" data-who="${p}" style="${pos(r.at[0], 338)};background-image:url(game-assets/portraits/${p}-0.webp)" data-room="${id}"></div>`; }); continue; }
+      const x0 = bx + (mine ? 62 : 14), x1 = bx + bw - 14, perRow = Math.max(1, Math.floor((x1 - x0) / DOT) + 1);
+      const rows = Math.ceil(list.length / perRow), yc = by + bh / 2 + (id === 'corridor' ? 8 : 12);
       list.forEach((p, i) => {
-        html += `<div class="dot${p === 'lazar' ? ' dead' : ''}" data-who="${p}" style="${pos(x0 + i * step, y)};background-image:url(game-assets/portraits/${p}-0.webp)" data-room="${id}"></div>`;
+        const row = Math.floor(i / perRow), n = Math.min(perRow, list.length - row * perRow), col = i % perRow;
+        const span = (n - 1) * DOT, cx = x0 + (x1 - x0) / 2 - span / 2 + col * DOT, cy = yc + (row - (rows - 1) / 2) * DOT;
+        html += `<div class="dot${p === 'lazar' ? ' dead' : ''}" data-who="${p}" style="${pos(cx, cy)};background-image:url(game-assets/portraits/${p}-0.webp)" data-room="${id}"></div>`;
       });
     }
     if (ROOMS[here]) {
       const r = ROOMS[here], crowd = people(here).length && !r.num;
-      const x = r.at[0] - (crowd ? (people(here).length * 44) / 2 + 40 : 0), y = r.num ? r.at[1] - 8 : r.at[1];
+      const x = crowd ? r.box[0] + 36 : r.at[0], y = r.num ? r.at[1] - 8 : crowd ? r.box[1] + r.box[3] / 2 + 4 : r.at[1];
       html += `<div class="you" style="${pos(x, y)}"><i></i><b>You</b></div>`;
     }
     html += '<div class="tip" hidden></div></div>';

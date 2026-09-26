@@ -29,6 +29,8 @@ game-assets/{bg,sprites,portraits,items}/  +  game-assets/manifest.json
 | `python3 tools/build-game-assets.py` | Needs Pillow. Writes the game-ready files in `game-assets/` |
 | `tools/cdp.mjs` | A small headless-Chrome driver for automated playtests and screenshots (see below) |
 
+`build-game-assets.py` also grades a few backgrounds towards the lamp-lit palette (`GRADE`), and mirrors the kitchen plate (`FLIP`), so the kitchen sits between the dining car and the lounge as on the map. `engine/scenes.js` uses the mirrored coordinates. Seated sprites (`<id>-sit.png`) are copied as they are, because they are already sized so the head matches the 300 px standing sprites.
+
 All the Node tools read `GEMINI_API_KEY` from `.env` and log through `server/log.mjs`. With `LOG_LEVEL=debug` you also see each request, the reference count, prompt size and timing.
 
 ## Audio

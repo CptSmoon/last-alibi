@@ -22,7 +22,7 @@ A case is a single JSON file (`scenario/orient.json`). The server reads it direc
 | `schedules` | `{ [chapter]: { [characterId]: [[time, waypoint], …] } }`: where each person is and when |
 | `player` | The player's id, name and `look` colours |
 | `brain` | `{ provider: "gemini", model, fallbackModel, thinkingLevel }` |
-| `voice` | `{ provider: "gradium", sttLanguage, ttsFormat }` |
+| `voice` | `{ provider: "gradium", sttLanguage, ttsFormat, ttsModel, gradiumSpeed, gradiumTemp }`. `ttsModel` is the Gradium TTS model (`gradium-tts-beta`). `gradiumSpeed` is the default `padding_bonus` (negative is faster; stay between `-1.2` and `0`). `gradiumTemp` is the default sampling temperature (0.7 to 0.9) |
 
 ## Chapters
 
@@ -61,7 +61,7 @@ A case is a single JSON file (`scenario/orient.json`). The server reads it direc
 | `id`, `name`, `age`, `role`, `chapters[]` | Identity and the chapters where they appear |
 | `isVictim`, `isKiller`, `isStaff` | Staff and the victim are not suspects in the accusation form |
 | `look` | Colours for the code-drawn sprites (prototype) |
-| `voice` | `{ gemini, style, gradium, gradiumName }`. `gradium` is the voice id used for TTS; `style` goes into the prompt |
+| `voice` | `{ gemini, style, gradium, gradiumName, gradiumSpeed?, gradiumTemp? }`. `gradium` is the voice id used for TTS; `style` goes into the prompt. `gradiumSpeed` and `gradiumTemp` override the scenario defaults for this character, and are copied into the browser bundle |
 | `bio`, `personality[]`, `speechStyle` | Persona |
 | `relationships` | `{ otherId: "what I think of them" }` |
 | `knowledge[]` | Facts they know. Prefix `AFTER: ` for things known only after the murder; lines starting `NOTE FOR THE ENGINE` never reach the model |

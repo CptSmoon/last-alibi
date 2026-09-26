@@ -19,12 +19,11 @@
       walk: [[[12, 458], [1292, 458], [1292, 602], [12, 602]]],
       exits: [
         { id: 'to-corridor', rect: [0, 455, 26, 150], to: 'corridor', spawn: [1262, 500, 'left'], label: 'Sleeping car' },
-        { id: 'to-lounge', rect: [1282, 455, 94, 150], locked: 'The lounge car is further on. Finish your breakfast first.', label: 'Lounge car', beats: BF },
-        { id: 'to-lounge', rect: [1282, 455, 94, 150], to: 'lounge', spawn: [60, 480, 'right'], label: 'Lounge car', beats: INV },
-        { id: 'to-kitchen', rect: [1185, 160, 105, 302], to: 'kitchen', spawn: [1250, 500, 'left'], label: 'Kitchen', beats: INV },
+        { id: 'to-kitchen', rect: [1282, 455, 94, 150], locked: 'The kitchen, and the lounge car beyond it. Finish your breakfast first.', label: 'Kitchen', beats: BF },
+        { id: 'to-kitchen', rect: [1282, 455, 94, 150], to: 'kitchen', spawn: [90, 600, 'right'], label: 'Kitchen · Lounge car', beats: INV },
       ],
       spots: [
-        { id: 'kitchen-door', at: [1235, 270], stand: [1235, 470], r: 70, label: 'Kitchen door', text: 'The kitchen. Luigi is banging pans; he waves you away. Later.', beats: BF },
+        { id: 'cupboard', at: [1235, 270], stand: [1235, 470], r: 70, label: 'A narrow door', text: 'The linen cupboard: starched napkins, spare tablecloths and a box of Wagons-Lits cutlery. Through the wall you can hear Luigi banging pans in the kitchen.' },
         { id: 'menu', at: [300, 360], stand: [300, 470], r: 40, label: 'Breakfast table', text: 'Café, croissants, oeufs à la coque. "With the compliments of the Compagnie, for the delay."', beats: BF },
         { id: 'trainlog', at: [300, 648], stand: [300, 596], r: 40, label: "Castelli's log book", clues: ['e_trainlog'], prop: 'e_trainlog', w: 52 },
       ],
@@ -66,7 +65,7 @@
     lounge: {
       name: 'Lounge car', bg: 'bg-lounge', base: 172, depth: [432, 522, 0.95, 1.02],
       walk: [[[12, 432], [1228, 432], [1228, 522], [12, 522]]],
-      exits: [{ id: 'to-dining', rect: [0, 430, 22, 95], to: 'dining', spawn: [1262, 530, 'left'], label: 'Dining car' }],
+      exits: [{ id: 'to-kitchen', rect: [0, 430, 22, 95], to: 'kitchen', spawn: [1150, 620, 'left'], label: 'Kitchen · Dining car' }],
       spots: [
         { id: 'scorecard', at: [748, 345], stand: [748, 445], r: 42, label: 'The card table', clues: ['e_scorecard'], prop: 'e_scorecard', w: 40 },
         { id: 'piano', at: [540, 280], stand: [540, 445], r: 55, label: 'The piano', text: 'An upright piano, lid open on a page of Satie. Someone has left a cigarette burn on middle C.' },
@@ -77,15 +76,16 @@
 
     kitchen: {
       name: 'Kitchen', bg: 'bg-kitchen', base: 185, depth: [452, 705, 1.0, 1.08],
-      walk: [[[145, 540], [760, 540], [760, 455], [1298, 455], [1298, 705], [145, 705]]],
+      walk: [[[1231, 540], [616, 540], [616, 455], [78, 455], [78, 705], [1231, 705]]],
       exits: [
-        { id: 'to-dining', rect: [1292, 440, 84, 140], to: 'dining', spawn: [1237, 500, 'front'], label: 'Dining car' },
-        { id: 'to-outside', rect: [1120, 160, 140, 302], to: 'outside', spawn: [1250, 600, 'front'], label: 'Outside (kitchen door)' },
+        { id: 'to-dining', rect: [0, 455, 84, 250], to: 'dining', spawn: [1240, 540, 'left'], label: 'Dining car' },
+        { id: 'to-lounge', rect: [1200, 540, 176, 170], to: 'lounge', spawn: [60, 480, 'right'], label: 'Lounge car' },
+        { id: 'to-outside', rect: [116, 160, 140, 302], to: 'outside', spawn: [1250, 600, 'front'], label: 'Outside (kitchen door)' },
       ],
       spots: [
-        { id: 'grappa', at: [205, 330], stand: [230, 560], r: 42, label: 'Behind the stove', clues: ['e_grappa'], prop: 'e_grappa', w: 58 },
-        { id: 'cap', at: [1035, 232], stand: [1035, 480], r: 45, label: 'A cap on the hook', text: "A Wagons-Lits conductor's cap on the hook by the north window. Not Luigi's size." },
-        { id: 'window', at: [870, 240], stand: [870, 475], r: 70, label: 'The north window', text: 'Through the glass: a line of footprints in the snow, running along the train towards the lounge end.' },
+        { id: 'grappa', at: [1171, 330], stand: [1146, 560], r: 42, label: 'Behind the stove', clues: ['e_grappa'], prop: 'e_grappa', w: 58 },
+        { id: 'cap', at: [341, 232], stand: [341, 480], r: 45, label: 'A cap on the hook', text: "A Wagons-Lits conductor's cap on the hook by the north window. Not Luigi's size." },
+        { id: 'window', at: [506, 240], stand: [506, 475], r: 70, label: 'The north window', text: 'Through the glass: a line of footprints in the snow, running along the train towards the lounge end.' },
       ],
     },
 
@@ -94,7 +94,7 @@
       walk: [[[380, 545], [1376, 545], [1376, 745], [250, 745], [250, 640], [380, 565]]],
       exits: [
         { id: 'to-corridor', rect: [1100, 380, 80, 172], to: 'corridor', spawn: [80, 565, 'right'], label: 'Sleeping car door' },
-        { id: 'to-kitchen', rect: [1210, 380, 80, 172], to: 'kitchen', spawn: [1190, 480, 'front'], label: 'Dining car (kitchen door)' },
+        { id: 'to-kitchen', rect: [1210, 380, 80, 172], to: 'kitchen', spawn: [186, 480, 'front'], label: 'Kitchen door' },
       ],
       spots: [
         { id: 'prints', at: [800, 600], stand: [800, 665], r: 90, label: 'Footprints', clues: ['e_footprints'] },
@@ -160,7 +160,7 @@
       corridor: { castelli: [1280, 500, 'left'], theo: [930, 470, 'right'], ferrand: [1085, 440, 'right'] },
       dining: { irina: [592, 440, 'right', 'sit'] },
       lounge: { hale: [838, 408, 'left', 'sit'], mila: [1190, 500, 'right'], brandt: [1052, 585, 'left', 'sit'] },
-      kitchen: { cook: [620, 575, 'left'] },
+      kitchen: { cook: [756, 575, 'right'] },
       c7: {},
     },
   };

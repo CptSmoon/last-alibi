@@ -30,6 +30,9 @@ The two front ends share the same brains, the voice module and the bundle. `engi
 | `dialogue.js` | The conversation box. It uses the same brains as the prototype: scripted, or live through `/api/talk` with Gradium voice |
 | `ui.js` | The parchment DOM UI: top bar, hints, examine box, inventory, notebook, map, settings, accusation and the newspaper ending |
 | `audio.js` | `AUDIO`: the Lyria soundtrack (`game-assets/audio/`, crossfaded per beat, looped seamlessly, ducked while a voice speaks) and procedural WebAudio effects (footsteps per surface, doors, clue chime, page turn, UI clicks, toasts, train creaks and wind, the avalanche, stings). Starts on the first click or key. Settings: `music`, `musicVol`, `sound`, `sfxVol` |
+| `map.js` | The train map panel (M): an illustrated cut-away of the train (`game-assets/ui/train-map.webp`) with room tags, a "you are here" pin, visited rooms, who is where, and tooltips. `MAP.ROOMS` holds the room geometry |
+| `minimap.js` | The always-on mini-map, translucent at the bottom centre: a strip of the same art with the current room outlined and a pin. It hides during conversations and panels, and fades right out when Sorel walks under it. It follows `ENGINE.sceneId` by itself; a click opens the full map |
+| `notes.js` | Quick notes (N, or Alt+N in a conversation) and the notebook's *My notes* tab, organised by Gemini through `POST /api/notes/organize` |
 
 **Stages built so far:** the dining car, the corridor and compartment 7, plus the night opening.
 
@@ -89,13 +92,26 @@ The client stores `history` for each character and chapter and sends it back wit
 
 ## Voice pipeline (Gradium)
 
-- **Speaking (text-to-speech):** `new VOICE.Speech(voiceId)` opens `wss://api.gradium.ai/api/speech/tts?token=…`.
-  - Text deltas from the brain are cut at phrase boundaries (`. ? ! ,` or 90 chars) and sent as they arrive. `end()` sends `<flush>` and `end_of_stream`.
-  - Audio comes back as 24 kHz PCM16 and plays gaplessly through one `AudioContext`. An analyser drives the lip-flap.
+- **Speaking (text-to-speech):** `new VOICE.Speech(voiceId)` opens `wss://api.gradium.ai/api/speech/tts?token=…` and sends `setup` straight away.
+  - **Settings.** `VOICE.settingsFor(voiceId)` merges `CASE.voice` (`ttsModel`, `gradiumSpeed`, `gradiumTemp`) with the character's `voice.gradiumSpeed` / `voice.gradiumTemp`. Setup is `{ model_name, voice_id, output_format: "pcm_24000", json_config: { padding_bonus, temp } }`. Shipped defaults: `gradium-tts-beta`, speed `-1.0`, temp `0.8`. Per character, speed runs from `-0.5` (Lazăr, unhurried) to `-1.2` (Hale, Mila, Théo). Stay at or above `-1.2`: at `-1.5`, words start to slur.
+  - **Opened early.** The dialogue creates the Speech when the player asks, before Gemini answers. The token, socket and `ready` (about 150–500 ms) finish while Gemini thinks. A reply with no words is closed quietly by `end()`.
+  - **Chunking** (`VOICE.nextChunk`) sends whole sentences. A sentence shorter than 24 chars waits for the next one, and "Dr." or "Mr." does not end a sentence. A sentence longer than 120 chars is cut at a clause (`, ; : —`) at least 40 chars in, and at 220 chars at a space. `<flush>` is sent only at the end of the reply, or after 800 ms with no new text (for example during a tool call).
+  - **Playback** starts on the first audio chunk (30 ms of headroom), then plays gaplessly through one `AudioContext`. An analyser drives the lip-flap. Gradium adds about 2 s of silence at the end of a reply. Silent chunks are held back and dropped at `end_of_stream`, so `VOICE.player.speaking` (music ducking, lip-flap) stops when the voice does.
+  - **Captions follow the voice.** Gradium sends word timestamps (`text` messages with `start_s`). `speech.caption(text)` returns the words spoken so far. `engine/dialogue.js` and the prototype's `assets/talk.js` type the reply at that pace. The whole text shows if the voice fails, or if no audio arrives within 2.5 s.
+  - **Retry.** If the socket fails before any audio (for example "Concurrency limit exceeded"), it retries once after 350 ms and resends the text.
 - **Listening (speech-to-text):** push-to-talk.
-  - `VOICE.Listener.start()` opens `…/asr`, starts the microphone and streams about 85 ms chunks.
-  - `stop()` sends `flush` and waits up to 1.5 s for `flushed`, then resolves with the text.
-- **Tokens:** every socket gets a fresh single-use token from `GET /api/gradium-token`. The API key stays on the server.
+  - `VOICE.Listener.start()` asks for the microphone and the token at the same time. It then opens `…/asr` and streams about 85 ms chunks.
+  - The setup boosts the cast's names (`keywords`, boost 3). Without it, "Countess Irina Voss" came back as "contest Irena Voss" and "Stefan Brandt" as "Stefon Brant".
+  - `stop()` sends `flush` and waits up to 1.5 s for `flushed` (in tests it arrives in about 350–420 ms), then resolves with the text.
+- **Tokens:** every socket gets a fresh single-use token from `GET /api/gradium-token`. The API key stays on the server. A token lives only about 4 s, so none are cached ahead of time.
+- **Account limit:** the Gradium key allows **2 concurrent sessions**. One reply socket plus the mic is the most the game opens at once. Another tab or test script using the same key can cause `Concurrency limit exceeded`.
+- **Logs** (scope `voice`): `tts setup` (who, model, speed, temp, openMs), `tts first audio` (`ttfaMs` is measured from the first text sent; `sinceOpenMs` from when the Speech was created, so it includes Gemini's time), `tts done` (audioSec, chars, charsPerSec, trimmedSec) and `heard` (flushMs).
+- **Benchmark:** `~/Documents/projects/artifacts/voice-tests/bench.mjs` measures audio length, time to first audio and a speech-to-text round trip for each setting. The WAV samples are saved next to it. Measured on 2026-09-26, three test replies:
+
+  | Setting | Audio length | Speech only | Time to first audio after the first text |
+  |---|---|---|---|
+  | Before: `default` model, phrase chunks, speed 0 | 15.6 s | 13.0 s | 360 ms |
+  | Now: beta model, sentence chunks, per-character speed and temperature | 12.8 s (10.8 s after the silence trim) | 10.9 s | 96 ms |
 
 ## Security and anti-leak design
 
