@@ -163,7 +163,7 @@
       corridor: { theo: [1150, 440, 'back'] },
     },
     investigation: {
-      corridor: { castelli: [1280, 500, 'left'], theo: [930, 470, 'right'], ferrand: [1085, 440, 'right'] },
+      corridor: { castelli: [520, 505, 'right'], theo: [930, 470, 'right'], ferrand: [1085, 440, 'right'] },   // Castelli mid-corridor, clear of the No. 7 door and the dining-car exit
       dining: { irina: [592, 440, 'right', 'sit'] },
       lounge: { hale: [838, 408, 'left', 'sit'], mila: [1190, 500, 'right'], brandt: [1052, 585, 'left', 'sit'] },
       kitchen: { cook: [756, 575, 'right'] },
