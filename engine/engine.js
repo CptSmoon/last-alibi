@@ -213,10 +213,36 @@
       if (!s.cinematic && keep) { if (spawn) { keep.x = spawn[0]; keep.y = spawn[1]; keep.dir = spawn[2] || keep.dir; } keep.stop(); E.actors.set('sorel', keep); }
       const placed = (BEATS[E.beat] || {})[id] || {};
       for (const [who, [x, y, dir, pose]] of Object.entries(placed)) { const a = new Actor(who, x, y, dir); a.seated = pose === 'sit'; E.actors.set(who, a); }
+      // People moved by the story in this beat override BEATS: someone left in another room isn't here,
+      // someone left in this room is, and whoever follows the inspector arrives right behind him.
+      for (const [who, r] of Object.entries(E.moved)) {
+        if (r.beat !== E.beat || who === E.follower) continue;
+        if (r.room !== id) E.actors.delete(who);
+        else { const a = new Actor(who, r.x, r.y, r.dir); E.actors.set(who, a); }
+      }
+      if (E.follower && !s.cinematic && keep) {
+        const back = { left: 1, right: -1 }[keep.dir] || 0, [fx, fy] = nearestWalkable(keep.x + back * 90, keep.y + (back ? 0 : keep.dir === 'back' ? 60 : -40));
+        const f = new Actor(E.follower, fx, fy, keep.dir); E.actors.set(E.follower, f);
+      }
       await preload([...E.actors.values()].flatMap((a) => ['front', 'back', 'left', 'right', 'walk', 'talk', ...(a.seated ? ['sit'] : [])].map((p) => `sprites/${a.id}-${p}`)));
       window.AUDIO && AUDIO.scene(id);
       E.hooks.entered(id);
     },
+    // ---- followers: one person at a time can walk with the inspector, from room to room ----
+    moved: {},                                   // who -> { beat, room, x, y, dir }: where the story left them
+    follower: null,
+    follow(who) {
+      if (E.follower && E.follower !== who) E.unfollow(E.follower);
+      E.follower = who; delete E.moved[who];
+      const a = E.actors.get(who); if (a) { a.seated = false; a.stop(); }
+    },
+    unfollow(who) {
+      if (!E.follower || (who && who !== E.follower)) return;
+      const a = E.actors.get(E.follower);
+      if (a) { a.stop(); E.moved[E.follower] = { beat: E.beat, room: E.sceneId, x: a.x, y: a.y, dir: a.dir }; }
+      E.follower = null;
+    },
+    resetMoves() { E.follower = null; E.moved = {}; },
     addActor(id, x, y, dir) { const a = new Actor(id, x, y, dir); E.actors.set(id, a); preload(['front', 'back', 'left', 'right', 'walk', 'talk'].map((p) => `sprites/${id}-${p}`)); return a; },
     // Remove bubbles (all, or one person's) and settle them: their say() promises resolve and the
     // speakers stop their talking pose. Never clear E.bubbles directly.
@@ -258,6 +284,7 @@
     if (h && h.kind === 'actor') {
       // Instant feedback: a ring under them and a click, then talk at once if they're within reach.
       const a = h.a; E.ping = { x: a.x, y: a.y, t: 24 }; window.AUDIO && AUDIO.sfx('click');
+      if (E.hooks.quick && E.hooks.quick(a)) { p.stop(); p.face(a); E.hooks.clickActor(a); return; }   // e.g. a good-morning from across the room
       if (Math.hypot(a.x - p.x, a.y - p.y) < REACH) { p.stop(); p.face(a); E.hooks.clickActor(a); return; }
       const side = p.x < a.x ? -1 : 1, [tx, ty] = nearestWalkable(a.x + side * 80, a.y + 6);
       p.walkTo(tx, ty, () => { p.face(a); E.hooks.clickActor(a); }, sp); return;
@@ -378,6 +405,17 @@
       }
     }
   }
+  // The follower keeps a step behind the inspector: re-pathing a few times a second, stopping when close.
+  function followTick() {
+    const p = E.player, f = E.follower && E.actors.get(E.follower);
+    if (!p || !f || E.lock) return;
+    const d = Math.hypot(f.x - p.x, f.y - p.y);
+    if (d < 95) { if (f.moving && f.path.length) f.stop(); if (!f.moving && E.t % 30 === 0) f.face(p); return; }
+    if (E.t % 12 && f.path.length) return;
+    const back = p.moving ? { left: 1, right: -1 }[p.dir] || 0 : Math.sign(f.x - p.x) || 1;
+    const [tx, ty] = nearestWalkable(p.x + back * 80, p.y + (p.dir === 'back' ? 50 : p.dir === 'front' ? -50 : 0));
+    f.walkTo(tx, ty, () => f.face(p), Math.max(4.5, E.WALK * 0.92));
+  }
   function drawSpotMarkers() {
     for (const s of E.hooks.spots()) {
       if (s.prop) { const im = img('items/' + s.prop); if (ready(im)) { const w = s.w || 48, h = (im.naturalHeight * w) / im.naturalWidth; ctx.drawImage(im, s.at[0] - w / 2, s.at[1] - h / 2, w, h); } }
@@ -401,6 +439,7 @@
       else ctx.drawImage(bg, 0, 0, W, H);
     }
     if (!s.cinematic) {
+      followTick();
       if (!keyboardMove()) for (const a of E.actors.values()) a.update(); else for (const a of E.actors.values()) if (a !== E.player) a.update();
       for (const pr of s.props || []) { const im = img(pr.img); if (ready(im)) { const h = (im.naturalHeight * pr.w) / im.naturalWidth; ctx.save(); if (pr.flip) { ctx.translate(pr.x * 2 + pr.w, 0); ctx.scale(-1, 1); } ctx.drawImage(im, pr.x, pr.y, pr.w, h); ctx.restore(); } }
       drawSpotMarkers();

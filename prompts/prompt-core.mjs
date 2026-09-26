@@ -33,7 +33,8 @@ const RULES = (s, c, ch, now) => {
 - Always say your answer out loud as text as well; a tool call is never a reply on its own.${before ? '' : `
 - Call reveal_secret with the secret id at the moment you actually tell the inspector one of your secrets below.`}
 - Call set_mood whenever your emotional state clearly changes.
-- Call end_interview if you refuse to talk any more (after repeated insults or threats).`.trim();
+- Call end_interview if you refuse to talk any more (after repeated insults or threats).
+- If the inspector asks you to come with him, follow him or show him somewhere, and you agree, say so and call follow_inspector with follow: true. You may refuse, in character, if you have a reason to. When he tells you to wait, stay or go back, call it with follow: false.`.trim();
 };
 
 const section = (title, lines) => { const body = lines.filter(Boolean).join('\n'); return body ? `# ${title}\n${body}` : ''; };
@@ -79,6 +80,8 @@ export const TOOLS = [{
         trust: { type: 'INTEGER', description: 'How much you trust the inspector now, 0 to 5' } }, required: ['mood'] } },
     { name: 'end_interview', description: 'Refuse to answer any more questions.',
       parameters: { type: 'OBJECT', properties: { reason: { type: 'STRING' } } } },
+    { name: 'follow_inspector', description: 'You physically go with the inspector (true) or stay where you are (false).',
+      parameters: { type: 'OBJECT', properties: { follow: { type: 'BOOLEAN', description: 'true: you now walk with him wherever he goes; false: you stop and stay here' } }, required: ['follow'] } },
   ],
 }];
 

@@ -58,6 +58,9 @@
       greet() { const d = this.d(); reply({ r: P().lines.length ? 'Inspector. Again?' : d.greet }, 150); },
       ask(q) {
         const d = this.d(), p = P(), l = q.toLowerCase();
+        // "Follow me" / "wait here" work with every character, even without a written topic.
+        if (/\b(follow me|come with me|come along|show me|lead the way|accompany me|walk with me)\b/.test(l)) return reply({ r: 'Of course, Inspector. After you.', follow: true });
+        if (/\b(wait here|stay here|stay put|you can go|go back|stop following|that will be all)\b/.test(l)) return reply({ r: 'Very well, Inspector. I shall wait here.', follow: false });
         const ok = (tp) => tp.k.some((k) => l.includes(k)) && (!tp.needs || p.revealed.has(tp.needs));
         reply(d.topics.find((tp) => ok(tp) && (!tp.reveal || !p.revealed.has(tp.reveal))) || d.topics.find(ok) || { r: d.fallback });
       },
@@ -72,6 +75,7 @@
       setTimeout(() => {
         if (!T.open) return;
         thinking(false); if (h.mood || h.trust != null) mood(h.mood, h.trust);
+        if (h.follow != null) hooks.follow && hooks.follow(T.who, h.follow);
         type(T.who, h.r); P().lines.push({ who: T.who, s: h.r }); hooks.speaking(T.who, h.r);
         if (h.reveal) reveal(h.reveal);
         renderChips();
@@ -108,6 +112,7 @@
                 if (m.name === 'reveal_secret') reveal(m.args.secret_id, m.unlock);
                 if (m.name === 'set_mood') mood(m.args.mood, m.args.trust);
                 if (m.name === 'end_interview') p.done = true;
+                if (m.name === 'follow_inspector') hooks.follow && hooks.follow(who, !!m.args.follow);
               } else if (m.type === 'done') { hist.push(...m.turns); if (text) { p.lines.push({ who, s: text.trim() }); hooks.speaking(who, text.trim()); hooks.said(who, input.kind === 'greet' ? '' : T.lastQ, text.trim()); } }
               else if (m.type === 'error') throw new Error(m.message);
             }

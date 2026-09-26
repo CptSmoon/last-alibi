@@ -127,6 +127,7 @@ async function talk(b, env) {
           const a = fc.args || {}; let ok = true, unlock = null;
           if (fc.name === 'reveal_secret') { ok = allowed.has(a.secret_id); if (ok) { unlock = unlockOf[a.secret_id] || null; revealed.add(a.secret_id); } }
           else if (fc.name === 'set_mood') ok = typeof a.mood === 'string';
+          else if (fc.name === 'follow_inspector') ok = typeof a.follow === 'boolean' && ch.phase !== 'before';
           else if (fc.name !== 'end_interview') ok = false;
           await send('tool', { name: fc.name, args: a, ok, unlock });
           responses.push({ functionResponse: { name: fc.name, ...(fc.id ? { id: fc.id } : {}), response: { ok } } });

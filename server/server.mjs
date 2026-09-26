@@ -156,6 +156,7 @@ async function talk(req, res) {
           ok = allowed.has(a.secret_id);
           if (ok) { unlock = unlockOf[a.secret_id] || null; revealed.add(a.secret_id); }
         } else if (fc.name === 'set_mood') ok = typeof a.mood === 'string';
+        else if (fc.name === 'follow_inspector') ok = typeof a.follow === 'boolean' && ch.phase !== 'before';
         else if (fc.name !== 'end_interview') ok = false;
         (ok ? tlog.info : tlog.warn)(ok ? 'tool call' : 'tool call REJECTED', { rid, character: c.id, tool: fc.name, args: a, unlock });
         send('tool', { name: fc.name, args: a, ok, unlock });

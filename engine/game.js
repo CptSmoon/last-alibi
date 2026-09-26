@@ -48,6 +48,12 @@
   // ---------- dialogue ----------
   const talk = DIALOGUE.create(G, {
     learn: (id) => learn(id),
+    // "Follow me": the character walks with the inspector from room to room until told to wait.
+    follow: (who, on) => {
+      if (on) { E.follow(who); UI.toast(`${NAMES[who]} follows you`, null, 'note'); }
+      else if (E.follower === who) { E.unfollow(who); UI.toast(`${NAMES[who]} waits here`, null, 'note'); }
+      L.info(on ? 'follow' : 'unfollow', { who, room: E.sceneId });
+    },
     confession: (who) => { G.flags.confessed = true; UI.toast(`${NAMES[who]} confessed.`, null, 'alert'); },
     speaking: () => {},
     shown: () => {},
@@ -77,7 +83,8 @@
     clickActor(a) {
       if (G.beat === 'breakfast') {
         if (E.lock) return;
-        E.clearBubbles(); E.say(a.id, MORNING[a.id] || 'Bonjour.', 3600); a.face(E.player);
+        E.clearBubbles(); const home = a.dir; a.face(E.player); G.greeting = { a, home, d0: Math.hypot(a.x - E.player.x, a.y - E.player.y) };
+        E.say(a.id, MORNING[a.id] || 'Bonjour.', 3200).then(() => { if (G.greeting && G.greeting.a === a) { a.dir = home; G.greeting = null; } });
         G.flags.greeted = true; (G.flags.greetedSet ||= new Set()).add(a.id); G.flags.greetedAt = performance.now();
         return;
       }
@@ -91,7 +98,14 @@
         learn(id);
       }
     },
-    frame() { hints(); },
+    // at breakfast a click greets from where you stand: no walking over to their table
+    quick: (a) => G.beat === 'breakfast' && !E.lock,
+    frame() {
+      hints();
+      // walk away from someone you've just greeted and they go back to their breakfast
+      const g = G.greeting;
+      if (g && E.player && Math.hypot(g.a.x - E.player.x, g.a.y - E.player.y) > g.d0 + 160) { E.clearBubbles(g.a.id); g.a.dir = g.home; G.greeting = null; }
+    },
   });
 
   // E: act on what the "E ..." prompt shows (engine.js target(): the nearest person, or an unsearched clue)
@@ -236,7 +250,7 @@
   // forced: 10:00 has come, no more waiting. Otherwise the player first sees how strong the case is, and can go
   // back to investigating (QA: people accused with a weak case without knowing it).
   async function gather(forced) {
-    if (G.flags.gathering) return; G.flags.gathering = true;
+    if (G.flags.gathering) return; G.flags.gathering = true; E.resetMoves();
     if (talk.state.open) talk.close();
     if (!(await BOARD.readiness({ canWait: !forced && G.clock < toMin('10:00') }))) { G.flags.gathering = false; E.lock = false; L.info('accusation postponed', { strength: BOARD.strength().n }); return; }
     E.lock = true; window.AUDIO && AUDIO.music('accusation'); await E.fadeOut(500);
@@ -261,6 +275,7 @@
   }
 
   function newGame() {
+    E.resetMoves();
     G.items = []; G.notes = []; G.found = new Set(); G.flags = {}; G.beat = null; resetPer(); window.NOTES && NOTES.reset(); window.BOARD && BOARD.reset(); opening();
   }
   function title() {
