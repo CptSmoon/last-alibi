@@ -2581,7 +2581,7 @@
   "brain": {
     "provider": "gemini",
     "model": "gemini-3.8-flash",
-    "thinkingLevel": "low",
+    "thinkingLevel": "minimal",
     "fallbackModel": "gemini-3.5-flash-lite"
   },
   "voice": {

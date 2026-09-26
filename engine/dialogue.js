@@ -36,9 +36,13 @@
       list.forEach((s, i) => { const b = document.createElement('button'); b.className = 'chip'; b.innerHTML = `<kbd>${i + 1}</kbd>${s}`; b.onclick = () => ask(s, true); chips.appendChild(b); });
     }
     // Immediate feedback: the box says who is thinking the moment you ask, even before the model answers.
+    // The question is sent at once, but stays on screen until T.holdQ so the player sees what was heard.
     function thinking(on) {
-      T.busy = on; box.classList.toggle('thinking', on);
-      if (on && T.who) { clearInterval(T.typer); speaker(T.who); txt.textContent = `${name(T.who).replace(/^(Dr|Countess|Major|Herr) /, '')} is thinking`; }
+      T.busy = on; box.classList.toggle('thinking', on); clearTimeout(T.thinkLabel);
+      if (!on || !T.who) return;
+      const show = () => { if (!T.busy) return; clearInterval(T.typer); speaker(T.who); txt.textContent = `${name(T.who).replace(/^(Dr|Countess|Major|Herr) /, '')} is thinking`; };
+      const wait = (T.holdQ || 0) - performance.now();
+      if (wait > 0) T.thinkLabel = setTimeout(show, wait); else show();
     }
     // Skip: stop the voice and show the whole line (click the text, or Enter with nothing typed).
     function skip() {
@@ -168,7 +172,7 @@
       if (quick) (T.used[T.who] ||= new Set()).add(q);
       if (T.who === 'castelli' && G.canGather() && /\b(gather|assemble)\b|ready to accuse|i('| a)m ready/i.test(q)) { type('sorel', q, true); setTimeout(() => hooks.gather(), 700); return; }
       T.asked++; T.lastQ = q; type('sorel', q, true); P().lines.push({ who: 'sorel', s: q });
-      setTimeout(() => brain().ask(q), 350);
+      T.holdQ = performance.now() + 350; brain().ask(q);
     }
     function present(ev) {
       if (!T.open || T.busy) return;
@@ -177,7 +181,7 @@
       const e = CASE.evidence.find((x) => x.id === ev);
       const line = e.take ? `Look at this: ${e.name.toLowerCase()}.` : `I know about this: ${e.name.replace(/^[^:]+: /, '').toLowerCase()}.`;
       T.lastQ = line; type('sorel', line, true); P().lines.push({ who: 'sorel', s: line }); hooks.shown(ev);
-      setTimeout(() => brain().present(ev), 350);
+      T.holdQ = performance.now() + 350; brain().present(ev);
     }
     async function micDown() {
       if (!voiceMode() || T.listening || T.busy || !T.open) return;
