@@ -180,12 +180,12 @@
   let run = 0;
   const skipBtn = document.getElementById('skip');
   skipBtn.onclick = () => skipIntro();
+  // Skip intro = as if the film had just ended: straight to breakfast in the dining car, where Castelli comes in.
   function skipIntro() {
     const r = ++run; L.info('intro skipped'); stopFilm();
     UI.caption(null); document.getElementById('card').hidden = true; E.clearBubbles(); E.shake = 0;
-    if (!E.player) E.player = new E.Actor('sorel', 700, 500, 'right');
     E.fade = 1; E.fadeTarget = 1; E.fadeDone = null;
-    startInvestigation(r);
+    breakfast(r);
   }
   // ---------- the opening film (onboarding): the avalanche night, 27 s with its own sound ----------
   // Plays over the stage; Skip intro stops it (the run token), and if it can't play at all the drawn night
@@ -239,6 +239,7 @@
   // at once to tell you about No. 7. You talk to him (ask where, who found him, or "take me there"), and he leads
   // you to the sleeping car, then follows you for the whole investigation.
   async function breakfast(r) {
+    skipBtn.hidden = true;                              // the intro is over: breakfast is where the game begins
     G.beat = 'breakfast'; E.beat = 'breakfast'; G.clock = toMin('07:00');
     window.AUDIO && AUDIO.music('breakfast');
     E.player = new E.Actor('sorel', 40, 540, 'right');
