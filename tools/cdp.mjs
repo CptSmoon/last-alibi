@@ -15,7 +15,9 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 export async function launch(url, { width = 1280, height = 900, port = 9333 } = {}) {
   const profile = mkdtempSync(join(tmpdir(), 'cdp-'));
   const proc = spawn(CHROME, ['--headless=new', `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, `--window-size=${width},${height}`,
-    '--autoplay-policy=no-user-gesture-required', '--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', '--no-first-run', 'about:blank'], { stdio: 'ignore' });
+    '--autoplay-policy=no-user-gesture-required', '--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', '--no-first-run',
+    // CHROME_FLAGS, e.g. --use-file-for-fake-audio-capture=/path/speech.wav to speak into the fake mic
+    ...(process.env.CHROME_FLAGS || '').split(' ').filter(Boolean), 'about:blank'], { stdio: 'ignore' });
   let targets;
   for (let i = 0; i < 50; i++) { try { targets = await (await fetch(`http://127.0.0.1:${port}/json`)).json(); if (targets.length) break; } catch (_) {} await sleep(150); }
   const page = targets?.find((t) => t.type === 'page');

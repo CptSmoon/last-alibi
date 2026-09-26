@@ -16,6 +16,8 @@ import { extractClaims } from '../server/claims.mjs';
 import { judge } from '../server/judge.mjs';
 import { sidekick } from '../server/sidekick.mjs';
 import { detectReveals } from '../server/reveals.mjs';
+import { transcribe } from '../server/transcribe.mjs';
+import { sttToken } from '../server/stt-token.mjs';
 import { logger, reqId } from '../server/log.mjs';
 
 const S = scenario;
@@ -187,6 +189,16 @@ export default {
       if (p === '/api/notes/organize' && req.method === 'POST') {
         if (await limited(env, 'NOTES_LIMIT', ip)) return withCors(json({ error: 'Too many requests, slow down.' }, 429), origin);
         const r = await organizeNotes(S, env.GEMINI_API_KEY, await req.json().catch(() => null), reqId());
+        return withCors(json(r.body, r.status), origin);
+      }
+      if (p === '/api/stt-token' && req.method === 'GET') {
+        if (await limited(env, 'VOICE_LIMIT', ip)) return withCors(json({ error: 'Too many voice requests, slow down.' }, 429), origin);
+        const r = await sttToken(S, env.GEMINI_API_KEY, reqId());
+        return withCors(json(r.body, r.status), origin);
+      }
+      if (p === '/api/transcribe' && req.method === 'POST') {
+        if (await limited(env, 'VOICE_LIMIT', ip)) return withCors(json({ error: 'Too many voice requests, slow down.' }, 429), origin);
+        const r = await transcribe(S, env.GEMINI_API_KEY, await req.json().catch(() => null), reqId());
         return withCors(json(r.body, r.status), origin);
       }
       if (p === '/api/sidekick' && req.method === 'POST') {

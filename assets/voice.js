@@ -219,7 +219,7 @@
 
   // Push-to-talk transcription. start() opens the socket and the mic (in parallel); stop()
   // flushes and resolves with the final text.
-  class Listener {
+  class GradiumListener {
     constructor(on = {}) { this.on = on; }
     async start() {
       this.text = ''; this.queue = []; this.open = false; this.cancelled = false; this.t0 = performance.now();
@@ -290,6 +290,113 @@
     }
   }
 
+
+  // ---------- speech-to-text with Gemini (the default) ----------
+  // The mic streams to gemini-3.5-transcribe-live (single-use token from /api/stt-token): live words on screen, the
+  // final text ~0.3 s after the player stops. It has no language lock, so heavily accented English can come back in
+  // another script or language, or spelled letter by letter; then the recorded audio is read again by Gemini flash
+  // with the game's context (/api/transcribe), which got every test clip right. If Gemini can't be reached at all,
+  // Gradium takes over (GradiumListener). Same interface: start(), stop() -> text, cancel(), level, on.partial.
+  const G_RATE = 16000;
+  const garbled = (t) => !t || /[¿¡]/.test(t) || /[^\u0000-ɏḀ-ỿ -⁯€\s]/.test(t) || /(?:\b\w\b[\s.-]+){3,}/.test(t) || looksForeign(t);
+  function wav16(chunks) {
+    const n = chunks.reduce((a, c) => a + c.length, 0), b = new ArrayBuffer(44 + n * 2), v = new DataView(b);
+    const str = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+    str(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); str(8, 'WAVE'); str(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, G_RATE, true); v.setUint32(28, G_RATE * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); str(36, 'data'); v.setUint32(40, n * 2, true);
+    let o = 44; for (const c of chunks) for (let i = 0; i < c.length; i++, o += 2) v.setInt16(o, c[i], true);
+    const u8 = new Uint8Array(b); let s = ''; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000));
+    return btoa(s);
+  }
+  class Listener {
+    constructor(on = {}) { this.on = on; }
+    async start() {
+      this.text = ''; this.pcm = []; this.queue = []; this.ready = false; this.cancelled = false; this.impl = null; this.pending = false; this.t0 = performance.now();
+      const mic = navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true } }); mic.catch(() => {});
+      let tok;
+      try { const r = await fetch((window.API_BASE || '') + '/api/stt-token'); if (!r.ok) throw new Error('status ' + r.status); tok = await r.json(); }
+      catch (e) {
+        log.warn('gemini speech token failed, using Gradium', { error: String(e.message || e) });
+        mic.then((st) => st.getTracks().forEach((t) => t.stop())).catch(() => {});
+        this.impl = new GradiumListener(this.on); return this.impl.start();
+      }
+      log.info('listening (Gemini transcribe-live)');
+      const ws = (this.ws = new WebSocket('wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContentConstrained?access_token=' + encodeURIComponent(tok.token)));
+      ws.onopen = () => ws.send(JSON.stringify({ setup: { model: 'models/' + tok.model } }));
+      ws.onmessage = async (e) => {
+        const m = JSON.parse(typeof e.data === 'string' ? e.data : await e.data.text());
+        if (m.setupComplete) { this.ready = true; for (const q of this.queue) ws.send(q); this.queue = []; log.debug('gemini stt ready', { ms: Math.round(performance.now() - this.t0) }); }
+        const t = m.serverContent && m.serverContent.inputTranscription && m.serverContent.inputTranscription.text;
+        if (t) { this.text += t; this.on.partial && this.on.partial(this.text.trim()); }
+        // Gemini hears when speech starts and stops by itself: a phrase is final at generationComplete.
+        if (m.voiceActivity && m.voiceActivity.type === 'ACTIVITY_START') this.pending = true;
+        if (m.serverContent && (m.serverContent.generationComplete || m.serverContent.turnComplete)) { this.pending = false; this.resolveEnd && this.resolveEnd(); }
+      };
+      ws.onerror = () => log.error('gemini stt socket error');
+      ws.onclose = (e) => { if (this.resolveEnd) this.resolveEnd(); if (e.code !== 1000) log.warn('gemini stt closed', { code: e.code, reason: e.reason }); };
+      try { this.stream = await mic; }
+      catch (e) { log.error('microphone unavailable', { error: e.name + ': ' + e.message }); try { ws.close(); } catch (_) {} throw e; }
+      if (this.cancelled) { this.stream.getTracks().forEach((t) => t.stop()); try { ws.close(); } catch (_) {} return; }
+      this.ac = new AudioContext({ sampleRate: G_RATE });
+      const src = this.ac.createMediaStreamSource(this.stream);
+      this.node = this.ac.createScriptProcessor(2048, 1, 1);
+      this.node.onaudioprocess = (e) => {
+        const f = e.inputBuffer.getChannelData(0); let mx = 0; const i16 = new Int16Array(f.length);
+        for (let i = 0; i < f.length; i++) { const v = Math.max(-1, Math.min(1, f[i])); mx = Math.max(mx, Math.abs(v)); i16[i] = v < 0 ? v * 32768 : v * 32767; }
+        this.level = mx; this.pcm.push(i16);
+        const u8 = new Uint8Array(i16.buffer); let s = ''; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000));
+        const msg = JSON.stringify({ realtimeInput: { audio: { data: btoa(s), mimeType: 'audio/pcm;rate=' + G_RATE } } });
+        if (this.ready && ws.readyState === 1) ws.send(msg); else this.queue.push(msg);
+      };
+      src.connect(this.node); this.node.connect(this.ac.destination);
+    }
+    cancel() {
+      if (this.impl) return this.impl.cancel();
+      this.cancelled = true; try { this.node && this.node.disconnect(); } catch (_) {}
+      this.stream && this.stream.getTracks().forEach((t) => t.stop()); try { this.ac && this.ac.state !== 'closed' && this.ac.close(); } catch (_) {}
+      this.queue = []; try { this.ws && this.ws.close(); } catch (_) {}
+      log.info('listening cancelled');
+    }
+    async stop() {
+      if (this.impl) return this.impl.stop();
+      const t0 = performance.now();
+      try { this.node && this.node.disconnect(); } catch (_) {}
+      this.stream && this.stream.getTracks().forEach((t) => t.stop()); this.ac && this.ac.close();
+      const ws = this.ws;
+      if (ws && ws.readyState === 1) {
+        await new Promise((res) => {
+          this.resolveEnd = res;
+          for (const q of this.queue) try { ws.send(q); } catch (_) {}
+          this.queue = [];
+          try { ws.send(JSON.stringify({ realtimeInput: { audioStreamEnd: true } })); } catch (_) { res(); }
+          if (!this.pending && this.text.trim()) res();          // the last phrase is already final: no wait
+          setTimeout(res, 1500);
+        });
+        try { ws.close(); } catch (_) {}
+      }
+      let text = this.text.replace(/\s+/g, ' ').trim();
+      const secs = this.pcm.reduce((a, c) => a + c.length, 0) / G_RATE;
+      // Silence (or a muted mic) is never sent for a second opinion: with the game's context, Gemini flash invents a
+      // plausible question from nothing ("Do you know where Bruno is?", measured). Peak below ~1.5% = nobody spoke.
+      let peak = 0; for (const c of this.pcm) for (let i = 0; i < c.length; i += 4) { const v = Math.abs(c[i]); if (v > peak) peak = v; }
+      if (peak < 500) { log.info('heard nothing (silence)', { secs: +secs.toFixed(1), peak }); return ''; }
+      log.info('heard (gemini live)', { text: text || '(nothing)', ms: Math.round(performance.now() - t0), secs: +secs.toFixed(1) });
+      if (secs > 0.4 && garbled(text)) {
+        // Second opinion: the whole recording, read by Gemini flash with the game's context.
+        const t1 = performance.now();
+        try {
+          const r = await fetch((window.API_BASE || '') + '/api/transcribe', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ audio: wav16(this.pcm) }), signal: AbortSignal.timeout(6000) });
+          if (!r.ok) throw new Error('status ' + r.status);
+          const j = await r.json();
+          log.info('re-transcribed (gemini flash)', { from: text, to: j.text, ms: Math.round(performance.now() - t1) });
+          if (j.text) return j.text;
+        } catch (e) { log.warn('second pass failed', { error: String(e.message || e) }); }
+        return english(text);
+      }
+      return text;
+    }
+  }
+
   // The game is English only, but Gradium's `language: 'en'` is a hint, not a lock: an accent or a noisy mic can
   // come back as Spanish or French. When a transcript looks non-English, the server (server/english.mjs, Gemini)
   // rewrites it as the English sentence the player meant. English transcripts skip this and cost nothing.
@@ -317,5 +424,5 @@
     } catch (e) { log.warn('could not rewrite in English, keeping the transcript', { text, error: String(e.message || e) }); return text; }
   }
 
-  window.VOICE = { Player, player, Speech, Listener, token, settingsFor, nextChunk, english, looksForeign };
+  window.VOICE = { Player, player, Speech, Listener, GradiumListener, token, settingsFor, nextChunk, english, looksForeign };
 })();

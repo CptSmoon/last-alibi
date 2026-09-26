@@ -78,6 +78,17 @@ Returns a short-lived, **single-use** Gradium token for one WebSocket (STT or TT
 
 `503` if `GRADIUM_API_KEY` is missing; `502` if Gradium refuses.
 
+## `GET /api/stt-token` and `POST /api/transcribe` (speech-to-text)
+
+The player's voice goes to Gemini. `GET /api/stt-token` returns `{ token, model }`: a single-use Gemini Live token
+locked to `gemini-3.5-transcribe-live` (`voice.sttModel`), valid two minutes. `assets/voice.js` streams the mic
+(16 kHz PCM) to it; the final text arrives ~0.4 s after the player lets go (Gradium took ~1 s). That model has no
+language lock, so accented English can come back in another script or language ("¿Verevere Yau…", Hindi). When the
+text looks like that, the recording is sent to `POST /api/transcribe` `{ audio: base64 16-bit WAV }` ->
+`{ text }`: Gemini flash with the game's context (names, places), which got every accented test clip right
+(~1.5-2 s, only in those cases). Silence is never sent: with the game's context, flash invents a question from
+nothing. If the token fails, Gradium (`GradiumListener`) takes over. Both share `VOICE_LIMIT` on the Worker.
+
 ## `POST /api/sidekick`
 
 Castelli, the inspector's AI assistant during the investigation (`engine/sidekick.js`). He keeps his own character
