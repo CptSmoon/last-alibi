@@ -308,10 +308,38 @@
     const u8 = new Uint8Array(b); let s = ''; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000));
     return btoa(s);
   }
+  // Live words on screen while the player speaks. transcribe-live only sends a phrase once the player pauses, so
+  // Gradium listens to the same audio in parallel just to show the words as they come; Gemini's text replaces them.
+  function gradiumPartials(onText) {
+    let ws = null, open = false, dead = false, q = [], text = '';
+    token().then((tok) => {
+      if (dead) return;
+      ws = new WebSocket(WSS + '/asr?token=' + encodeURIComponent(tok));
+      ws.onopen = () => { ws.send(JSON.stringify({ type: 'setup', model_name: 'default', input_format: 'pcm', json_config: { language: 'en' } })); open = true; for (const m of q) ws.send(m); q = []; };
+      ws.onmessage = (e) => { const m = JSON.parse(e.data); if (m.type === 'text' && m.text) { text += (text ? ' ' : '') + m.text.trim(); onText(text); } };
+      ws.onerror = () => {};
+    }).catch(() => {});
+    return {
+      send(i16) {                                           // 16 kHz int16 -> 24 kHz float32 (Gradium's input)
+        if (dead) return;
+        const n = Math.floor(i16.length * 1.5), f = new Float32Array(n);
+        for (let i = 0; i < n; i++) { const x = i / 1.5, j = Math.floor(x), a = i16[j] || 0, b = i16[j + 1] ?? a; f[i] = (a + (b - a) * (x - j)) / 32768; }
+        const m = JSON.stringify({ type: 'audio', audio: b64FromF32(f) });
+        if (open && ws.readyState === 1) ws.send(m); else if (q.length < 200) q.push(m);
+      },
+      close() { dead = true; try { ws && ws.close(); } catch (_) {} },
+    };
+  }
   class Listener {
     constructor(on = {}) { this.on = on; }
+    // What the player sees while speaking: Gemini's finished phrases, then Gradium's live words beyond them.
+    show() {
+      const g = this.gtext || '', tail = g.length > this.gAt ? g.slice(this.gAt).trim() : '';
+      const t = (this.text.trim() ? this.text.trim() + (tail ? ' ' + tail : '') : g).trim();
+      if (t) this.on.partial && this.on.partial(t);
+    }
     async start() {
-      this.text = ''; this.pcm = []; this.queue = []; this.ready = false; this.cancelled = false; this.impl = null; this.pending = false; this.t0 = performance.now();
+      this.text = ''; this.gtext = ''; this.gAt = 0; this.pcm = []; this.queue = []; this.ready = false; this.cancelled = false; this.impl = null; this.pending = false; this.t0 = performance.now();
       const mic = navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true } }); mic.catch(() => {});
       let tok;
       try { const r = await fetch((window.API_BASE || '') + '/api/stt-token'); if (!r.ok) throw new Error('status ' + r.status); tok = await r.json(); }
@@ -321,13 +349,14 @@
         this.impl = new GradiumListener(this.on); return this.impl.start();
       }
       log.info('listening (Gemini transcribe-live)');
+      this.gp = gradiumPartials((g) => { this.gtext = g; this.show(); });
       const ws = (this.ws = new WebSocket('wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContentConstrained?access_token=' + encodeURIComponent(tok.token)));
       ws.onopen = () => ws.send(JSON.stringify({ setup: { model: 'models/' + tok.model } }));
       ws.onmessage = async (e) => {
         const m = JSON.parse(typeof e.data === 'string' ? e.data : await e.data.text());
         if (m.setupComplete) { this.ready = true; for (const q of this.queue) ws.send(q); this.queue = []; log.debug('gemini stt ready', { ms: Math.round(performance.now() - this.t0) }); }
         const t = m.serverContent && m.serverContent.inputTranscription && m.serverContent.inputTranscription.text;
-        if (t) { this.text += t; this.on.partial && this.on.partial(this.text.trim()); }
+        if (t) { this.text += t; this.gAt = (this.gtext || '').length; this.show(); }
         // Gemini hears when speech starts and stops by itself: a phrase is final at generationComplete.
         if (m.voiceActivity && m.voiceActivity.type === 'ACTIVITY_START') this.pending = true;
         if (m.serverContent && (m.serverContent.generationComplete || m.serverContent.turnComplete)) { this.pending = false; this.resolveEnd && this.resolveEnd(); }
@@ -343,7 +372,7 @@
       this.node.onaudioprocess = (e) => {
         const f = e.inputBuffer.getChannelData(0); let mx = 0; const i16 = new Int16Array(f.length);
         for (let i = 0; i < f.length; i++) { const v = Math.max(-1, Math.min(1, f[i])); mx = Math.max(mx, Math.abs(v)); i16[i] = v < 0 ? v * 32768 : v * 32767; }
-        this.level = mx; this.pcm.push(i16);
+        this.level = mx; this.pcm.push(i16); this.gp && this.gp.send(i16);
         const u8 = new Uint8Array(i16.buffer); let s = ''; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000));
         const msg = JSON.stringify({ realtimeInput: { audio: { data: btoa(s), mimeType: 'audio/pcm;rate=' + G_RATE } } });
         if (this.ready && ws.readyState === 1) ws.send(msg); else this.queue.push(msg);
@@ -352,6 +381,7 @@
     }
     cancel() {
       if (this.impl) return this.impl.cancel();
+      this.gp && this.gp.close();
       this.cancelled = true; try { this.node && this.node.disconnect(); } catch (_) {}
       this.stream && this.stream.getTracks().forEach((t) => t.stop()); try { this.ac && this.ac.state !== 'closed' && this.ac.close(); } catch (_) {}
       this.queue = []; try { this.ws && this.ws.close(); } catch (_) {}
@@ -359,6 +389,7 @@
     }
     async stop() {
       if (this.impl) return this.impl.stop();
+      this.gp && this.gp.close();                          // live words were for the screen only
       const t0 = performance.now();
       try { this.node && this.node.disconnect(); } catch (_) {}
       this.stream && this.stream.getTracks().forEach((t) => t.stop()); this.ac && this.ac.close();
