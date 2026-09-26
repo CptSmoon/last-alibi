@@ -100,10 +100,10 @@
 
   // ---------- briefing: a popup over the game, opened from the HUD bulb (it blinks until the first time) ----------
   const STEPS = [
-    ['Investigate', 'Search compartment 7 and the rest of the train. Sparkles mark things worth a closer look.'],
-    ['Question', 'Talk to the passengers and the crew. Every fact they give you is written in your notebook (<kbd>J</kbd>).'],
-    ['Compare', 'When two statements can\'t both be true, you\'ll see ⚠. Confront them with it: someone is lying.'],
-    ['Accuse', 'When your case is strong, ask <b>Castelli</b> to gather everyone. Name the killer, the motive, and three proofs.'],
+    ['Investigate', 'Search compartment 7 and the rest of the train: walk up to a ✦ sparkle and press <kbd>E</kbd>. The map (<kbd>M</kbd>) takes you back to any room you\'ve visited.'],
+    ['Question', 'Walk up to anyone and press <kbd>E</kbd>. Type your questions or use 🎙 Talk. What they tell you about who was where, and when, goes into your notebook (<kbd>J</kbd>) › Statements.'],
+    ['Compare', 'When two statements can\'t both be true, you\'ll see ⚠. In a conversation, use <b>Show…</b> › Statements to confront them: someone is lying.'],
+    ['Accuse', 'Ask <b>Castelli</b> to gather everyone. Point at the killer, then say or type <b>why</b> they did it and <b>three things you found</b> that prove it.'],
   ];
   function briefing() {
     return new Promise((res) => {
@@ -113,7 +113,7 @@
         <h2>Who killed Anton Lazăr, and why?</h2>
         <p class="lede">The envoy was found dead behind a bolted door. The doctor says his heart stopped. You don't believe it. The carabinieri board the relief train at <b>10:00</b>: by then you must name the killer and prove it.</p>
         <ol class="steps">${STEPS.map(([t, d], i) => `<li><span class="n">${i + 1}</span><div><b>${t}</b><p>${d}</p></div></li>`).join('')}</ol>
-        <div class="meter"><b>Case strength</b> (top right) counts the proofs you hold that can convict. With fewer than three, the magistrate will let your suspect go.</div>
+        <div class="meter"><b>Case strength</b> (top right) counts the proofs you hold that can convict. The magistrate weighs your words: the wrong motive, or fewer than three real proofs, and your suspect walks free.</div>
         <button class="go" id="brief-go">Got it</button></div>`;
       const done = () => { b.hidden = true; b.classList.remove('pop'); b.onclick = null; removeEventListener('keydown', key, true); res(); };
       const key = (e) => { if (['Enter', 'Escape', 'Space'].includes(e.code)) { e.preventDefault(); e.stopPropagation(); done(); } };
