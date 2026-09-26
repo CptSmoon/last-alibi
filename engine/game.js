@@ -21,13 +21,14 @@
 
   const G = {
     names: NAMES, roles: ROLES, EV, beat: null, clock: toMin('07:00'), items: [], notes: [], found: new Set(), per: {},
-    settings: { brain: 'scripted', voice: true, sound: true, music: true, musicVol: 0.7, sfxVol: 0.8, speechRate: 1 }, server: { brain: false, voice: false }, flags: {},
+    settings: { brain: 'live', voice: true, sound: true, music: true, musicVol: 0.7, sfxVol: 0.8, speechRate: 1 }, server: { brain: false, voice: false }, flags: {},
     canGather: () => G.beat === 'investigation',
   };
   try { Object.assign(G.settings, JSON.parse(localStorage.getItem('simplon-settings') || '{}')); } catch (_) {}
   const saveSettings = () => { try { localStorage.setItem('simplon-settings', JSON.stringify(G.settings)); } catch (_) {} VOICE.player.rate = G.settings.speechRate || 1; };
   // The 1.15x playback default was too fast (and raised the pitch): reset it once for players who had it saved.
   if (!G.settings.rateV2) { if (G.settings.speechRate === 1.15) G.settings.speechRate = 1; G.settings.rateV2 = true; try { localStorage.setItem('simplon-settings', JSON.stringify(G.settings)); } catch (_) {} }
+  if (!G.settings.brainPicked) G.settings.brain = 'live';   // a 'scripted' saved by accident (not chosen) is dropped
   VOICE.player.rate = G.settings.speechRate || 1;
   const resetPer = () => { for (const c of CASE.characters) G.per[c.id] = { mood: 'calm', trust: 2, shown: new Set(), revealed: new Set(), done: false, history: {}, lines: [] }; };
   const known = (id) => G.items.includes(id) || G.notes.includes(id);
@@ -343,9 +344,10 @@
   resetPer(); UI.fit();
   fetch((window.API_BASE || '') + '/api/status').then((r) => r.json()).then((s) => {
     G.server = { brain: !!s.brain, voice: !!s.voice };
-    if (!localStorage.getItem('simplon-settings') && s.brain) G.settings.brain = 'live';
-    if (!s.brain) G.settings.brain = 'scripted';
-  }).catch(() => { G.settings.brain = 'scripted'; });
+    // Live AI is the default whenever the server has it; only an explicit choice in Settings keeps Scripted.
+    // (brain() in dialogue.js falls back to the scripted answers by itself when the server has no AI.)
+    if (s.brain && !G.settings.brainPicked) G.settings.brain = 'live';
+  }).catch(() => {});
   E.preload(['bg/bg-night', 'bg/bg-dining', 'bg/bg-corridor', 'bg/bg-c7', 'sprites/lazar-body', ...['sorel', 'theo', 'ferrand', 'hale', 'irina', 'mila', 'brandt', 'castelli', 'cook'].flatMap((a) => ['front', 'back', 'left', 'right', 'walk', 'talk'].map((p) => `sprites/${a}-${p}`))]);
   title();
   window.GAME = { G, talk, learn, newGame, gather, E };

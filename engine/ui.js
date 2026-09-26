@@ -103,7 +103,7 @@
             + slider('set-musicvol', 'Music volume', s.musicVol ?? 0.7, s.music === false)
             + row('set-sound', 'Sound effects', s.sound ? 'On' : 'Off', false, 'Footsteps, doors, wind, the train')
             + slider('set-sfxvol', 'Effects volume', s.sfxVol ?? 0.8, !s.sound);
-          $('#set-brain').onclick = () => { s.brain = s.brain === 'live' ? 'scripted' : 'live'; o.onChange(); draw(); };
+          $('#set-brain').onclick = () => { s.brain = s.brain === 'live' ? 'scripted' : 'live'; s.brainPicked = true; o.onChange(); draw(); };   // a deliberate choice sticks
           $('#set-voice').onclick = () => { s.voice = !s.voice; o.onChange(); draw(); };
           $('#set-rate').onclick = () => { const R = [1, 1.15, 1.3], i = R.indexOf(s.speechRate || 1); s.speechRate = R[(i + 1) % R.length]; o.onChange(); draw(); };
           $('#set-sound').onclick = () => { s.sound = !s.sound; o.onChange(); window.AUDIO && AUDIO.apply(); draw(); };
