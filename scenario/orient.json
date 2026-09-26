@@ -1,0 +1,2437 @@
+{
+  "id": "simplon-1931",
+  "title": "Last Stop, Simplon-Orient",
+  "tagline": "18 December 1931. An avalanche stops the train in the Alps. By morning, the envoy in No. 7 is dead behind a bolted door.",
+  "copyrightNote": "Original plot and cast. Only the real, historic setting (the Simplon-Orient Express, the Simplon line, Wagons-Lits service) is borrowed. No character, device or solution from Agatha Christie's 1934 novel.",
+  "setting": {
+    "place": "The Simplon-Orient Express, Paris to Constantinople: sleeping car, dining car and lounge car",
+    "date": "1931-12-18",
+    "weather": "Heavy snow over the Alps. After the Simplon tunnel the train runs down the Val Divedro towards Domodossola, Italy.",
+    "premise": "A Romanian trade envoy who collects other people's secrets is found dead in his compartment, bolted from the inside. The train doctor says heart failure. The player is a Paris police inspector travelling in the same car.",
+    "playerRole": "Inspector Marc Sorel of the Sûreté générale, Paris, travelling to Belgrade on a police liaison posting. Compartment 1."
+  },
+  "victim": {
+    "id": "lazar",
+    "name": "Anton Lazăr",
+    "age": 60,
+    "role": "Romanian trade envoy, returning to Bucharest",
+    "foundAt": "07:10 on 19 December, in his berth in compartment 7, door bolted from the inside",
+    "apparentCause": "Heart failure (angina, altitude and brandy), according to Dr Ferrand, who puts death at about 01:30",
+    "trueCause": "A fatal injection of morphine into the side of the neck at about 00:20, given by Dr Ferrand in place of the envoy's usual camphor-oil heart injection. The killer then left through the window into the snow, because someone was standing in the corridor."
+  },
+  "solution": {
+    "killer": "ferrand",
+    "motive": "Blackmail. In 1927 a 19-year-old patient died of a morphine overdose that Ferrand, drunk, gave her at his Passy clinic; he signed the death certificate as heart failure. Lazăr, then at the legation in Paris, bought the night nurse's statement and has bled Ferrand for four years. He also made Ferrand travel as his personal physician and give him his nightly heart injection. Tonight Lazăr demanded 50,000 francs by midnight, or the statement would go to the Ordre des médecins.",
+    "means": "A 0.02 g morphine ampoule and syringe from Ferrand's own medical bag.",
+    "opportunity": "Left the piquet game in the lounge car from 00:10 to 00:40 'to fetch tobacco'. In compartment 7 from 00:15 to 00:25. Left through the window at 00:25 because Mila Novak was smoking in the corridor, walked along the north side of the train in the falling snow past the kitchen window (00:28), and came back in through the dining car's unbolted north door at about 00:32.",
+    "accusationRequires": {
+      "suspect": "ferrand",
+      "motive": "m_passy",
+      "evidenceAnyThreeOf": [
+        "e_blotter",
+        "e_ampoule_tip",
+        "e_medbag",
+        "e_wet_shoes",
+        "e_footprints",
+        "e_scorecard",
+        "t_hale_absent",
+        "e_puncture",
+        "e_camphor",
+        "t_theo_figure"
+      ]
+    },
+    "motives": [
+      {
+        "id": "m_passy",
+        "label": "Blackmail over a patient's death (Passy, 1927)"
+      },
+      {
+        "id": "m_letters",
+        "label": "To recover compromising love letters"
+      },
+      {
+        "id": "m_cards",
+        "label": "A gambling debt and a cheat exposed"
+      },
+      {
+        "id": "m_oil",
+        "label": "A bribe and an oil concession gone wrong"
+      },
+      {
+        "id": "m_passport",
+        "label": "To hide a false passport"
+      },
+      {
+        "id": "m_robbery",
+        "label": "Robbery"
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "t": "20:30",
+      "event": "Dinner in the dining car. Lazăr with Brandt (table 1), Ferrand with Hale (table 2), Irina alone (table 3), Mila alone (table 4). The inspector is seated at table 5.",
+      "witnesses": [
+        "all"
+      ]
+    },
+    {
+      "t": "21:05",
+      "event": "Lazăr stops at Irina's table: 'Your letters have aged better than you, Countess. I reread them last night.' She calls him a small, cruel man.",
+      "witnesses": [
+        "all"
+      ]
+    },
+    {
+      "t": "21:20",
+      "event": "Brandt and Lazăr argue in low voices. Brandt: 'We had an agreement.' Lazăr: 'We had a price. Prices rise in winter.'",
+      "witnesses": [
+        "brandt",
+        "lazar",
+        "irina"
+      ]
+    },
+    {
+      "t": "21:35",
+      "event": "Ferrand and Hale move to the lounge car. Mila is at the bar.",
+      "witnesses": [
+        "ferrand",
+        "hale",
+        "mila"
+      ]
+    },
+    {
+      "t": "21:40",
+      "event": "Lazăr, in the lounge: 'Doctor! You'll bring my medicine tonight? Midnight suits my heart.' Ferrand: 'Of course, Excellency. Midnight.'",
+      "witnesses": [
+        "hale",
+        "mila",
+        "ferrand"
+      ]
+    },
+    {
+      "t": "21:50",
+      "event": "Lazăr at the bar to Mila: 'Mademoiselle Novak... or is it Horvat tonight?' She goes white.",
+      "witnesses": [
+        "mila"
+      ]
+    },
+    {
+      "t": "22:00",
+      "event": "Ferrand and Hale begin piquet in the lounge. Hale writes the start time of each partie on the score sheet, an army habit. Partie 1 starts 22:00.",
+      "witnesses": [
+        "hale",
+        "ferrand"
+      ]
+    },
+    {
+      "t": "22:40",
+      "event": "Brig. Lazăr goes back to compartment 7 via the conductor ('mineral water at eleven').",
+      "witnesses": [
+        "theo"
+      ]
+    },
+    {
+      "t": "22:50",
+      "event": "The train enters the Simplon tunnel, 20 km; the windows go black.",
+      "witnesses": [
+        "all"
+      ]
+    },
+    {
+      "t": "23:05",
+      "event": "Brandt goes to compartment 6, next to 7, and presses a tumbler to the partition to listen.",
+      "witnesses": []
+    },
+    {
+      "t": "23:10",
+      "event": "The train leaves the tunnel at Iselle, Italy. Snow falls heavily.",
+      "witnesses": [
+        "all"
+      ]
+    },
+    {
+      "t": "23:15",
+      "event": "Irina knocks at 7 and goes in. She offers her pearls for the letters. Lazăr laughs.",
+      "witnesses": [
+        "theo",
+        "brandt"
+      ]
+    },
+    {
+      "t": "23:25",
+      "event": "Irina leaves 7 in tears, back to 5.",
+      "witnesses": [
+        "theo",
+        "brandt"
+      ]
+    },
+    {
+      "t": "23:30",
+      "event": "Mila leaves the bar for compartment 4.",
+      "witnesses": []
+    },
+    {
+      "t": "23:40",
+      "event": "Avalanche on the line ahead at km 142. Emergency stop. Snow is banked up to the windows on the north side of the train.",
+      "witnesses": [
+        "all"
+      ]
+    },
+    {
+      "t": "23:45",
+      "event": "Chef de train Castelli walks the train: the line is blocked, nobody is hurt, relief will come from Domodossola in the morning, the outside doors stay bolted. His crew go out by the dining car's north door to look at the slide and come back in at 23:55.",
+      "witnesses": [
+        "all"
+      ]
+    },
+    {
+      "t": "00:05",
+      "event": "The inspector falls asleep in compartment 1.",
+      "witnesses": []
+    },
+    {
+      "t": "00:08",
+      "event": "Lazăr rings for the conductor: 'I am expecting a visitor. We are not to be disturbed.' Théo notes it on the call board.",
+      "witnesses": [
+        "theo"
+      ]
+    },
+    {
+      "t": "00:10",
+      "event": "Théo leaves his seat for a grappa with the cook, Luigi, in the dining car kitchen. At the same minute Ferrand leaves the piquet table 'to fetch tobacco'. Hale writes 'fin 2e partie 00h10'.",
+      "witnesses": [
+        "theo",
+        "hale"
+      ]
+    },
+    {
+      "t": "00:13",
+      "event": "Ferrand walks through the dining car (kitchen door shut) into the sleeping car. The corridor is empty and the conductor's seat is empty. He fetches his bag from compartment 3.",
+      "witnesses": []
+    },
+    {
+      "t": "00:15",
+      "event": "Ferrand knocks at 7. Lazăr: 'You're late. Sit.' Lazăr bolts the door.",
+      "witnesses": [
+        "brandt"
+      ]
+    },
+    {
+      "t": "00:20",
+      "event": "Ferrand injects morphine into Lazăr's neck instead of the camphor oil. He tears his own page out of Lazăr's black notebook. Mila comes out of 4 to smoke at the corridor window.",
+      "witnesses": [
+        "mila"
+      ]
+    },
+    {
+      "t": "00:25",
+      "event": "Seeing a woman in the corridor through the door louvre, Ferrand drops the window, climbs out onto the snowbank, and pushes the window up behind him. The snapped neck of the ampoule falls into the snow.",
+      "witnesses": [
+        "brandt"
+      ]
+    },
+    {
+      "t": "00:28",
+      "event": "A figure in a dark coat passes the kitchen window in the falling snow.",
+      "witnesses": [
+        "theo"
+      ]
+    },
+    {
+      "t": "00:32",
+      "event": "Ferrand comes back in through the dining car's north door, which the crew left unbolted, and waits in the vestibule.",
+      "witnesses": []
+    },
+    {
+      "t": "00:35",
+      "event": "Théo returns to his seat.",
+      "witnesses": [
+        "theo",
+        "mila"
+      ]
+    },
+    {
+      "t": "00:40",
+      "event": "Ferrand returns to the lounge, soaked to the calf, and dries himself by the stove: 'I stepped down for air.' Hale writes '3e partie 00h40'. Mila goes back into 4.",
+      "witnesses": [
+        "hale",
+        "mila"
+      ]
+    },
+    {
+      "t": "00:45",
+      "event": "The snow stops. Castelli notes it in the train log.",
+      "witnesses": [
+        "castelli"
+      ]
+    },
+    {
+      "t": "00:50",
+      "event": "Irina goes back to 7: bolted, light under the door, no answer to her knock. She drops her handkerchief there.",
+      "witnesses": [
+        "irina",
+        "theo"
+      ]
+    },
+    {
+      "t": "01:00",
+      "event": "Castelli finds the dining car's north door unbolted and bolts it. He notes it in the log.",
+      "witnesses": [
+        "castelli"
+      ]
+    },
+    {
+      "t": "02:00",
+      "event": "Piquet ends. Hale and Ferrand go to bed.",
+      "witnesses": [
+        "hale",
+        "ferrand"
+      ]
+    },
+    {
+      "t": "07:00",
+      "event": "Théo knocks at 7 for breakfast. No answer; the door is bolted.",
+      "witnesses": [
+        "theo"
+      ]
+    },
+    {
+      "t": "07:10",
+      "event": "Théo and Castelli force the bolt. Lazăr is dead in his berth. Ferrand examines him: heart failure, about 01:30.",
+      "witnesses": [
+        "theo",
+        "castelli",
+        "ferrand"
+      ]
+    },
+    {
+      "t": "07:20",
+      "event": "Castelli asks Inspector Sorel to look into it before the Italian police arrive with the relief train at 10:00.",
+      "witnesses": [
+        "all"
+      ]
+    }
+  ],
+  "chapters": [
+    {
+      "id": "morning",
+      "title": "I · Snowbound",
+      "subtitle": "The morning after the avalanche",
+      "phase": "morning",
+      "start": "07:00",
+      "end": "07:10",
+      "clock": "realtime",
+      "secondsPerMinute": 8,
+      "trainMoving": false,
+      "night": false,
+      "outsideDoors": false,
+      "compartmentsLocked": true,
+      "playerStart": "d_breakfast",
+      "situation": "Breakfast in the dining car. The train has been stuck in the snow since the avalanche at 23:40.",
+      "goal": "Have breakfast. Say good morning.",
+      "endWhen": "Théo runs in: a death in No. 7."
+    },
+    {
+      "id": "ch1",
+      "title": "I · Dinner",
+      "subtitle": "Lausanne to Brig, 18 December 1931",
+      "phase": "before",
+      "start": "20:30",
+      "end": "22:50",
+      "clock": "realtime",
+      "secondsPerMinute": 1.6,
+      "trainMoving": true,
+      "night": false,
+      "outsideDoors": false,
+      "compartmentsLocked": true,
+      "playerStart": "d_t5",
+      "situation": "It is the evening of 18 December 1931, between Lausanne and Brig. Dinner is served in the dining car; later, cards and drinks in the lounge car. Nothing bad has happened. Nobody knows any crime will happen.",
+      "goal": "Dine, listen, and meet the passengers. When you are ready, go to bed in compartment 1.",
+      "endWhen": "Interact with the berth in compartment 1 after 21:45, or the clock reaches 22:50."
+    },
+    {
+      "id": "ch2",
+      "title": "II · The Night",
+      "subtitle": "The Simplon tunnel and after",
+      "phase": "before",
+      "start": "22:55",
+      "end": "00:05",
+      "clock": "realtime",
+      "secondsPerMinute": 2.2,
+      "trainMoving": true,
+      "stopAt": "23:40",
+      "night": true,
+      "outsideDoors": false,
+      "compartmentsLocked": true,
+      "playerStart": "c1_door",
+      "situation": "It is late on 18 December 1931. The train has entered the Simplon tunnel and will come out at Iselle in Italy. Passengers are going to bed.",
+      "goal": "The train sleeps. Walk the corridor if you can't. At midnight you'll finally doze off.",
+      "endWhen": "Clock reaches 00:05 (the inspector falls asleep).",
+      "situationAfterStop": "From 23:40: an avalanche has blocked the line ahead and the train has stopped in the snow. The chef de train says nobody is hurt, relief comes in the morning, and the outside doors stay bolted."
+    },
+    {
+      "id": "ch3",
+      "title": "II · Compartment 7",
+      "subtitle": "Anton Lazăr is dead. The carabinieri arrive at ten.",
+      "phase": "after",
+      "start": "07:20",
+      "end": "10:00",
+      "clock": "actions",
+      "minutesPerInterview": 10,
+      "minutesPerClue": 2,
+      "trainMoving": false,
+      "night": false,
+      "outsideDoors": true,
+      "compartmentsLocked": false,
+      "playerStart": "c7_scene",
+      "situation": "It is the morning of 19 December 1931. The train has been stopped all night by an avalanche near Iselle, Italy. At 07:10 the conductor and the chef de train forced the bolted door of compartment 7 and found the envoy Anton Lazăr dead in his berth. Dr Ferrand examined him and said heart failure, at about half past one. The chef de train has asked Inspector Sorel, a French police inspector travelling in compartment 1, to ask everyone some questions before the Italian police arrive with the relief train at ten o'clock. The outside doors have been opened now that it is daylight.",
+      "goal": "Search compartment 7, the corridor, the snow outside and the other cars. Question everyone. The relief train arrives at 10:00.",
+      "endWhen": "The player calls everyone to the dining car (talk to Castelli), or the clock reaches 10:00."
+    },
+    {
+      "id": "ch4",
+      "title": "III · The Accusation",
+      "subtitle": "The dining car, before the relief train",
+      "phase": "after",
+      "start": "10:00",
+      "end": "10:00",
+      "clock": "none",
+      "trainMoving": false,
+      "night": false,
+      "outsideDoors": false,
+      "compartmentsLocked": true,
+      "playerStart": "d_aisle",
+      "situation": "Everyone has been gathered in the dining car by the chef de train. The inspector is about to name the killer.",
+      "goal": "Name the killer, the motive, and three pieces of evidence.",
+      "endWhen": "Accusation filed."
+    }
+  ],
+  "events": [
+    {
+      "chapter": "ch1",
+      "t": "21:05",
+      "who": "lazar",
+      "say": "Your letters have aged better than you, Countess. I reread them last night.",
+      "observation": "o_letters"
+    },
+    {
+      "chapter": "ch1",
+      "t": "21:06",
+      "who": "irina",
+      "say": "You are a small, cruel man, Anton."
+    },
+    {
+      "chapter": "ch1",
+      "t": "21:20",
+      "who": "brandt",
+      "say": "We had an agreement, Excellency."
+    },
+    {
+      "chapter": "ch1",
+      "t": "21:21",
+      "who": "lazar",
+      "say": "We had a price, Herr Brandt. Prices rise in winter.",
+      "observation": "o_price"
+    },
+    {
+      "chapter": "ch1",
+      "t": "21:40",
+      "who": "lazar",
+      "say": "Doctor! You'll bring my medicine tonight? Midnight suits my heart.",
+      "observation": "o_medicine"
+    },
+    {
+      "chapter": "ch1",
+      "t": "21:41",
+      "who": "ferrand",
+      "say": "Of course, Excellency. Midnight."
+    },
+    {
+      "chapter": "ch1",
+      "t": "21:50",
+      "who": "lazar",
+      "say": "Mademoiselle Novak... or is it Horvat tonight?",
+      "observation": "o_horvat"
+    },
+    {
+      "chapter": "ch1",
+      "t": "22:00",
+      "who": "hale",
+      "say": "Piquet, Doctor? I'll keep the score. Army habit."
+    },
+    {
+      "chapter": "ch2",
+      "t": "22:55",
+      "who": "castelli",
+      "say": "The Simplon tunnel, signori. Twenty kilometres of mountain."
+    },
+    {
+      "chapter": "ch2",
+      "t": "23:15",
+      "who": "irina",
+      "say": "Anton. Please. Let me in.",
+      "observation": "o_irina_visit"
+    },
+    {
+      "chapter": "ch2",
+      "t": "23:25",
+      "who": "irina",
+      "say": "...",
+      "observation": "o_irina_tears"
+    },
+    {
+      "chapter": "ch2",
+      "t": "23:40",
+      "who": "castelli",
+      "say": "Valanga! Hold on!",
+      "kind": "avalanche"
+    },
+    {
+      "chapter": "ch2",
+      "t": "23:46",
+      "who": "castelli",
+      "say": "Avalanche ahead. No one is hurt. Doors stay bolted till morning!",
+      "observation": "o_avalanche"
+    },
+    {
+      "chapter": "ch2",
+      "t": "23:52",
+      "who": "lazar",
+      "say": "Conductor! Mineral water. And no more noise tonight."
+    },
+    {
+      "chapter": "morning",
+      "t": "07:00",
+      "who": "hale",
+      "say": "Morning, Inspector! Snowed in, by Jove."
+    },
+    {
+      "chapter": "morning",
+      "t": "07:01",
+      "who": "castelli",
+      "say": "Signori, the relief train comes at ten. Coffee is on the house!"
+    },
+    {
+      "chapter": "morning",
+      "t": "07:02",
+      "who": "mila",
+      "say": "Did anyone sleep? I didn't."
+    },
+    {
+      "chapter": "ch3",
+      "t": "07:20",
+      "who": "castelli",
+      "say": "Ispettore, please. Before the carabinieri come at ten."
+    },
+    {
+      "chapter": "ch3",
+      "t": "07:20",
+      "who": "ferrand",
+      "say": "His heart, Inspector. About half past one. I'm sorry."
+    }
+  ],
+  "locations": [
+    {
+      "id": "sleeper",
+      "name": "Sleeping car (Voiture 3)",
+      "rooms": [
+        "c1",
+        "c2",
+        "c3",
+        "c4",
+        "c5",
+        "c6",
+        "c7",
+        "cond",
+        "sleeper_corridor"
+      ]
+    },
+    {
+      "id": "dining",
+      "name": "Dining car",
+      "rooms": [
+        "kitchen",
+        "dining_hall"
+      ]
+    },
+    {
+      "id": "lounge",
+      "name": "Lounge car",
+      "rooms": [
+        "bar",
+        "lounge_hall"
+      ]
+    },
+    {
+      "id": "outside",
+      "name": "Outside, in the snow",
+      "rooms": [
+        "out_north",
+        "out_south"
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "e_puncture",
+      "name": "Needle mark on the neck",
+      "kind": "fact",
+      "chapters": [
+        "ch3"
+      ],
+      "location": "c7",
+      "spot": "h_body",
+      "key": true,
+      "pointsTo": "murder, not heart failure",
+      "description": "Lazăr lies in his berth, peaceful, pupils like pinpricks. Under the left ear, a tiny puncture with a bead of dried blood. The doctor said nothing about it.",
+      "take": false,
+      "about": [
+        "lazar"
+      ]
+    },
+    {
+      "id": "e_camphor",
+      "name": "Lazăr's heart medicine",
+      "kind": "physical",
+      "chapters": [
+        "ch3"
+      ],
+      "location": "c7",
+      "spot": "h_medcase",
+      "key": true,
+      "pointsTo": "the injection was not his own",
+      "description": "A small case of camphor-oil ampoules for his angina, labelled 'one each night, to be given by Dr F.'. Every ampoule is still sealed. There is no syringe anywhere in the compartment.",
+      "take": true,
+      "about": [
+        "lazar",
+        "ferrand"
+      ]
+    },
+    {
+      "id": "e_notebook",
+      "name": "The black notebook",
+      "kind": "document",
+      "chapters": [
+        "ch3"
+      ],
+      "location": "c7",
+      "spot": "h_pillow",
+      "pointsTo": "everyone had a motive",
+      "description": "Under the pillow. Alphabetical pages of other people's secrets. BRANDT: three payments, next due in Bucharest. HALE: Cairo 1929, the Turf Club, marked cards, 1,200 pounds. NOVAK: really L. Horvat, wife of Inspector Horvat of Zagreb, false papers. VOSS: letters to B.K., 1919. Between BRANDT and HALE, one page has been torn out.",
+      "take": true,
+      "about": [
+        "lazar",
+        "irina",
+        "hale",
+        "mila",
+        "brandt"
+      ]
+    },
+    {
+      "id": "e_blotter",
+      "name": "The blotter",
+      "kind": "document",
+      "chapters": [
+        "ch3"
+      ],
+      "location": "c7",
+      "spot": "h_table",
+      "key": true,
+      "pointsTo": "ferrand",
+      "description": "On the fold-down table, the ink blotter holds a fresh mirror-image line. Held up to the mirror: 'P.F. — Passy, 1927 — 50 000 — minuit.'",
+      "take": true,
+      "about": [
+        "lazar",
+        "ferrand"
+      ]
+    },
+    {
+      "id": "e_window",
+      "name": "The window of No. 7",
+      "kind": "fact",
+      "chapters": [
+        "ch3"
+      ],
+      "location": "c7",
+      "spot": "h_window",
+      "pointsTo": "someone left by the window",
+      "description": "The window catch is not fastened. There is a puddle of melted snow on the floor below it, and snow crystals are packed into the bottom of the frame. Outside, the snowbank comes up almost to the sill.",
+      "take": false,
+      "about": [
+        "lazar"
+      ]
+    },
+    {
+      "id": "e_bolt",
+      "name": "The broken bolt",
+      "kind": "physical",
+      "chapters": [
+        "ch3"
+      ],
+      "location": "c7",
+      "spot": "h_door7",
+      "pointsTo": "the door was bolted from inside",
+      "description": "The brass bolt was torn from the frame when Théo and Castelli forced the door at 07:10. It was shot home from the inside. Nobody left by this door.",
+      "take": true,
+      "about": [
+        "lazar"
+      ]
+    },
+    {
+      "id": "e_letters",
+      "name": "Bundle of letters",
+      "kind": "document",
+      "chapters": [
+        "ch3"
+      ],
+      "location": "c7",
+      "spot": "h_attache",
+      "pointsTo": "irina",
+      "description": "In Lazăr's attaché case, tied with ribbon: love letters signed 'Irina', 1919, to a man addressed only as 'B.K., People's Commissar'. Enough to finish a Viennese reputation, and a son's career.",
+      "take": true,
+      "about": [
+        "irina"
+      ]
+    },
+    {
+      "id": "e_contract",
+      "name": "Concession draft",
+      "kind": "document",
+      "chapters": [
+        "ch3"
+      ],
+      "location": "c7",
+      "spot": "h_attache2",
+      "pointsTo": "brandt",
+      "description": "A draft oil concession for the Rheinische Erdöl AG, with a pencilled note in Lazăr's hand: 'R.E. pays 3×, then offer to the British.'",
+      "take": true,
+      "about": [
+        "brandt"
+      ]
+    },
+    {
+      "id": "e_handkerchief",
+      "name": "Lace handkerchief",
+      "kind": "physical",
+      "chapters": [
+        "ch3"
+      ],
+      "location": "sleeper_corridor",
+      "spot": "h_hanky",
+      "pointsTo": "irina came back in the night",
+      "description": "On the corridor floor outside No. 7, pushed against the door: a lace handkerchief, monogram I.V., still damp and stiff.",
+      "take": true,
+      "about": [
+        "irina"
+      ]
+    },
+    {
+      "id": "e_callboard",
+      "name": "The call board",
+      "kind": "document",
+      "chapters": [
+        "ch3"
+      ],
+      "location": "cond",
+      "spot": "h_callboard",
+      "key": false,
+      "pointsTo": "lazar expected a visitor after midnight",
+      "description": "The conductor's call indicator shows the flag for No. 7 dropped. In Théo's call log: '00h08 — No 7 — attend un visiteur, ne pas déranger.'",
+      "take": false,
+      "about": [
+        "lazar",
+        "theo"
+      ]
+    },
+    {
+      "id": "e_footprints",
+      "name": "Footprints in the snow",
+      "kind": "fact",
+      "chapters": [
+        "ch3"
+      ],
+      "location": "out_north",
+      "spot": "h_footprints",
+      "key": true,
+      "pointsTo": "the killer left by the window before the snow stopped",
+      "description": "On the north side of the train, a single line of deep prints runs from beneath the window of No. 7, past the kitchen, to the north door of the dining car. The edges are soft and half filled with fresh snow: they were made while it was still snowing.",
+      "take": false,
+      "about": []
+    },
+    {
+      "id": "e_ampoule_tip",
+      "name": "Snapped ampoule neck",
+      "kind": "physical",
+      "chapters": [
+        "ch3"
+      ],
+      "location": "out_north",
+      "spot": "h_ampoule",
+      "key": true,
+      "pointsTo": "ferrand",
+      "description": "In the snow under the window of No. 7: the snapped glass neck of a medical ampoule. The printed label reads 'MORPH. 0,02 g — Pharmacie de Passy'.",
+      "take": true,
+      "about": [
+        "ferrand"
+      ]
+    },
+    {
+      "id": "e_trainlog",
+      "name": "The chef de train's log",
+      "kind": "document",
+      "chapters": [
+        "ch3"
+      ],
+      "location": "dining_hall",
+      "spot": "h_trainlog",
+      "pointsTo": "timing",
+      "description": "Castelli's log: '23h40 valanga km 142, arrêt. 23h50 équipe sortie porte nord voiture-restaurant. 00h45 neige cessée. 01h00 porte nord voiture-restaurant trouvée NON verrouillée — verrouillée.'",
+      "take": false,
+      "about": [
+        "castelli"
+      ]
+    },
+    {
+      "id": "e_grappa",
+      "name": "Two grappa glasses",
+      "kind": "physical",
+      "chapters": [
+        "ch3"
+      ],
+      "location": "kitchen",
+      "spot": "h_grappa",
+      "pointsTo": "theo left his post",
+      "description": "In the kitchen, behind the stove: two small glasses, a nearly empty grappa bottle, and a Wagons-Lits conductor's cap hung on the hook by the north window.",
+      "take": true,
+      "about": [
+        "theo"
+      ]
+    },
+    {
+      "id": "e_scorecard",
+      "name": "Piquet score sheet",
+      "kind": "document",
+      "chapters": [
+        "ch3"
+      ],
+      "location": "lounge_hall",
+      "spot": "h_scorecard",
+      "key": true,
+      "pointsTo": "ferrand was away for 30 minutes",
+      "description": "Hale's neat army hand: 'Partie 1 — 22h00. Partie 2 — 23h05. Fin 2e partie 00h10. Partie 3 — 00h40. Fin 01h58.' Half an hour between two parties.",
+      "take": true,
+      "about": [
+        "hale",
+        "ferrand"
+      ]
+    },
+    {
+      "id": "e_wet_shoes",
+      "name": "Ferrand's evening shoes",
+      "kind": "fact",
+      "chapters": [
+        "ch3"
+      ],
+      "location": "c3",
+      "spot": "h_shoes",
+      "key": true,
+      "pointsTo": "ferrand was in the snow",
+      "description": "Under the berth in compartment 3: black patent evening shoes stuffed with newspaper to dry, a white tide line of snowmelt across the toes. His dinner trousers hang over the heater, wet to the calf.",
+      "take": false,
+      "about": [
+        "ferrand"
+      ]
+    },
+    {
+      "id": "e_medbag",
+      "name": "The doctor's bag",
+      "kind": "physical",
+      "chapters": [
+        "ch3"
+      ],
+      "location": "c3",
+      "spot": "h_medbag",
+      "key": true,
+      "pointsTo": "ferrand",
+      "description": "A leather bag, initials P.F. Morphine case with twelve slots: one is empty. The syringe has been rinsed and is still wet. His dosage book lists no morphine given on this journey.",
+      "take": true,
+      "about": [
+        "ferrand"
+      ]
+    },
+    {
+      "id": "e_tumbler",
+      "name": "Tumbler on the partition",
+      "kind": "physical",
+      "chapters": [
+        "ch3"
+      ],
+      "location": "c6",
+      "spot": "h_tumbler",
+      "pointsTo": "brandt listened through the wall",
+      "description": "In compartment 6, a tooth-glass stands upside down on the shelf against the wall shared with No. 7, a folded towel beside it to muffle it.",
+      "take": true,
+      "about": [
+        "brandt"
+      ]
+    },
+    {
+      "id": "e_passports",
+      "name": "Two passports",
+      "kind": "document",
+      "chapters": [
+        "ch3"
+      ],
+      "location": "c4",
+      "spot": "h_passports",
+      "pointsTo": "mila",
+      "description": "In the lining of a vanity case in compartment 4: a Yugoslav passport for 'Mila Novak, singer' and another, the same face, for 'Ljudmila Horvat, married'.",
+      "take": true,
+      "about": [
+        "mila"
+      ]
+    },
+    {
+      "id": "e_marked_cards",
+      "name": "Marked deck",
+      "kind": "physical",
+      "chapters": [
+        "ch3"
+      ],
+      "location": "c2",
+      "spot": "h_cards",
+      "pointsTo": "hale",
+      "description": "In Major Hale's valise: a deck of cards with tiny pinpricks at the corners of every court card. A cardsharp's deck.",
+      "take": true,
+      "about": [
+        "hale"
+      ]
+    },
+    {
+      "id": "o_letters",
+      "name": "Overheard: 'your letters'",
+      "kind": "observation",
+      "pointsTo": "irina",
+      "description": "At dinner Lazăr told the Countess: 'Your letters have aged better than you. I reread them last night.'",
+      "take": false,
+      "about": []
+    },
+    {
+      "id": "o_price",
+      "name": "Overheard: 'prices rise'",
+      "kind": "observation",
+      "pointsTo": "brandt",
+      "description": "At dinner Brandt said 'We had an agreement', and Lazăr answered 'We had a price. Prices rise in winter.'",
+      "take": false,
+      "about": []
+    },
+    {
+      "id": "o_medicine",
+      "name": "Overheard: 'my medicine'",
+      "kind": "observation",
+      "pointsTo": "ferrand",
+      "description": "In the lounge Lazăr told Dr Ferrand: 'You'll bring my medicine tonight? Midnight suits my heart.' Ferrand: 'Of course. Midnight.'",
+      "take": false,
+      "about": []
+    },
+    {
+      "id": "o_horvat",
+      "name": "Overheard: 'or is it Horvat?'",
+      "kind": "observation",
+      "pointsTo": "mila",
+      "description": "At the bar Lazăr said to the singer: 'Mademoiselle Novak... or is it Horvat tonight?' She went white.",
+      "take": false,
+      "about": []
+    },
+    {
+      "id": "o_irina_visit",
+      "name": "Seen: the Countess at No. 7",
+      "kind": "observation",
+      "pointsTo": "irina",
+      "description": "At 23:15 Countess Voss knocked at No. 7 and went in.",
+      "take": false,
+      "about": []
+    },
+    {
+      "id": "o_irina_tears",
+      "name": "Seen: the Countess in tears",
+      "kind": "observation",
+      "pointsTo": "irina",
+      "description": "At 23:25 the Countess came out of No. 7 in tears.",
+      "take": false,
+      "about": []
+    },
+    {
+      "id": "o_avalanche",
+      "name": "The avalanche",
+      "kind": "observation",
+      "pointsTo": "timing",
+      "description": "23:40: avalanche ahead, emergency stop. The chef de train ordered all outside doors bolted until morning.",
+      "take": false,
+      "about": []
+    },
+    {
+      "id": "t_theo_visitor",
+      "name": "Théo: 'expecting a visitor'",
+      "kind": "testimony",
+      "pointsTo": "lazar expected someone after midnight",
+      "description": "At 00:08 Lazăr rang for the conductor and said he was expecting a visitor and must not be disturbed.",
+      "take": false,
+      "about": [
+        "theo",
+        "lazar"
+      ]
+    },
+    {
+      "id": "t_theo_irina",
+      "name": "Théo: the Countess, twice",
+      "kind": "testimony",
+      "pointsTo": "irina",
+      "description": "The conductor saw Countess Voss go into No. 7 at 23:15 and leave at 23:25 in tears, and saw her at the door again at 00:50. That time she did not go in.",
+      "take": false,
+      "about": [
+        "theo",
+        "irina"
+      ]
+    },
+    {
+      "id": "t_theo_figure",
+      "name": "Théo: a figure in the snow",
+      "kind": "testimony",
+      "key": true,
+      "pointsTo": "someone walked outside at 00:28",
+      "description": "From the kitchen, at about 00:28, Théo saw a figure in a long dark coat pass the north window in the falling snow, heading towards the lounge end. He took it for a railwayman.",
+      "take": false,
+      "about": [
+        "theo"
+      ]
+    },
+    {
+      "id": "t_brandt_voice",
+      "name": "Brandt: voices in No. 7",
+      "kind": "testimony",
+      "pointsTo": "a man was with lazar 00:15-00:25",
+      "description": "Listening through the wall, Brandt heard a knock at 00:15 and Lazăr say 'You're late. Sit.' A man answered in low, educated French. At 00:25 the window of No. 7 dropped, then went up again. The door never opened.",
+      "take": false,
+      "about": [
+        "brandt",
+        "lazar"
+      ]
+    },
+    {
+      "id": "t_mila_corridor",
+      "name": "Mila: the empty corridor",
+      "kind": "testimony",
+      "pointsTo": "nobody used the door of No. 7; the conductor was away",
+      "description": "Mila smoked at the corridor window from 00:20 to 00:40. Nobody came in or out of No. 7. The conductor's seat was empty until 00:35.",
+      "take": false,
+      "about": [
+        "mila",
+        "theo"
+      ]
+    },
+    {
+      "id": "t_irina_knock",
+      "name": "Irina: the bolted door",
+      "kind": "testimony",
+      "pointsTo": "lazar was dead or silent by 00:50",
+      "description": "At 00:50 the Countess went back to No. 7. It was bolted, with light under the door, and nobody answered her knock or her whisper.",
+      "take": false,
+      "about": [
+        "irina"
+      ]
+    },
+    {
+      "id": "t_hale_absent",
+      "name": "Hale: the doctor's half hour",
+      "kind": "testimony",
+      "key": true,
+      "pointsTo": "ferrand",
+      "description": "Ferrand left the piquet table at 00:10 'to fetch tobacco' and came back at 00:40, soaked to the calf. He said he had stepped down for air, and dried himself by the stove.",
+      "take": false,
+      "about": [
+        "hale",
+        "ferrand"
+      ]
+    },
+    {
+      "id": "t_brandt_bribes",
+      "name": "Brandt: the bribes",
+      "kind": "testimony",
+      "pointsTo": "brandt",
+      "description": "Brandt admits paying Lazăr three bribes for the concession, and that Lazăr meant to sell to the British anyway.",
+      "take": false,
+      "about": [
+        "brandt",
+        "lazar"
+      ]
+    },
+    {
+      "id": "t_hale_cards",
+      "name": "Hale: Cairo",
+      "kind": "testimony",
+      "pointsTo": "hale",
+      "description": "Hale admits he was quietly cashiered for cheating at cards in Cairo in 1929, and that Lazăr knew.",
+      "take": false,
+      "about": [
+        "hale",
+        "lazar"
+      ]
+    },
+    {
+      "id": "t_ferrand_passy",
+      "name": "Ferrand: Passy, 1927",
+      "kind": "testimony",
+      "pointsTo": "ferrand",
+      "description": "Ferrand admits Lazăr was blackmailing him over a patient's death at his Passy clinic in 1927, but still denies killing him.",
+      "take": false,
+      "about": [
+        "ferrand",
+        "lazar"
+      ]
+    }
+  ],
+  "characters": [
+    {
+      "id": "lazar",
+      "name": "Anton Lazăr",
+      "age": 60,
+      "role": "Romanian trade envoy",
+      "isVictim": true,
+      "chapters": [
+        "ch1",
+        "ch2"
+      ],
+      "voice": {
+        "gemini": "Algieba",
+        "style": "Smooth, amused, unhurried. Purrs his threats. Rolls his r's. Enjoys long pauses.",
+        "gradium": "nlYB3lceu4gwj9Eu",
+        "gradiumName": "Graham"
+      },
+      "look": {
+        "skin": "#e2b48a",
+        "hair": "#d8d6e0",
+        "hairStyle": "bald",
+        "coat": "#0b0a14",
+        "coat2": "#1a1420",
+        "trim": "#c93a48",
+        "legs": "#1a1420",
+        "acc": "monocle"
+      },
+      "bio": "Thirty years in the Romanian diplomatic service; now carrying an oil concession back to Bucharest. He calls his hobby 'collecting': he buys other people's secrets and keeps them in a black notebook. He has angina and brandy in equal measure.",
+      "personality": [
+        "charming",
+        "cruel",
+        "vain",
+        "patient",
+        "enjoys fear in others",
+        "never raises his voice"
+      ],
+      "speechStyle": "Old-fashioned, flowery French and English. Calls people by their titles with irony. Hints; never states. Speaks of secrets as 'my collection'.",
+      "relationships": {
+        "ferrand": "His 'dear Doctor', whom he makes travel with him and give him his nightly injection. Lazăr enjoys this very much and never says why.",
+        "irina": "He owns her 1919 letters and wants her son at the Austrian foreign ministry to be 'helpful'.",
+        "brandt": "Takes his money, plans to sell the concession to the British anyway.",
+        "hale": "Knows he cheats at cards; finds it charming.",
+        "mila": "Recognised her from a legation party in Zagreb; knows her real name.",
+        "theo": "A servant; complains about him to the company for fun."
+      },
+      "knowledge": [
+        "He has a black notebook of secrets, alphabetical, under his pillow. He will never show it, only hint at it.",
+        "Tonight he expects 'his medicine' and a payment from his doctor at midnight. He never says what the payment is for.",
+        "He has angina and takes a camphor-oil injection every night."
+      ],
+      "witnessed": [
+        {
+          "t": "20:30",
+          "what": "Dined with Herr Brandt at table 1."
+        },
+        {
+          "t": "21:05",
+          "what": "Teased the Countess about her letters."
+        },
+        {
+          "t": "21:40",
+          "what": "Reminded the Doctor about midnight in the lounge."
+        },
+        {
+          "t": "21:50",
+          "what": "Greeted the singer at the bar by her real name."
+        },
+        {
+          "t": "22:40",
+          "what": "Went back to compartment 7."
+        },
+        {
+          "t": "23:15",
+          "what": "The Countess came to beg for her letters; he laughed and kept them."
+        }
+      ],
+      "coverStory": "A tired old diplomat going home for Christmas.",
+      "lies": [],
+      "secrets": [],
+      "chapterNotes": {
+        "ch1": "You are at dinner and in the lounge, in excellent spirits. You are delighted to meet a police inspector: you flirt with danger. Drop one hint about your 'collection' if asked about the other passengers.",
+        "ch2": "You are in compartment 7 in your dressing gown, waiting for midnight. If the inspector knocks, you are polite and tell them to go to bed. You will not say whom you are expecting."
+      }
+    },
+    {
+      "id": "ferrand",
+      "name": "Dr Paul Ferrand",
+      "age": 55,
+      "role": "Physician, formerly of a private clinic in Passy, Paris",
+      "isKiller": true,
+      "chapters": [
+        "morning",
+        "ch1",
+        "ch2",
+        "ch3",
+        "ch4"
+      ],
+      "voice": {
+        "gemini": "Sadaltager",
+        "style": "Warm, measured, reassuring bedside manner. A little too reasonable. Pauses to choose words.",
+        "gradium": "HtgP9v8SoWbq_jxi",
+        "gradiumName": "Rémi"
+      },
+      "look": {
+        "skin": "#f0d9c4",
+        "hair": "#a7a5b3",
+        "hairStyle": "grey",
+        "coat": "#5a4a3a",
+        "coat2": "#35190f",
+        "trim": "#f3ead2",
+        "legs": "#3b3a48",
+        "acc": "beard"
+      },
+      "bio": "A respected Paris physician who closed his Passy clinic in 1928 'for his health'. Widowed, quietly ruined, drinks less than he used to. Travelling to Belgrade 'for a conference'; in truth because Lazăr ordered him to come as his personal physician.",
+      "personality": [
+        "courteous",
+        "precise",
+        "tired",
+        "self-controlled",
+        "kind to strangers",
+        "desperate underneath"
+      ],
+      "speechStyle": "Speaks like a doctor giving bad news gently. Uses medical terms and then explains them. Calls the inspector 'Inspector' or 'Monsieur l'Inspecteur'. Never swears.",
+      "relationships": {
+        "lazar": "Publicly, his patient for the journey: angina, a nightly camphor injection. He will say Lazăr was 'a difficult patient'.",
+        "hale": "A pleasant piquet partner; Ferrand likes him and hopes he is discreet.",
+        "irina": "Will mention, as if reluctantly, that she seemed very upset with Lazăr at dinner.",
+        "brandt": "Will mention Brandt quarrelled with Lazăr about business.",
+        "mila": "Barely noticed her.",
+        "theo": "A decent young man."
+      },
+      "knowledge": [
+        "He must never let the police learn about Passy, 1927, or the blackmail.",
+        "AFTER: He was away from the piquet table between 00:10 and 00:40 and must hide it for as long as possible (see lies).",
+        "AFTER: He examined Lazăr's body at 07:15 and declared heart failure at about 01:30.",
+        "NOTE FOR THE ENGINE: the murder itself is deliberately NOT in this prompt. The confession is injected only when s_ferrand_confession unlocks."
+      ],
+      "witnessed": [
+        {
+          "t": "20:30",
+          "what": "Dined with Major Hale at table 2."
+        },
+        {
+          "t": "21:40",
+          "what": "In the lounge Lazăr said 'You'll bring my medicine tonight? Midnight suits my heart.' He answered 'Of course. Midnight.'"
+        },
+        {
+          "t": "22:00",
+          "what": "Began piquet with Major Hale in the lounge."
+        },
+        {
+          "t": "23:40",
+          "what": "The avalanche stopped the train during the second partie."
+        },
+        {
+          "t": "07:15",
+          "what": "Called to compartment 7. Examined the body. Said heart failure, about 01:30."
+        }
+      ],
+      "coverStory": "I played piquet with Major Hale in the lounge from ten until two and never left, except to warm my feet at the stove. Lazăr died of his heart, poor man, at about half past one.",
+      "lies": [
+        {
+          "claim": "I played piquet with the Major from ten until two without leaving the lounge.",
+          "truth": "He left from 00:10 to 00:40. Never say where he went.",
+          "breaksWhen": "Shown e_scorecard or t_hale_absent, then switch to the fallback lie: 'I went to my compartment for tobacco, felt faint, and stepped down onto the vestibule step for air. The door was open.'"
+        },
+        {
+          "claim": "Heart failure, at about half past one.",
+          "truth": "He knows it was not his heart. Never say how he knows.",
+          "breaksWhen": "Shown e_puncture, then the fallback lie: 'Lazăr injected himself; he used morphine for pain; I prescribed it.' That lie breaks when shown e_camphor (no syringe, sealed ampoules)."
+        },
+        {
+          "claim": "My shoes? Wet from the vestibule step.",
+          "truth": "He walked the length of the dining car outside in deep snow.",
+          "breaksWhen": "Shown e_footprints, or reminded that the outside doors were bolted by order (e_trainlog)."
+        }
+      ],
+      "secrets": [
+        {
+          "id": "s_ferrand_absent",
+          "text": "Admits he left the lounge at 00:10 'to fetch tobacco' and 'stepped down for air', and returned at 00:40.",
+          "revealWhen": "Shown e_scorecard or t_hale_absent. This is a fallback lie, not a confession.",
+          "unlocks": null
+        },
+        {
+          "id": "s_ferrand_passy",
+          "text": "Admits Lazăr was blackmailing him over the death of a patient at his Passy clinic in 1927, and that tonight Lazăr wanted 50,000 francs. Swears he had not got the money and did not kill him.",
+          "revealWhen": "Shown e_blotter, or e_notebook together with e_ampoule_tip.",
+          "unlocks": "t_ferrand_passy"
+        },
+        {
+          "id": "s_ferrand_confession",
+          "promptVisibility": "engine",
+          "text": "Full confession: At 00:15 he went to No. 7 with the 'medicine'. Lazăr counted the 5,000 francs he had brought, laughed, and read aloud from the nurse's statement. Ferrand filled the syringe from a morphine ampoule instead of camphor and gave it into the neck, as he did every night. He tore his page from the notebook. When he looked through the louvre, a woman was smoking in the corridor, so he left by the window, into the snow, and came back through the dining car. He wrote 'heart failure' in the morning, as he had in 1927. He speaks about the girl in Passy, Colette, nineteen.",
+          "revealWhen": "Engine-gated: at least three of e_blotter, e_ampoule_tip, e_medbag, e_wet_shoes, e_scorecard, t_hale_absent, e_puncture, e_camphor, e_footprints have been PRESENTED to Ferrand.",
+          "unlocks": null
+        }
+      ],
+      "chapterNotes": {
+        "ch1": "Dinner, then piquet with the Major. You are pleasant, a little quiet. If asked about Lazăr: 'my patient for the journey, a weak heart'. You are very tense about midnight but hide it.",
+        "ch2": "You are playing piquet in the lounge car. The avalanche (after 23:40) rattled everyone. You are calm and kind, reassure others medically.",
+        "ch3": "Morning. You examined the body at 07:15 and are sure it was the heart. You are helpful and offer medical opinions that steer away from murder."
+      }
+    },
+    {
+      "id": "irina",
+      "name": "Countess Irina Voss",
+      "age": 48,
+      "role": "Austrian widow, travelling to Venice",
+      "chapters": [
+        "morning",
+        "ch1",
+        "ch2",
+        "ch3",
+        "ch4"
+      ],
+      "voice": {
+        "gemini": "Gacrux",
+        "style": "Low, mature, Viennese elegance, cold on the surface, cracks under emotion.",
+        "gradium": "7c5UOKm7AiBgJADg",
+        "gradiumName": "Holly"
+      },
+      "look": {
+        "skin": "#f5cfae",
+        "hair": "#2a1a20",
+        "hairStyle": "waves",
+        "coat": "#2a0c24",
+        "coat2": "#5e1627",
+        "trim": "#fffdf5",
+        "legs": "#2a0c24",
+        "acc": "pearls"
+      },
+      "bio": "Widow of Count Voss. In 1919, in Budapest, she fell in love with a commissar of the short-lived Soviet republic and wrote him letters. Her son now works at the Austrian foreign ministry. Lazăr bought the letters in 1930 and wants her son 'to be helpful'.",
+      "personality": [
+        "proud",
+        "sharp-tongued",
+        "frightened for her son",
+        "honest by nature",
+        "hates being pitied"
+      ],
+      "speechStyle": "Formal, crisp English with Viennese German phrases ('Mein Gott', 'Na ja'). Addresses the inspector as 'Inspector' and does not use first names.",
+      "relationships": {
+        "lazar": "Despises him and is afraid of him.",
+        "ferrand": "A gentleman. She trusts doctors.",
+        "hale": "A bore with good manners.",
+        "brandt": "Money in a suit.",
+        "mila": "Sorry for the girl, who looks as frightened as she feels.",
+        "theo": "Kind; brought her tea at midnight once on another journey."
+      },
+      "knowledge": [
+        "Lazăr keeps her letters in his attaché case.",
+        "Her son's career would be finished if the letters came out."
+      ],
+      "witnessed": [
+        {
+          "t": "21:05",
+          "what": "At dinner Lazăr said her letters had aged better than her. She called him a small, cruel man."
+        },
+        {
+          "t": "21:20",
+          "what": "At the next table, heard Brandt say 'We had an agreement' and Lazăr answer 'We had a price'."
+        },
+        {
+          "t": "22:45",
+          "what": "Went to compartment 5."
+        },
+        {
+          "t": "23:15",
+          "what": "Knocked at 7, went in, offered her pearls for the letters. Lazăr laughed and said no."
+        },
+        {
+          "t": "23:25",
+          "what": "Left 7 in tears."
+        },
+        {
+          "t": "23:40",
+          "what": "The avalanche threw her against the wall."
+        },
+        {
+          "t": "00:50",
+          "what": "Could not sleep; went back to 7 to try again. The door was bolted, there was light under it, and nobody answered her knock or her whisper. She dropped her handkerchief and did not notice."
+        }
+      ],
+      "coverStory": "I went to my compartment at a quarter to eleven and did not leave it until the conductor's shouting this morning.",
+      "lies": [
+        {
+          "claim": "I never left my compartment after a quarter to eleven.",
+          "truth": "She went to 7 at 23:15 (in) and 00:50 (door bolted).",
+          "breaksWhen": "Shown e_letters, o_irina_visit, o_irina_tears or t_theo_irina (first visit), and e_handkerchief (second visit)."
+        }
+      ],
+      "secrets": [
+        {
+          "id": "s_irina_visit",
+          "text": "Admits she went into 7 at 23:15 to buy back her letters with her pearls. He laughed. She left at 23:25.",
+          "revealWhen": "Shown e_letters, o_irina_visit, o_irina_tears or t_theo_irina.",
+          "unlocks": null
+        },
+        {
+          "id": "s_irina_knock",
+          "text": "Admits she went back at 00:50: bolted, light under the door, no answer to her knock or her whisper.",
+          "revealWhen": "Shown e_handkerchief, or after s_irina_visit if the inspector is kind and asks whether she went back.",
+          "unlocks": "t_irina_knock"
+        }
+      ],
+      "chapterNotes": {
+        "ch1": "Dinner. You are cold and dignified; Lazăr's remark about your letters humiliated you. You will not explain it to a stranger.",
+        "ch2": "You are in compartment 5 or on your way there, dreading the night. You will not say what you plan.",
+        "ch3": "You are shaken but, frankly, relieved Lazăr is dead, and ashamed of the relief."
+      }
+    },
+    {
+      "id": "hale",
+      "name": "Major Desmond Hale",
+      "age": 52,
+      "role": "Retired officer, Indian Army, travelling to Constantinople",
+      "chapters": [
+        "morning",
+        "ch1",
+        "ch2",
+        "ch3",
+        "ch4"
+      ],
+      "voice": {
+        "gemini": "Alnilam",
+        "style": "Firm, clipped, hearty British officer. Barks. Warm underneath.",
+        "gradium": "sCOIUHZRnsz0oPUp",
+        "gradiumName": "British Narrator"
+      },
+      "look": {
+        "skin": "#dfa47c",
+        "hair": "#c8683a",
+        "hairStyle": "short",
+        "coat": "#8a6a3f",
+        "coat2": "#5a4a2a",
+        "trim": "#5e1627",
+        "legs": "#5a4a2a",
+        "acc": "moustache"
+      },
+      "bio": "Twenty-five years in the Indian Army; retired early and quietly after 'a misunderstanding' at the Turf Club in Cairo in 1929 (he was caught with a marked deck). He plays cards to live. He owes Lazăr nothing, but Lazăr knows about Cairo.",
+      "personality": [
+        "hearty",
+        "loyal",
+        "proud",
+        "observant about small practical things",
+        "hates tattling on a fellow"
+      ],
+      "speechStyle": "Clipped British army slang ('I say', 'dashed', 'old man'). Precise about times because he writes them down. Says 'Inspector' firmly.",
+      "relationships": {
+        "lazar": "Oily foreigner; knew about Cairo and smiled about it.",
+        "ferrand": "Splendid fellow, good piquet player. Hale does not want to get him into trouble.",
+        "irina": "A real lady.",
+        "brandt": "A Hun, but he pays his bar bills.",
+        "mila": "Pretty singer; kept to herself.",
+        "theo": "Decent chap."
+      },
+      "knowledge": [
+        "He writes the start time of every partie on the score sheet, an army habit.",
+        "AFTER: The score sheet is still on the card table in the lounge."
+      ],
+      "witnessed": [
+        {
+          "t": "20:30",
+          "what": "Dined with Dr Ferrand at table 2."
+        },
+        {
+          "t": "21:40",
+          "what": "In the lounge Lazăr told Ferrand 'You'll bring my medicine tonight? Midnight suits my heart.'"
+        },
+        {
+          "t": "22:00",
+          "what": "Began piquet with Ferrand. Partie 1 at 22:00, partie 2 at 23:05."
+        },
+        {
+          "t": "23:40",
+          "what": "Avalanche; the cards went everywhere."
+        },
+        {
+          "t": "00:10",
+          "what": "Ferrand left 'to fetch tobacco'. Hale played patience."
+        },
+        {
+          "t": "00:40",
+          "what": "Ferrand came back soaked to the calf; said he had stepped down for air, which was odd because the doors were bolted. He sat by the stove to dry. Partie 3 began at 00:40."
+        },
+        {
+          "t": "02:00",
+          "what": "Game ended; went to bed in compartment 2."
+        }
+      ],
+      "coverStory": "Played piquet with the Doctor from ten until two. Capital game. Heard nothing, saw nothing.",
+      "lies": [
+        {
+          "claim": "The Doctor and I played straight through.",
+          "truth": "Ferrand was gone 00:10-00:40 and came back soaked.",
+          "breaksWhen": "Asked directly whether the Doctor ever left the table, or shown e_scorecard. He tells it, reluctantly, as a matter of honour."
+        }
+      ],
+      "secrets": [
+        {
+          "id": "s_hale_absent",
+          "text": "Ferrand left at 00:10 to fetch tobacco and came back at 00:40, soaked to the calf, saying he'd stepped down for air though the doors were bolted.",
+          "revealWhen": "Asked directly whether the Doctor left the table at any point, or shown e_scorecard.",
+          "unlocks": "t_hale_absent"
+        },
+        {
+          "id": "s_hale_cards",
+          "text": "Admits Cairo 1929 and the marked cards, and that Lazăr knew. Denies killing him: 'a man who cheats at cards doesn't need to kill anyone.'",
+          "revealWhen": "Shown e_marked_cards or e_notebook.",
+          "unlocks": "t_hale_cards"
+        }
+      ],
+      "chapterNotes": {
+        "ch1": "Dinner, then piquet with the Doctor in the lounge. You are cheerful; you dislike Lazăr.",
+        "ch2": "Playing piquet in the lounge with Ferrand. After 23:40, grumbling about the avalanche.",
+        "ch3": "Morning. You think the Doctor is right and it was the heart. You are loyal to Ferrand."
+      }
+    },
+    {
+      "id": "mila",
+      "name": "Mila Novak",
+      "age": 26,
+      "role": "Cabaret singer from Paris, travelling to Belgrade",
+      "chapters": [
+        "morning",
+        "ch1",
+        "ch2",
+        "ch3",
+        "ch4"
+      ],
+      "voice": {
+        "gemini": "Aoede",
+        "style": "Breezy, husky, quick; drops into fear quickly. Slight Croatian accent.",
+        "gradium": "ubuXFxVQwVYnZQhy",
+        "gradiumName": "Eva"
+      },
+      "look": {
+        "skin": "#f0d9c4",
+        "hair": "#0b0a14",
+        "hairStyle": "bob",
+        "coat": "#2f5d4c",
+        "coat2": "#1d3a30",
+        "trim": "#ffd36b",
+        "legs": "#1d3a30",
+        "acc": "beads"
+      },
+      "bio": "Born Ljudmila Horvat in Zagreb; married at 19 to Inspector Horvat of the Zagreb police, who beat her. She ran to Paris and sings at a Montparnasse cabaret. Her mother is dying in Belgrade, so she travels on a forged passport as 'Mila Novak' to avoid her husband being told at the border.",
+      "personality": [
+        "charming",
+        "funny",
+        "terrified of police",
+        "kind",
+        "a good liar about herself, bad at lying about others"
+      ],
+      "speechStyle": "Warm, playful, cabaret slang; French words mixed in ('chéri', 'mon Dieu'). Very short answers when frightened.",
+      "relationships": {
+        "lazar": "Terrified: he knows her real name.",
+        "ferrand": "Nice old doctor.",
+        "irina": "The Countess was kind to her once at the bar.",
+        "hale": "Flirts with him harmlessly.",
+        "brandt": "Doesn't like how he looks at her.",
+        "theo": "Friendly; gave her a blanket."
+      },
+      "knowledge": [
+        "She fears any police officer could send her back to her husband."
+      ],
+      "witnessed": [
+        {
+          "t": "21:30",
+          "what": "At the lounge bar."
+        },
+        {
+          "t": "21:40",
+          "what": "Heard Lazăr ask the Doctor to bring 'my medicine' at midnight."
+        },
+        {
+          "t": "21:50",
+          "what": "Lazăr called her 'Mademoiselle Novak... or is it Horvat tonight?'"
+        },
+        {
+          "t": "23:30",
+          "what": "Went to compartment 4."
+        },
+        {
+          "t": "23:40",
+          "what": "Avalanche."
+        },
+        {
+          "t": "00:20",
+          "what": "Couldn't sleep; went into the corridor to smoke at the window. The conductor's seat was empty."
+        },
+        {
+          "t": "00:25",
+          "what": "Felt a blast of cold air along the corridor floor from the end of the car for a moment."
+        },
+        {
+          "t": "00:35",
+          "what": "The conductor came back from the direction of the dining car, smelling of grappa."
+        },
+        {
+          "t": "00:40",
+          "what": "Went back into compartment 4. Nobody had come in or out of No. 7's door the whole time."
+        }
+      ],
+      "coverStory": "I went to bed at half past eleven and slept like a baby, even through the avalanche, chéri.",
+      "lies": [
+        {
+          "claim": "I slept all night.",
+          "truth": "She was in the corridor 00:20-00:40.",
+          "breaksWhen": "She trusts the inspector (the inspector promises not to report her papers, or is kind to her about her fear), or shown e_passports AND then reassured."
+        },
+        {
+          "claim": "My name is Mila Novak.",
+          "truth": "Ljudmila Horvat.",
+          "breaksWhen": "Shown e_passports, o_horvat or e_notebook."
+        }
+      ],
+      "secrets": [
+        {
+          "id": "s_mila_name",
+          "text": "Admits her real name, the forged passport, the husband, and her dying mother.",
+          "revealWhen": "Shown e_passports, o_horvat or e_notebook.",
+          "unlocks": null
+        },
+        {
+          "id": "s_mila_corridor",
+          "text": "Admits she smoked at the corridor window 00:20-00:40: nobody used the door of No. 7, the conductor's seat was empty until 00:35, and a gust of cold air came along the floor at about 00:25.",
+          "revealWhen": "Only when she trusts the inspector: the inspector promises not to report her papers or to protect her, or is patient and kind. Threats make her shut down.",
+          "unlocks": "t_mila_corridor"
+        }
+      ],
+      "chapterNotes": {
+        "ch1": "At dinner and then the lounge bar. Fun, flirty, guarded about herself. After 21:50 you are shaken and want to go to bed early.",
+        "ch2": "In or near compartment 4, nervous. You will not say why.",
+        "ch3": "Morning. A police inspector is questioning everyone and you are terrified for your papers. You are relieved Lazăr is dead and hate yourself for it."
+      }
+    },
+    {
+      "id": "brandt",
+      "name": "Stefan Brandt",
+      "age": 38,
+      "role": "Agent of the Rheinische Erdöl AG, oil company, Düsseldorf",
+      "chapters": [
+        "morning",
+        "ch1",
+        "ch2",
+        "ch3",
+        "ch4"
+      ],
+      "voice": {
+        "gemini": "Schedar",
+        "style": "Even, controlled, businesslike German accent. Irritated when not in control.",
+        "gradium": "3jUdJyOi9pgbxBTK",
+        "gradiumName": "Arthur"
+      },
+      "look": {
+        "skin": "#f5cfae",
+        "hair": "#f0d890",
+        "hairStyle": "slick",
+        "coat": "#6b6a7a",
+        "coat2": "#4b4a5a",
+        "trim": "#fffdf5",
+        "legs": "#3b3a48",
+        "acc": "specs"
+      },
+      "bio": "A rising man at a Düsseldorf oil firm, sent to secure a Romanian concession. He has paid Lazăr three bribes. Tonight he learned Lazăr wants more, and suspects he'll sell to the British anyway. He booked compartment 6, next to Lazăr, on purpose, to listen.",
+      "personality": [
+        "ambitious",
+        "cold",
+        "precise",
+        "snobbish",
+        "cowardly under real threat"
+      ],
+      "speechStyle": "Formal, businesslike English with German constructions ('So.' 'Natürlich.'). Talks about 'interests' and 'arrangements'. Calls the inspector 'Herr Inspektor'.",
+      "relationships": {
+        "lazar": "A crook in a sash. A necessary one.",
+        "ferrand": "A pleasant nobody.",
+        "irina": "An aristocrat who owes someone something.",
+        "hale": "A bluffer.",
+        "mila": "Attractive, beneath notice.",
+        "theo": "Took his 50 francs for compartment 6 without questions."
+      },
+      "knowledge": [
+        "The concession draft is in Lazăr's attaché case.",
+        "He paid Théo 50 francs to be put in compartment 6."
+      ],
+      "witnessed": [
+        {
+          "t": "20:30",
+          "what": "Dined with Lazăr at table 1."
+        },
+        {
+          "t": "21:20",
+          "what": "Told Lazăr 'We had an agreement'. Lazăr: 'We had a price. Prices rise in winter.'"
+        },
+        {
+          "t": "23:05",
+          "what": "In compartment 6, listening at the partition with a tooth-glass."
+        },
+        {
+          "t": "23:15",
+          "what": "Heard the Countess come in to 7, beg for her letters and offer her pearls; Lazăr laughed; she left crying at 23:25."
+        },
+        {
+          "t": "23:40",
+          "what": "Avalanche."
+        },
+        {
+          "t": "00:08",
+          "what": "Heard Lazăr ring and tell the conductor he was expecting a visitor."
+        },
+        {
+          "t": "00:15",
+          "what": "A knock at 7. Lazăr: 'You're late. Sit.' A man answered in low, educated French. The words were too quiet to follow; he heard 'fifty' once, and paper rustling."
+        },
+        {
+          "t": "00:25",
+          "what": "The window of 7 dropped with a thump, cold wind, then the window went up again. After that, silence. The door never opened. He assumed the visitor was still in there and fell asleep around 01:00."
+        }
+      ],
+      "coverStory": "I went to bed at eleven. I sleep very well on trains. I heard nothing.",
+      "lies": [
+        {
+          "claim": "I slept from eleven and heard nothing.",
+          "truth": "He listened at the wall for hours.",
+          "breaksWhen": "Shown e_tumbler."
+        },
+        {
+          "claim": "My business with Lazăr was a normal commercial negotiation.",
+          "truth": "Bribes.",
+          "breaksWhen": "Shown e_contract, o_price or e_notebook."
+        }
+      ],
+      "secrets": [
+        {
+          "id": "s_brandt_listen",
+          "text": "Admits he listened through the wall: the Countess 23:15-23:25; the 00:08 bell; at 00:15 a knock and a Frenchman's low voice; at 00:25 the window dropped and went up again; the door never opened.",
+          "revealWhen": "Shown e_tumbler.",
+          "unlocks": "t_brandt_voice"
+        },
+        {
+          "id": "s_brandt_bribes",
+          "text": "Admits three bribes and that Lazăr meant to sell to the British anyway. Insists a dead Lazăr is worse for his company than a greedy one.",
+          "revealWhen": "Shown e_contract, o_price or e_notebook.",
+          "unlocks": "t_brandt_bribes"
+        }
+      ],
+      "chapterNotes": {
+        "ch1": "At dinner with Lazăr, then irritable. You want to talk business only.",
+        "ch2": "In compartment 6. If the inspector knocks you say you are going to sleep.",
+        "ch3": "Morning. You are cold and superior; you want the train moving; Lazăr's death is a business disaster for you."
+      }
+    },
+    {
+      "id": "theo",
+      "name": "Théo Garnier",
+      "age": 31,
+      "role": "Sleeping-car conductor, Compagnie Internationale des Wagons-Lits",
+      "chapters": [
+        "morning",
+        "ch1",
+        "ch2",
+        "ch3",
+        "ch4"
+      ],
+      "voice": {
+        "gemini": "Achird",
+        "style": "Friendly, quick Parisian working-class voice. Eager to please; guilty when pressed.",
+        "gradium": "dME3IWyZBvmh1n1q",
+        "gradiumName": "Toby"
+      },
+      "look": {
+        "skin": "#dfa47c",
+        "hair": "#35190f",
+        "hairStyle": "cap",
+        "coat": "#5a2d1c",
+        "coat2": "#35190f",
+        "trim": "#ffd36b",
+        "legs": "#35190f",
+        "acc": "none"
+      },
+      "bio": "Eight years with the Wagons-Lits. Engaged to a girl in Lausanne. Lazăr complained about him to the company twice this year, for fun. A good conductor who sometimes has a glass with the cook on quiet nights.",
+      "personality": [
+        "cheerful",
+        "helpful",
+        "honest about others",
+        "lies about his own lapses",
+        "proud of his uniform"
+      ],
+      "speechStyle": "Parisian French politeness: 'Monsieur l'Inspecteur', 'bien sûr'. Talks fast; gives times precisely because he keeps the call log.",
+      "relationships": {
+        "lazar": "A nasty old man who complains to the company.",
+        "ferrand": "Pleasant; tips well.",
+        "irina": "Kind lady; he felt sorry for her last night.",
+        "hale": "Jolly.",
+        "mila": "Nice girl; he gave her an extra blanket.",
+        "brandt": "Paid 50 francs to be put in compartment 6. Théo won't mention it unless asked about compartments."
+      },
+      "knowledge": [
+        "Keeps a call log and a call board at his seat at the end of the corridor.",
+        "AFTER: Forced the bolt of 7 with Castelli at 07:10. The bolt was shot from inside.",
+        "Brandt paid him 50 francs for compartment 6."
+      ],
+      "witnessed": [
+        {
+          "t": "22:40",
+          "what": "Lazăr came back to 7 and asked for mineral water at eleven."
+        },
+        {
+          "t": "23:15",
+          "what": "From his seat saw the Countess go into 7."
+        },
+        {
+          "t": "23:25",
+          "what": "Saw the Countess come out of 7 crying and go to 5."
+        },
+        {
+          "t": "23:40",
+          "what": "Avalanche."
+        },
+        {
+          "t": "00:08",
+          "what": "Lazăr rang; said 'I am expecting a visitor. We are not to be disturbed.' He wrote it in the call log."
+        },
+        {
+          "t": "00:10",
+          "what": "Went to the dining car kitchen for a grappa with Luigi the cook."
+        },
+        {
+          "t": "00:28",
+          "what": "Through the kitchen's north window, saw a figure in a long dark coat pass in the falling snow, going towards the lounge end. Thought it was a railwayman looking at the avalanche."
+        },
+        {
+          "t": "00:35",
+          "what": "Back at his seat. Mademoiselle Novak was in the corridor smoking."
+        },
+        {
+          "t": "00:50",
+          "what": "Saw the Countess at the door of 7 again. She knocked, waited, and went back to 5 without going in."
+        },
+        {
+          "t": "07:00",
+          "what": "Knocked at 7 for breakfast; no answer; bolted."
+        },
+        {
+          "t": "07:10",
+          "what": "Forced the door with Castelli. Lazăr dead in his berth. The window was shut."
+        }
+      ],
+      "coverStory": "I was at my seat all night, Monsieur l'Inspecteur. That is my job.",
+      "lies": [
+        {
+          "claim": "I never left my seat.",
+          "truth": "He was in the kitchen 00:10-00:35.",
+          "breaksWhen": "Shown e_grappa or t_mila_corridor."
+        }
+      ],
+      "secrets": [
+        {
+          "id": "s_theo_visitor",
+          "text": "At 00:08 Lazăr rang and said he was expecting a visitor and must not be disturbed.",
+          "revealWhen": "Asked about the night, the call log, or Lazăr's bell. He tells this freely.",
+          "unlocks": "t_theo_visitor"
+        },
+        {
+          "id": "s_theo_irina",
+          "text": "Saw the Countess go into 7 at 23:15, leave in tears at 23:25, and come back to knock at 00:50 without going in.",
+          "revealWhen": "Asked who visited No. 7, or about the Countess. He tells this freely, a little embarrassed for her.",
+          "unlocks": "t_theo_irina"
+        },
+        {
+          "id": "s_theo_kitchen",
+          "text": "Admits he was in the kitchen with Luigi from 00:10 to 00:35, and that at about 00:28 he saw a figure in a long dark coat pass the north window in the falling snow, towards the lounge end.",
+          "revealWhen": "Shown e_grappa or t_mila_corridor, or promised the company won't hear of it.",
+          "unlocks": "t_theo_figure"
+        }
+      ],
+      "chapterNotes": {
+        "ch1": "Working: making up berths, fetching things. Friendly and chatty with the inspector.",
+        "ch2": "At your seat at the end of the sleeping car corridor. After 23:40 you are calming passengers after the avalanche.",
+        "ch3": "Morning. You forced the door of 7 with Castelli. You are shocked, and very afraid of losing your job."
+      }
+    },
+    {
+      "id": "castelli",
+      "name": "Bruno Castelli",
+      "age": 57,
+      "role": "Chef de train (train manager)",
+      "isStaff": true,
+      "chapters": [
+        "morning",
+        "ch1",
+        "ch2",
+        "ch3",
+        "ch4"
+      ],
+      "voice": {
+        "gemini": "Algenib",
+        "style": "Gravelly, big-hearted Italian railwayman. Loud, practical, sighs a lot.",
+        "gradium": "-0MuXG9RcCsuSVtb",
+        "gradiumName": "Austin"
+      },
+      "look": {
+        "skin": "#c28a60",
+        "hair": "#e8e4dc",
+        "hairStyle": "kepi",
+        "coat": "#232845",
+        "coat2": "#161729",
+        "trim": "#ffd36b",
+        "legs": "#161729",
+        "acc": "moustache"
+      },
+      "bio": "Thirty years on the Simplon line. Keeps the train log. Wants the train safe, the passengers calm and the carabinieri to find nothing to blame on his crew.",
+      "personality": [
+        "practical",
+        "warm",
+        "anxious about rules",
+        "proud of his train"
+      ],
+      "speechStyle": "Italian-flavoured English and French ('signore', 'ispettore', 'mamma mia').",
+      "relationships": {},
+      "knowledge": [
+        "AFTER: The train log: 23:40 avalanche at km 142; 23:50 his crew went out by the dining car north door; 00:45 snow stopped; 01:00 found that north door unbolted and bolted it.",
+        "AFTER: Relief train with carabinieri from Domodossola at 10:00."
+      ],
+      "witnessed": [
+        {
+          "t": "23:45",
+          "what": "Walked the train announcing the avalanche; ordered all outside doors bolted."
+        },
+        {
+          "t": "00:45",
+          "what": "Snow stopped."
+        },
+        {
+          "t": "01:00",
+          "what": "Found the dining car's north door unbolted; bolted it; wrote it in the log."
+        },
+        {
+          "t": "07:10",
+          "what": "Forced the door of 7 with Théo."
+        }
+      ],
+      "coverStory": "",
+      "lies": [],
+      "secrets": [],
+      "chapterNotes": {
+        "ch1": "Walking the train, checking tickets. Proud of the dining car.",
+        "ch2": "After 23:40, walking the train to calm passengers.",
+        "ch3": "Morning. You have asked the inspector to investigate. You want it settled before 10:00. If the inspector asks, you will gather everyone in the dining car."
+      }
+    }
+  ],
+  "schedules": {
+    "ch1": {
+      "lazar": [
+        [
+          "20:30",
+          "d_t1a"
+        ],
+        [
+          "21:03",
+          "d_t3b"
+        ],
+        [
+          "21:08",
+          "d_t1a"
+        ],
+        [
+          "21:30",
+          "l_bar2"
+        ],
+        [
+          "21:38",
+          "l_card_b2"
+        ],
+        [
+          "21:45",
+          "l_bar2"
+        ],
+        [
+          "22:05",
+          "l_arm2"
+        ],
+        [
+          "22:40",
+          "c7"
+        ]
+      ],
+      "brandt": [
+        [
+          "20:30",
+          "d_t1b"
+        ],
+        [
+          "21:40",
+          "d_t1b"
+        ],
+        [
+          "21:50",
+          "l_arm3"
+        ],
+        [
+          "22:30",
+          "c6"
+        ]
+      ],
+      "ferrand": [
+        [
+          "20:30",
+          "d_t2a"
+        ],
+        [
+          "21:35",
+          "l_card_a"
+        ]
+      ],
+      "hale": [
+        [
+          "20:30",
+          "d_t2b"
+        ],
+        [
+          "21:35",
+          "l_card_b"
+        ]
+      ],
+      "irina": [
+        [
+          "20:30",
+          "d_t3a"
+        ],
+        [
+          "21:50",
+          "l_arm1"
+        ],
+        [
+          "22:45",
+          "c5"
+        ]
+      ],
+      "mila": [
+        [
+          "20:30",
+          "d_t4a"
+        ],
+        [
+          "21:25",
+          "l_bar"
+        ],
+        [
+          "21:58",
+          "l_obs"
+        ],
+        [
+          "22:20",
+          "c4"
+        ]
+      ],
+      "theo": [
+        [
+          "20:30",
+          "cond_seat"
+        ],
+        [
+          "21:15",
+          "c7"
+        ],
+        [
+          "21:30",
+          "c6"
+        ],
+        [
+          "21:45",
+          "c5"
+        ],
+        [
+          "22:00",
+          "cond_seat"
+        ]
+      ],
+      "castelli": [
+        [
+          "20:30",
+          "d_aisle"
+        ],
+        [
+          "21:00",
+          "d_kitchen"
+        ],
+        [
+          "21:20",
+          "l_bar"
+        ],
+        [
+          "21:45",
+          "d_aisle"
+        ],
+        [
+          "22:15",
+          "sv_l"
+        ],
+        [
+          "22:30",
+          "d_kitchen"
+        ]
+      ]
+    },
+    "ch2": {
+      "lazar": [
+        [
+          "22:55",
+          "c7"
+        ]
+      ],
+      "brandt": [
+        [
+          "22:55",
+          "l_arm3"
+        ],
+        [
+          "23:05",
+          "c6"
+        ]
+      ],
+      "ferrand": [
+        [
+          "22:55",
+          "l_card_a"
+        ]
+      ],
+      "hale": [
+        [
+          "22:55",
+          "l_card_b"
+        ]
+      ],
+      "irina": [
+        [
+          "22:55",
+          "c5"
+        ],
+        [
+          "23:13",
+          "c7_door"
+        ],
+        [
+          "23:16",
+          "c7"
+        ],
+        [
+          "23:25",
+          "c5"
+        ]
+      ],
+      "mila": [
+        [
+          "22:55",
+          "l_bar"
+        ],
+        [
+          "23:30",
+          "c4"
+        ]
+      ],
+      "theo": [
+        [
+          "22:55",
+          "cond_seat"
+        ],
+        [
+          "23:42",
+          "c5_door"
+        ],
+        [
+          "23:48",
+          "c2_door"
+        ],
+        [
+          "23:53",
+          "c7_door"
+        ],
+        [
+          "23:57",
+          "cond_seat"
+        ]
+      ],
+      "castelli": [
+        [
+          "22:55",
+          "l_bar"
+        ],
+        [
+          "23:05",
+          "d_aisle"
+        ],
+        [
+          "23:43",
+          "dv_r"
+        ],
+        [
+          "23:46",
+          "sv_r"
+        ],
+        [
+          "23:50",
+          "sv_l"
+        ],
+        [
+          "23:56",
+          "d_aisle"
+        ]
+      ]
+    },
+    "ch3": {
+      "lazar": [],
+      "ferrand": [
+        [
+          "07:20",
+          "c7_door2"
+        ],
+        [
+          "07:50",
+          "d_t2a"
+        ],
+        [
+          "08:40",
+          "c3"
+        ],
+        [
+          "09:20",
+          "l_stove"
+        ]
+      ],
+      "castelli": [
+        [
+          "07:20",
+          "c6_door"
+        ],
+        [
+          "07:50",
+          "d_aisle"
+        ]
+      ],
+      "theo": [
+        [
+          "07:20",
+          "c5_door"
+        ],
+        [
+          "08:00",
+          "cond_seat"
+        ],
+        [
+          "09:00",
+          "c1_door"
+        ],
+        [
+          "09:15",
+          "cond_seat"
+        ]
+      ],
+      "irina": [
+        [
+          "07:20",
+          "c5"
+        ],
+        [
+          "08:10",
+          "d_t3a"
+        ],
+        [
+          "09:00",
+          "l_arm1"
+        ]
+      ],
+      "hale": [
+        [
+          "07:20",
+          "d_t2b"
+        ],
+        [
+          "08:30",
+          "l_card_b"
+        ],
+        [
+          "09:30",
+          "c2"
+        ]
+      ],
+      "mila": [
+        [
+          "07:20",
+          "c4"
+        ],
+        [
+          "08:20",
+          "l_obs"
+        ],
+        [
+          "09:10",
+          "c4"
+        ]
+      ],
+      "brandt": [
+        [
+          "07:20",
+          "d_t1b"
+        ],
+        [
+          "08:15",
+          "c6"
+        ],
+        [
+          "09:00",
+          "l_arm3"
+        ]
+      ]
+    },
+    "ch4": {
+      "ferrand": [
+        [
+          "10:00",
+          "d_t2a"
+        ]
+      ],
+      "hale": [
+        [
+          "10:00",
+          "d_t2b"
+        ]
+      ],
+      "irina": [
+        [
+          "10:00",
+          "d_t3a"
+        ]
+      ],
+      "mila": [
+        [
+          "10:00",
+          "d_t4a"
+        ]
+      ],
+      "brandt": [
+        [
+          "10:00",
+          "d_t1b"
+        ]
+      ],
+      "theo": [
+        [
+          "10:00",
+          "d_kitchen"
+        ]
+      ],
+      "castelli": [
+        [
+          "10:00",
+          "dv_r"
+        ]
+      ]
+    },
+    "morning": {
+      "ferrand": [
+        [
+          "07:00",
+          "d_t2a"
+        ]
+      ],
+      "hale": [
+        [
+          "07:00",
+          "d_t2b"
+        ]
+      ],
+      "irina": [
+        [
+          "07:00",
+          "d_t3a"
+        ]
+      ],
+      "mila": [
+        [
+          "07:00",
+          "d_t4a"
+        ]
+      ],
+      "brandt": [
+        [
+          "07:00",
+          "d_t1b"
+        ]
+      ],
+      "castelli": [
+        [
+          "07:00",
+          "d_t6b"
+        ],
+        [
+          "07:01",
+          "c7_door"
+        ]
+      ],
+      "theo": [
+        [
+          "07:00",
+          "c7_door2"
+        ]
+      ]
+    }
+  },
+  "player": {
+    "id": "sorel",
+    "name": "Inspector Marc Sorel",
+    "look": {
+      "skin": "#f5cfae",
+      "hair": "#35190f",
+      "hairStyle": "fedora",
+      "coat": "#b08a55",
+      "coat2": "#8a6a3f",
+      "trim": "#5e1627",
+      "legs": "#3b3a48",
+      "acc": "none"
+    }
+  },
+  "brain": {
+    "provider": "gemini",
+    "model": "gemini-3.8-flash",
+    "thinkingLevel": "low",
+    "fallbackModel": "gemini-3.5-flash-lite"
+  },
+  "voice": {
+    "provider": "gradium",
+    "sttLanguage": "en",
+    "ttsFormat": "pcm_24000"
+  },
+  "flow": [
+    "morning",
+    "ch3",
+    "ch4"
+  ]
+}

@@ -1,0 +1,19 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Title screen - Death at the Hôtel Mirabeau</title><link rel="stylesheet" href="assets/style.css"></head><body>
+<nav class="top"><b>Mirabeau</b><a href="index.html">Plan</a><a class="on" href="title.html">Title</a><a href="scene.html">Crime scene</a><a href="interrogation.html">Interrogation</a><a href="cast.html">Cast</a><span class="sp"></span><label class="toggle"><input type="checkbox" id="crt" checked> CRT</label></nav>
+<div class="stage"><div class="screenwrap crt" id="wrap"><canvas class="screen" id="screen"></canvas></div></div>
+<p class="hint">Click or press ENTER for the menu · ↑↓ to choose · everything on screen is drawn by code (no image files)</p>
+<script src="assets/pixel.js"></script><script src="assets/title.js"></script>
+<script>
+const cv = document.getElementById('screen'); PX.screen(cv, 320, 180, document.querySelector('.stage'));
+const ti = TITLE.create(cv), S = ti.state, GO = ['scene.html', 'interrogation.html', 'cast.html'];
+(function loop() { ti.frame(); requestAnimationFrame(loop); })();
+const act = () => { if (!S.menu) { S.menu = true; PX.blip(520, .06, .04); } else location.href = GO[S.sel]; };
+cv.onclick = (e) => { if (S.menu) { const p = PX.mouse(cv, e), i = Math.floor((p.y - 138) / 11); if (i >= 0 && i < 3) S.sel = i; } act(); };
+addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); act(); }
+  if (S.menu && e.key === 'ArrowDown') { S.sel = (S.sel + 1) % 3; PX.blip(400, .03, .03); }
+  if (S.menu && e.key === 'ArrowUp') { S.sel = (S.sel + 2) % 3; PX.blip(400, .03, .03); }
+});
+document.getElementById('crt').onchange = (e) => PX.crt(document.getElementById('wrap'), e.target.checked);
+</script></body></html>

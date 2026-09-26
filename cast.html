@@ -1,0 +1,39 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cast - Last Stop, Simplon-Orient</title><link rel="stylesheet" href="assets/style.css">
+<style>
+main { max-width: 1100px; margin: 0 auto; padding: 12px 16px 40px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; margin-top: 12px; }
+.card { border: 2px solid var(--brass); background: var(--navy); padding: 8px; text-align: center; }
+.card canvas { width: 144px; height: 144px; image-rendering: pixelated; display: block; margin: 0 auto 6px; }
+.card b { color: var(--amber); display: block; font-size: 14px; } .card span { color: #a7a5b3; font-size: 12px; }
+select { background: var(--ink); color: var(--cream); border: 2px solid var(--brass); font: inherit; padding: 4px 8px; }
+</style></head><body>
+<nav class="top"><b>Simplon-Orient</b><a href="index.html">Game</a><a class="on" href="cast.html">Cast</a></nav>
+<main>
+  <div class="row" style="justify-content:flex-start">
+    <label>Mood <select id="mood"><option>calm</option><option>nervous</option><option>angry</option><option>grieving</option><option>defensive</option><option>relieved</option><option>broken</option></select></label>
+    <label class="toggle"><input type="checkbox" id="talk" checked> lip-flap</label>
+  </div>
+  <div class="grid" id="grid"></div>
+</main>
+<script src="assets/pixel.js"></script><script src="assets/portraits.js"></script>
+<script>
+const grid = document.getElementById('grid'), cards = [];
+const entries = Object.keys(PORTRAITS.CAST).map((id) => ({ id })).concat([{ id: 'lazar', dead: true }]);
+for (const e of entries) {
+  const C = PORTRAITS.CAST[e.id], d = document.createElement('div'); d.className = 'card';
+  const cv = document.createElement('canvas'); cv.width = cv.height = 48;
+  d.appendChild(cv); d.insertAdjacentHTML('beforeend', `<b>${C.name}${e.dead ? ' (dead)' : ''}</b><span>${e.dead ? 'Compartment 7, 07:10' : C.role}</span>`);
+  grid.appendChild(d); cards.push({ e, ctx: cv.getContext('2d'), seed: Math.random() * 200 | 0 });
+}
+let t = 0;
+(function loop() {
+  t++;
+  const mood = document.getElementById('mood').value, talk = document.getElementById('talk').checked;
+  cards.forEach((c, i) => {
+    const speaking = talk && ((t >> 6) % cards.length) === i;
+    PORTRAITS.draw(c.ctx, c.e.id, 0, 0, { dead: c.e.dead, mood, t, blink: (t + c.seed) % 170 < 6, mouth: speaking ? [0, 1, 2, 1][(t >> 2) % 4] : 0 });
+  });
+  requestAnimationFrame(loop);
+})();
+</script></body></html>

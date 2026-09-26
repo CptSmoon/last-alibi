@@ -1,0 +1,22 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Suite 304 - Death at the Hôtel Mirabeau</title><link rel="stylesheet" href="assets/style.css">
+<style>.notes{max-width:960px;margin:0 auto 20px;padding:0 12px} .notes li{margin:4px 0} .notes .k{color:var(--amber)}</style></head><body>
+<nav class="top"><b>Mirabeau</b><a href="index.html">Plan</a><a href="title.html">Title</a><a class="on" href="scene.html">Crime scene</a><a href="interrogation.html">Interrogation</a><a href="cast.html">Cast</a><span class="sp"></span><label class="toggle"><input type="checkbox" id="crt" checked> CRT</label></nav>
+<div class="stage"><div class="screenwrap crt" id="wrap"><canvas class="screen" id="screen"></canvas></div></div>
+<p class="hint">Point and click. Hover to see what's there, click to walk over and look. Six real clues are hidden in the room.</p>
+<div class="notes panel"><b style="color:var(--amber)">NOTEBOOK</b> <span id="count" class="tag">0 / 6</span><ul id="nb"><li style="color:#6b6a7a">Nothing yet.</li></ul>
+<p style="font-size:13px;color:#a7a5b3;margin:6px 0 0">Clues found here become evidence you can <i>present</i> to suspects in the interrogation screen, which is how their secrets unlock.</p></div>
+<script src="assets/pixel.js"></script><script src="assets/scene.js"></script>
+<script>
+const cv = document.getElementById('screen'); PX.screen(cv, 320, 180, document.querySelector('.stage'));
+const nb = document.getElementById('nb');
+const sc = SCENE304.create(cv, (h, n) => {
+  if (n === 1) nb.innerHTML = '';
+  const li = document.createElement('li'); li.innerHTML = '<span class="k">' + h.clue + '</span>: ' + h.say; nb.appendChild(li);
+  document.getElementById('count').textContent = n + ' / 6';
+});
+(function loop() { sc.frame(); requestAnimationFrame(loop); })();
+cv.addEventListener('mousemove', (e) => { const p = PX.mouse(cv, e); sc.move(p.x, p.y); cv.style.cursor = sc.state.hover ? 'pointer' : 'crosshair'; });
+cv.addEventListener('click', (e) => { const p = PX.mouse(cv, e); sc.click(p.x, p.y); });
+document.getElementById('crt').onchange = (e) => PX.crt(document.getElementById('wrap'), e.target.checked);
+</script></body></html>

@@ -1,0 +1,155 @@
+[
+ {
+  "id": "bg-night",
+  "group": "backgrounds",
+  "scene": "00-avalanche-night.jpg"
+ },
+ {
+  "id": "bg-dining",
+  "group": "backgrounds",
+  "scene": "01-dining-breakfast.jpg"
+ },
+ {
+  "id": "bg-corridor",
+  "group": "backgrounds",
+  "scene": "03-corridor.jpg"
+ },
+ {
+  "id": "bg-c7",
+  "group": "backgrounds",
+  "scene": "04-compartment-7.jpg"
+ },
+ {
+  "id": "bg-lounge",
+  "group": "backgrounds",
+  "scene": "05-lounge.jpg"
+ },
+ {
+  "id": "bg-kitchen",
+  "group": "backgrounds",
+  "scene": "06-kitchen.jpg"
+ },
+ {
+  "id": "bg-outside",
+  "group": "backgrounds",
+  "scene": "07-outside-snow.jpg"
+ },
+ {
+  "id": "bg-c3",
+  "group": "backgrounds",
+  "scene": "08-compartment-3.jpg"
+ },
+ {
+  "id": "bg-c6",
+  "group": "backgrounds",
+  "scene": "09-compartment-6.jpg"
+ },
+ {
+  "id": "bg-c1",
+  "group": "backgrounds"
+ },
+ {
+  "id": "bg-c2",
+  "group": "backgrounds"
+ },
+ {
+  "id": "bg-c4",
+  "group": "backgrounds"
+ },
+ {
+  "id": "bg-c5",
+  "group": "backgrounds"
+ },
+ {
+  "id": "char-sorel",
+  "group": "characters"
+ },
+ {
+  "id": "portrait-sorel",
+  "group": "portraits"
+ },
+ {
+  "id": "char-ferrand",
+  "group": "characters"
+ },
+ {
+  "id": "portrait-ferrand",
+  "group": "portraits"
+ },
+ {
+  "id": "char-irina",
+  "group": "characters"
+ },
+ {
+  "id": "portrait-irina",
+  "group": "portraits"
+ },
+ {
+  "id": "char-hale",
+  "group": "characters"
+ },
+ {
+  "id": "portrait-hale",
+  "group": "portraits"
+ },
+ {
+  "id": "char-mila",
+  "group": "characters"
+ },
+ {
+  "id": "portrait-mila",
+  "group": "portraits"
+ },
+ {
+  "id": "char-brandt",
+  "group": "characters"
+ },
+ {
+  "id": "portrait-brandt",
+  "group": "portraits"
+ },
+ {
+  "id": "char-theo",
+  "group": "characters"
+ },
+ {
+  "id": "portrait-theo",
+  "group": "portraits"
+ },
+ {
+  "id": "char-castelli",
+  "group": "characters"
+ },
+ {
+  "id": "portrait-castelli",
+  "group": "portraits"
+ },
+ {
+  "id": "char-cook",
+  "group": "characters"
+ },
+ {
+  "id": "portrait-cook",
+  "group": "portraits"
+ },
+ {
+  "id": "char-lazar-body",
+  "group": "characters"
+ },
+ {
+  "id": "items-c7",
+  "group": "items"
+ },
+ {
+  "id": "items-train",
+  "group": "items"
+ },
+ {
+  "id": "items-facts",
+  "group": "items"
+ },
+ {
+  "id": "ui-kit",
+  "group": "ui"
+ }
+]

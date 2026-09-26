@@ -1,0 +1,128 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Interrogation - Death at the Hôtel Mirabeau</title><link rel="stylesheet" href="assets/style.css">
+<style>
+.wrap2 { max-width: 1280px; margin: 0 auto; padding: 0 12px 24px; display: grid; grid-template-columns: 1fr 360px; gap: 14px; }
+@media (max-width: 1000px) { .wrap2 { grid-template-columns: 1fr; } }
+.who { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin: 4px 0 10px; }
+.who button { background: var(--navy); border: 2px solid #3b3a48; padding: 4px; cursor: pointer; color: var(--cream); font: 12px "Courier New", monospace; width: 86px; }
+.who button.on { border-color: var(--amber); background: #232845; } .who canvas { width: 48px; height: 48px; image-rendering: pixelated; display: block; margin: 0 auto 2px; }
+.ask { display: flex; gap: 8px; } .ask input { flex: 1; background: var(--ink); color: var(--cream); border: 2px solid var(--brass); padding: 8px; font: inherit; }
+#talk { min-width: 170px; } #talk.hold { background: var(--red); }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; } .chip { font-size: 12px; border: 1px dashed var(--brass); padding: 2px 8px; cursor: pointer; color: var(--amber); }
+.ev { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; margin-top: 8px; }
+.ev button { text-align: left; background: #1d1a2e; border: 2px solid #3b3a48; color: var(--cream); padding: 6px 8px; font: 12px/1.35 "Courier New", monospace; cursor: pointer; }
+.ev button:hover { border-color: var(--amber); } .ev button b { color: var(--amber); display: block; } .ev button.new { border-color: var(--mint); } .ev button.shown { opacity: .55; }
+.log { font: 11px/1.4 ui-monospace, monospace; max-height: 420px; overflow: auto; white-space: pre-wrap; word-break: break-word; }
+.log .out { color: var(--ice); } .log .in { color: var(--mint); } h4 { margin: 0 0 6px; color: var(--amber); letter-spacing: 1px; }
+.side > .panel + .panel { margin-top: 12px; } .small { font-size: 12px; color: #a7a5b3; }
+#key { width: 100%; background: var(--ink); color: var(--cream); border: 1px solid var(--brass); padding: 6px; font: 12px monospace; margin: 6px 0; }
+</style></head><body>
+<nav class="top"><b>Mirabeau</b><a href="index.html">Plan</a><a href="title.html">Title</a><a href="scene.html">Crime scene</a><a class="on" href="interrogation.html">Interrogation</a><a href="cast.html">Cast</a><span class="sp"></span><label class="toggle"><input type="checkbox" id="crt" checked> CRT</label></nav>
+<div class="stage"><div class="screenwrap crt" id="wrap"><canvas class="screen" id="screen"></canvas></div></div>
+<div class="who" id="who"></div>
+<div class="wrap2">
+  <div>
+    <div class="panel">
+      <div class="ask">
+        <button class="btn" id="talk" title="Hold SPACE (outside the text box) or hold this button">🎙 Hold to talk</button>
+        <input id="q" placeholder="…or type a question and press Enter" autocomplete="off">
+        <button class="btn" id="send">Ask</button>
+      </div>
+      <div class="chips" id="chips"></div>
+    </div>
+    <div class="panel" style="margin-top:12px">
+      <h4>EVIDENCE: CLICK TO PRESENT IT TO THE SUSPECT</h4>
+      <div class="small">The model only reacts to evidence the engine sends ("[EVIDENCE PRESENTED: …]"). Claiming "we found your fingerprints" without presenting anything is treated as a bluff. Armand only breaks after <b>three</b> key items have been presented to <i>him</i>. The engine decides that, not the model.</div>
+      <div class="ev" id="ev"></div>
+    </div>
+  </div>
+  <div class="side">
+    <div class="panel">
+      <h4>GEMINI LIVE</h4>
+      <div class="small">Demo mode is scripted (keyword matching) and needs no key. Paste a Gemini API key to talk to the real model, voice and all. <b>Dev only:</b> the key goes straight from this page to Google. The shipped game uses short-lived ephemeral tokens with the prompt locked server-side (see the plan). Not yet tested against the live service.</div>
+      <input id="key" type="password" placeholder="Gemini API key (kept in memory only)">
+      <div class="row" style="justify-content:flex-start"><button class="btn" id="live">Connect live</button><button class="btn" id="demo" disabled>Back to demo</button></div>
+      <div class="small" id="liveMsg" style="margin-top:6px"></div>
+    </div>
+    <div class="panel">
+      <h4>PROTOCOL LOG <span class="small">(what goes over the WebSocket)</span></h4>
+      <div class="log" id="log"></div>
+    </div>
+  </div>
+</div>
+<script src="assets/pixel.js"></script><script src="assets/portraits.js"></script><script src="assets/case-data.js"></script>
+<script src="assets/demo-dialogue.js"></script><script src="assets/live-client.js"></script><script src="assets/interrogation.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const cv = $('screen'); PX.screen(cv, 320, 180, document.querySelector('.stage'));
+// Evidence the player "already found" in the rooms, for this demo.
+const START = ['e_diary', 'e_ledger_ash', 'e_statuette', 'e_bolted_door', 'e_script_pages', 'e_divorce_papers', 'e_carnation', 'e_two_glasses', 'e_cut_hand', 'e_bar_receipt', 'e_bandage', 'e_unwritten_letters'];
+const fresh = new Set();
+const logEl = $('log');
+function log(dir, m) {
+  const d = document.createElement('div'); d.className = dir;
+  d.textContent = (dir === 'out' ? '→ ' : '← ') + JSON.stringify(m).slice(0, 400);
+  logEl.prepend(d); while (logEl.childNodes.length > 80) logEl.lastChild.remove();
+}
+const E = INTERROGATION.createEngine(cv, {
+  startEvidence: START, onLog: log,
+  onNotebook: (ev) => { fresh.add(ev); renderEvidence(); },
+  onState: () => renderEvidence(),
+  onYou: (t) => log('in', { inputTranscription: { text: t } }),
+});
+(function loop() { E.frame(); requestAnimationFrame(loop); })();
+
+// suspects
+const who = $('who');
+for (const c of CASE.characters) {
+  const b = document.createElement('button'); b.dataset.id = c.id;
+  const pc = document.createElement('canvas'); pc.width = 48; pc.height = 48; PORTRAITS.draw(pc.getContext('2d'), c.id, 0, 0, {});
+  b.appendChild(pc); b.appendChild(document.createTextNode(c.name.split(' ')[0]));
+  b.onclick = () => pick(c.id); who.appendChild(b);
+}
+function pick(id) {
+  who.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.id === id));
+  E.select(id); renderChips(); renderEvidence();
+}
+function renderChips() {
+  const ch = $('chips'); ch.innerHTML = '';
+  (DEMO[E.state.char].suggest || []).forEach((s) => { const c = document.createElement('span'); c.className = 'chip'; c.textContent = s; c.onclick = () => E.ask(s); ch.appendChild(c); });
+}
+function renderEvidence() {
+  const box = $('ev'), shown = E.state.per[E.state.char].shown; box.innerHTML = '';
+  for (const e of CASE.evidence) if (E.state.notebook.has(e.id)) {
+    const b = document.createElement('button');
+    b.className = (fresh.has(e.id) ? 'new ' : '') + (shown.has(e.id) ? 'shown' : '');
+    b.innerHTML = `<b>${e.key ? '★ ' : ''}${e.name}</b>${e.description.slice(0, 90)}${e.description.length > 90 ? '…' : ''}`;
+    b.onclick = () => E.present(e.id); box.appendChild(b);
+  }
+}
+const ask = () => { const q = $('q'); E.ask(q.value); q.value = ''; };
+$('send').onclick = ask; $('q').addEventListener('keydown', (e) => { if (e.key === 'Enter') ask(); });
+
+// push-to-talk: live = real mic; demo = pretend the next suggested question was spoken
+let sugg = 0, holding = false;
+async function talkDown() {
+  if (holding) return; holding = true; $('talk').classList.add('hold'); $('talk').textContent = '● Listening…';
+  if (E.isLive()) { try { await E.talkStart(); } catch (err) { $('liveMsg').textContent = 'Microphone blocked here (' + err.name + '). Open this page in its own tab, or type instead.'; } }
+}
+function talkUp() {
+  if (!holding) return; holding = false; $('talk').classList.remove('hold'); $('talk').textContent = '🎙 Hold to talk';
+  if (E.isLive()) E.talkEnd();
+  else { const s = DEMO[E.state.char].suggest; const q = s[sugg++ % s.length]; log('out', { realtimeInput: { activityEnd: {} }, note: 'demo: pretend transcript', inputTranscription: q }); E.ask(q); }
+}
+$('talk').addEventListener('pointerdown', talkDown); addEventListener('pointerup', talkUp);
+addEventListener('keydown', (e) => { if (e.code === 'Space' && document.activeElement !== $('q') && !e.repeat) { e.preventDefault(); talkDown(); } });
+addEventListener('keyup', (e) => { if (e.code === 'Space' && document.activeElement !== $('q')) talkUp(); });
+
+// live mode
+$('live').onclick = async () => {
+  const k = $('key').value.trim(); if (!k) { $('liveMsg').textContent = 'Paste a key first.'; return; }
+  $('liveMsg').textContent = 'Connecting to ' + CASE.live[E.state.char].model + '…';
+  try { await E.goLive(k); $('liveMsg').textContent = 'Connected. Hold SPACE to talk, or type. Switching suspect opens a new session with that character\'s prompt and voice.'; $('demo').disabled = false; $('live').disabled = true; }
+  catch (err) { $('liveMsg').textContent = 'Could not connect. Check the key and model access (see protocol log).'; }
+};
+$('demo').onclick = () => { E.goDemo(); $('demo').disabled = true; $('live').disabled = false; $('liveMsg').textContent = ''; };
+$('crt').onchange = (e) => PX.crt($('wrap'), e.target.checked);
+pick('emile');
+</script></body></html>

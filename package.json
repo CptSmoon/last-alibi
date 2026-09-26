@@ -1,0 +1,11 @@
+{
+  "name": "simplon-orient",
+  "private": true,
+  "type": "module",
+  "description": "Last Stop, Simplon-Orient: a walkable 2D murder mystery. Gemini brains, Gradium voices.",
+  "scripts": {
+    "start": "node server/server.mjs",
+    "build:prompts": "node prompts/build-prompt.mjs"
+  },
+  "engines": { "node": ">=20" }
+}

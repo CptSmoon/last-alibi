@@ -1,0 +1,45 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cast - Death at the Hôtel Mirabeau</title><link rel="stylesheet" href="assets/style.css">
+<style>
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;max-width:1200px;margin:16px auto;padding:0 12px}
+.card{display:flex;gap:12px;border:2px solid var(--brass);background:var(--navy);padding:10px}
+.card canvas{width:144px;height:144px;image-rendering:pixelated;border:3px solid var(--ink);outline:2px solid var(--brass);flex:none}
+.card h3{margin:0;color:var(--amber);font-size:16px}.card .role{color:#a7a5b3;font-size:13px}.card p{font-size:13px;margin:6px 0}
+.v{font-size:12px;color:var(--ice)} .moods{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;margin:10px}
+</style></head><body>
+<nav class="top"><b>Mirabeau</b><a href="index.html">Plan</a><a href="title.html">Title</a><a href="scene.html">Crime scene</a><a href="interrogation.html">Interrogation</a><a class="on" href="cast.html">Cast</a></nav>
+<div class="moods" id="moods"></div>
+<p class="hint">48×48 procedural portraits, animated: blink, three mouth frames for lip-flap (driven by Gemini's audio level in the live game), and one set of brows and extras per mood.</p>
+<div class="grid" id="grid"></div>
+<script src="assets/pixel.js"></script><script src="assets/portraits.js"></script><script src="assets/case-data.js"></script>
+<script>
+const MOODS = ['calm', 'nervous', 'angry', 'defensive', 'grieving', 'relieved', 'broken'];
+let mood = 'calm', talk = true;
+const bar = document.getElementById('moods');
+[...MOODS, 'talking'].forEach((m) => { const b = document.createElement('button'); b.className = 'btn' + (m === 'calm' || m === 'talking' ? ' on' : ''); b.textContent = m; b.dataset.m = m;
+  b.onclick = () => { if (m === 'talking') { talk = !talk; b.classList.toggle('on', talk); return; } mood = m; bar.querySelectorAll('button').forEach((x) => x.dataset.m !== 'talking' && x.classList.toggle('on', x.dataset.m === m)); }; bar.appendChild(b); });
+const cards = [];
+const ids = [...CASE.characters.map((c) => c.id), 'roux'];
+for (const id of ids) {
+  const c = CASE.characters.find((x) => x.id === id) || { name: 'Inspecteur Roux', role: 'You, the player', voice: '(your own voice)', bio: 'Police Judiciaire de Nice. Arrives at 01:00 and has until dawn before the case is closed as an accident.', personality: [] };
+  const el = document.createElement('div'); el.className = 'card';
+  const cv = document.createElement('canvas'); cv.width = 48; cv.height = 48;
+  el.appendChild(cv);
+  el.insertAdjacentHTML('beforeend', `<div><h3>${c.name}${c.age ? ', ' + c.age : ''}</h3><div class="role">${c.role}</div>
+    <div class="v">Gemini voice: <b>${c.voice}</b>${c.voiceStyle ? ' · ' + c.voiceStyle : ''}</div><p>${c.bio}</p>
+    ${c.personality.length ? '<p style="color:#a7a5b3">' + c.personality.join(' · ') + '</p>' : ''}
+    ${id !== 'roux' ? `<a href="prompts/compiled/${id}.txt" style="font-size:12px">compiled system prompt (spoilers)</a>` : ''}</div>`);
+  document.getElementById('grid').appendChild(el);
+  cards.push({ id, ctx: cv.getContext('2d'), off: Math.random() * 100 | 0 });
+}
+let t = 0;
+(function loop() {
+  t++;
+  for (const k of cards) {
+    const tt = t + k.off, speaking = talk && (tt % 240) < 150;
+    const mouth = speaking ? [0, 1, 2, 1, 0, 2][(tt >> 2) % 6] : 0;
+    PORTRAITS.draw(k.ctx, k.id, 0, 0, { mouth, blink: tt % 170 < 5, mood, t: tt });
+  }
+  requestAnimationFrame(loop);
+})();
+</script></body></html>
