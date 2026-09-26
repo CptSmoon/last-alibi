@@ -78,6 +78,8 @@ He performs actions in the world and reports back, letting the player investigat
 
 Together, they let us turn natural conversation into an actual game mechanic rather than simply putting a chatbot inside a game.
 
+📚 **Documentation of all APIs, frameworks & tools used:** [docs/stack.md](docs/stack.md)
+
 ## With More Time
 
 We would turn Last Alibi into an episodic investigation platform:
