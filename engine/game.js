@@ -15,8 +15,8 @@
     irina: 'Inspector. Forgive me, I did not sleep. The mountains are too quiet.',
     mila: "Bonjour, chéri. Is it true you're police? ...Just asking.",
     brandt: "Ten o'clock. Three hours lost. My company will be delighted.",
-    castelli: 'Buongiorno, Ispettore! The line is blocked at km 142. We dig at ten.',
-    cook: 'Ispettore! Coffee? The stove is the only warm thing on this train.',
+    castelli: 'Buongiorno, Inspector! The line is blocked at km 142. We dig at ten.',
+    cook: 'Inspector! Coffee? The stove is the only warm thing on this train.',
   };
 
   const G = {
@@ -229,7 +229,7 @@
     window.AUDIO && AUDIO.music('investigation');
     await E.load('corridor', [700, 500, 'right']); if (r !== run) return; UI.hud(true); tickClock(); await E.fadeIn(500);
     E.lock = false;
-    E.say('castelli', 'Ispettore, please. Find out what happened before the carabinieri come at ten.', 4200);
+    E.say('castelli', 'Inspector, please. Find out what happened before the carabinieri come at ten.', 4200);
     await E.wait(4400); E.say('ferrand', 'His heart, Inspector. About half past one. I am sorry.', 3600);
   }
 
@@ -243,7 +243,7 @@
     await UI.card(['Castelli gathers everyone in the dining car.'], 2000);
     E.beat = 'breakfast'; await E.load('dining', [700, 540, 'back']); E.beat = 'investigation';
     E.actors.get('castelli')?.face(E.player); await E.fadeIn(500);
-    await E.say('castelli', 'They are all here, Ispettore.', 2200);
+    await E.say('castelli', 'They are all here, Inspector.', 2200);
     const r = await UI.accuse(G);
     const req = CASE.accusation.requires, keys = r.picks.filter((e) => req.evidenceAnyThreeOf.includes(e));
     const verdict = r.who === req.suspect && r.why === req.motive && keys.length >= 3 ? 'solved' : r.who === req.suspect ? 'weak' : 'wrong';

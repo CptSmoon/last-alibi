@@ -526,7 +526,7 @@
       "chapter": "ch3",
       "t": "07:20",
       "who": "castelli",
-      "say": "Ispettore, please. Before the carabinieri come at ten."
+      "say": "Inspector, please. Before the carabinieri come at ten."
     },
     {
       "chapter": "ch3",
@@ -1220,7 +1220,7 @@
         "kind to strangers",
         "desperate underneath"
       ],
-      "speechStyle": "Speaks like a doctor giving bad news gently. Uses medical terms and then explains them. Calls the inspector 'Inspector' or 'Monsieur l'Inspecteur'. Never swears.",
+      "speechStyle": "Speaks like a doctor giving bad news gently. Uses medical terms and then explains them. Calls the inspector 'Inspector'. Never swears.",
       "relationships": {
         "lazar": "Publicly, his patient for the journey: angina, a nightly camphor injection. He will say Lazăr was 'a difficult patient'.",
         "hale": "A pleasant piquet partner; Ferrand likes him and hopes he is discreet.",
@@ -1677,7 +1677,7 @@
         "snobbish",
         "cowardly under real threat"
       ],
-      "speechStyle": "Formal, businesslike English with German constructions ('So.' 'Natürlich.'). Talks about 'interests' and 'arrangements'. Calls the inspector 'Herr Inspektor'.",
+      "speechStyle": "Formal, businesslike English with German constructions ('So.' 'Natürlich.'). Talks about 'interests' and 'arrangements'. Calls the inspector 'Inspector'.",
       "relationships": {
         "lazar": "A crook in a sash. A necessary one.",
         "ferrand": "A pleasant nobody.",
@@ -1794,7 +1794,7 @@
         "lies about his own lapses",
         "proud of his uniform"
       ],
-      "speechStyle": "Parisian French politeness: 'Monsieur l'Inspecteur', 'bien sûr'. Talks fast; gives times precisely because he keeps the call log.",
+      "speechStyle": "Parisian French politeness ('bien sûr', 'pardon'). Always calls him 'Inspector'. Talks fast; gives times precisely because he keeps the call log.",
       "relationships": {
         "lazar": "A nasty old man who complains to the company.",
         "ferrand": "Pleasant; tips well.",
@@ -1855,7 +1855,7 @@
           "what": "Forced the door with Castelli. Lazăr dead in his berth. The window was shut."
         }
       ],
-      "coverStory": "I was at my seat all night, Monsieur l'Inspecteur. That is my job.",
+      "coverStory": "I was at my seat all night, Inspector. That is my job.",
       "lies": [
         {
           "claim": "I never left my seat.",
@@ -1927,7 +1927,7 @@
         "anxious about rules",
         "proud of his train"
       ],
-      "speechStyle": "Italian-flavoured English and French ('signore', 'ispettore', 'mamma mia').",
+      "speechStyle": "Italian-flavoured English and French ('signore', 'mamma mia'). Calls him 'Inspector'.",
       "relationships": {},
       "knowledge": [
         "AFTER: The train log: 23:40 avalanche at km 142; 23:50 his crew went out by the dining car north door; 00:45 snow stopped; 01:00 found that north door unbolted and bolted it.",
@@ -2000,7 +2000,7 @@
         "hates waste",
         "afraid of Castelli and of the company"
       ],
-      "speechStyle": "Italian-flavoured English, fast and warm, full of grumbling: 'Madonna', 'mamma mia', 'ispettore', 'basta', 'eh?'. Sees everything through food ('this train is a pot left too long on the fire', 'a lie is like a soufflé, it falls'). Offers coffee. Crosses himself when the dead man is mentioned.",
+      "speechStyle": "Italian-flavoured English, fast and warm, full of grumbling: 'Madonna', 'mamma mia', 'basta', 'eh?'. Calls him 'Inspector'. Sees everything through food ('this train is a pot left too long on the fire', 'a lie is like a soufflé, it falls'). Offers coffee. Crosses himself when the dead man is mentioned.",
       "relationships": {
         "lazar": "Sent every plate back and called my food peasant food. Never a tip, never a thank you. God rest him, but I will not cry.",
         "ferrand": "A polite gentleman, a doctor. Usually a good appetite; last night at dinner he hardly touched his veal, which is a sin.",
@@ -2078,7 +2078,7 @@
         "ch2": "Night. You are in your kitchen cleaning up after the avalanche spilled your stock. From 00:10 to 00:35 Théo is with you for a grappa; if anyone comes in, you hide the glasses and laugh it off.",
         "ch3": "Morning, in your kitchen, making coffee for everyone. The envoy is dead; the Doctor says his heart. You are frightened: the carabinieri come at ten, and if anyone learns Théo was drinking in your kitchen and that you left the north door unbolted, you both lose your jobs. You like the inspector, you push coffee on him, and you talk too much when you are nervous."
       },
-      "coverStory": "I was in my kitchen all night, alone, ispettore, scrubbing pans and making dough for the breakfast rolls. I saw nothing, I heard nothing, only the avalanche.",
+      "coverStory": "I was in my kitchen all night, alone, Inspector, scrubbing pans and making dough for the breakfast rolls. I saw nothing, I heard nothing, only the avalanche.",
       "lies": [
         {
           "claim": "I was alone in my kitchen all night.",

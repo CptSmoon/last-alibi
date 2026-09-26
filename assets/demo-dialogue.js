@@ -6,7 +6,7 @@
 window.DEMO = {
   lazar: {
     ch1: {
-      greet: "Monsieur l'Inspecteur! A police officer at my table. How very... bracing. Anton Lazăr, at your service.",
+      greet: "Inspector! A police officer at my table. How very... bracing. Anton Lazăr, at your service.",
       suggest: ['What takes you to Bucharest?', 'Who are the other passengers?', 'What do you collect?'],
       topics: [
         { k: ['bucharest', 'why', 'travel', 'journey', 'going', 'concession', 'oil'], r: "An oil concession, Inspector, signed and sealed and very boring. And Christmas at home, if my heart allows it." },
@@ -31,7 +31,7 @@ window.DEMO = {
         { k: ['collect', 'notebook', 'secret'], r: "My collection is asleep under my pillow, Inspector, and so should you be." },
       ],
       evidence: {},
-      fallback: "Goodnight, Monsieur l'Inspecteur. Close the door on your way out, there's a draught.",
+      fallback: "Goodnight, Inspector. Close the door on your way out, there's a draught.",
     },
   },
 
@@ -251,19 +251,19 @@ window.DEMO = {
 
   brandt: {
     ch1: {
-      greet: "Stefan Brandt, Rheinische Erdöl. Herr Inspektor. Is this official, or are you merely curious?",
+      greet: "Stefan Brandt, Rheinische Erdöl. Inspector. Is this official, or are you merely curious?",
       suggest: ['What is your business?', 'Were you arguing with Lazăr?', 'Where are you going?'],
       topics: [
         { k: ['business', 'work', 'oil', 'company'], r: "Oil. A Romanian concession. Very dull for anyone who isn't paid to find it interesting." },
-        { k: ['argue', 'lazar', 'agreement', 'price', 'quarrel'], r: "A negotiation, Herr Inspektor. His Excellency has an elastic idea of an agreement. So.", mood: 'angry' },
+        { k: ['argue', 'lazar', 'agreement', 'price', 'quarrel'], r: "A negotiation, Inspector. His Excellency has an elastic idea of an agreement. So.", mood: 'angry' },
         { k: ['going', 'where', 'bucharest', 'travel'], r: "Bucharest, then home to Düsseldorf, God willing, with a signature." },
         { k: ['passenger', 'others', 'people'], r: "An aristocrat, a cardplayer, a doctor, a singer. A train is a very small society." },
       ],
       evidence: {},
-      fallback: "I have no opinion on that, Herr Inspektor.",
+      fallback: "I have no opinion on that, Inspector.",
     },
     ch2: {
-      greet: "Herr Inspektor. I am going to sleep. Natürlich. Goodnight.",
+      greet: "Inspector. I am going to sleep. Natürlich. Goodnight.",
       suggest: ['Next door to Lazăr, are you?', 'Did you hear anything?', 'The avalanche?'],
       topics: [
         { k: ['next door', 'compartment', 'six', 'seven', 'lazar'], r: "Coincidence. The conductor put me here. I don't choose my neighbours.", mood: 'defensive' },
@@ -271,17 +271,17 @@ window.DEMO = {
         { k: ['avalanche', 'snow', 'stopped'], r: "A delay. The company will send someone a very angry telegram." },
       ],
       evidence: {},
-      fallback: "Goodnight, Herr Inspektor.",
+      fallback: "Goodnight, Inspector.",
     },
     ch3: {
-      greet: "Herr Inspektor. A disaster. Do you know what this does to my negotiations? When will this train move?",
+      greet: "Inspector. A disaster. Do you know what this does to my negotiations? When will this train move?",
       suggest: ['Where were you last night?', 'Did you hear anything through the wall?', 'What was your business with Lazăr?'],
       topics: [
         { k: ['where', 'last night', 'night', 'alibi'], r: "In compartment six from eleven. Asleep. I sleep very well on trains." },
         { k: ['hear', 'wall', 'noise', 'listen', 'next door'], r: "Nothing. I told you, I sleep well. The partitions are thick.", mood: 'defensive' },
         { k: ['business', 'concession', 'deal', 'oil', 'lazar'], r: "A normal commercial negotiation. His Excellency was a partner. His death is very bad for my company.", mood: 'defensive' },
         { k: ['compartment', 'six', 'choose', 'conductor'], r: "The conductor placed me. If he says otherwise, he is mistaken about fifty francs.", mood: 'defensive' },
-        { k: ['kill', 'murder', 'did you'], r: "A dead Lazăr signs nothing, Herr Inspektor. I needed him greedy and alive.", mood: 'angry' },
+        { k: ['kill', 'murder', 'did you'], r: "A dead Lazăr signs nothing, Inspector. I needed him greedy and alive.", mood: 'angry' },
         { k: ['train', 'move', 'relief', 'when'], r: "Ten o'clock, the Italian says. Italian ten o'clock." },
       ],
       evidence: {
@@ -293,13 +293,13 @@ window.DEMO = {
         e_footprints: { r: "From his window? Then his visitor left that way. I never went outside." },
         e_puncture: { r: "A needle. So the doctor was wrong. Or the doctor lied." },
       },
-      fallback: "That is not my concern, Herr Inspektor.",
+      fallback: "That is not my concern, Inspector.",
     },
   },
 
   theo: {
     ch1: {
-      greet: "Bonsoir, Monsieur l'Inspecteur! Théo Garnier, your conductor. Your berth in number one will be made up whenever you like.",
+      greet: "Bonsoir, Inspector! Théo Garnier, your conductor. Your berth in number one will be made up whenever you like.",
       suggest: ['Tell me about the passengers.', 'How long have you worked here?', 'Is the envoy difficult?'],
       topics: [
         { k: ['passenger', 'others', 'who', 'compartments'], r: "Number one you, two the Major, three the Doctor, four Mademoiselle Novak, five the Countess, six Herr Brandt, seven His Excellency. A full car." },
@@ -312,7 +312,7 @@ window.DEMO = {
       fallback: "Ah, that I couldn't tell you, monsieur. But I'll ask Luigi in the kitchen, he knows everything.",
     },
     ch2: {
-      greet: "Monsieur l'Inspecteur, you can't sleep? A tisane, maybe? Luigi's still up in the kitchen.",
+      greet: "Inspector, you can't sleep? A tisane, maybe? Luigi's still up in the kitchen.",
       suggest: ['Who went into number seven?', 'Is everyone all right?', 'Is it always this quiet?'],
       topics: [
         { k: ['seven', 'visit', 'countess', 'went in'], r: "Oh, monsieur, I don't watch the doors. Well... I do. But it's not my business to say.", mood: 'nervous' },
@@ -324,7 +324,7 @@ window.DEMO = {
       fallback: "I'll see to it, monsieur.",
     },
     ch3: {
-      greet: "Monsieur l'Inspecteur... I've never seen a dead man on my car before. The bolt was shot from inside, I swear it.",
+      greet: "Inspector... I've never seen a dead man on my car before. The bolt was shot from inside, I swear it.",
       suggest: ['Tell me about last night.', 'Who went into number seven?', 'Did you ever leave your seat?'],
       topics: [
         { k: ['last night', 'night', 'bell', 'call', 'log', 'rang'], r: "At eight past twelve His Excellency rang. He said, 'I am expecting a visitor. We are not to be disturbed.' I wrote it in the log.", reveal: 's_theo_visitor' },
@@ -362,25 +362,25 @@ window.DEMO = {
       fallback: "Mamma mia, signore, that I don't know.",
     },
     ch2: {
-      greet: "Ispettore! Everyone is safe, don't worry. The line is blocked, we wait for morning.",
+      greet: "Inspector! Everyone is safe, don't worry. The line is blocked, we wait for morning.",
       suggest: ['What happened?', 'Can we go outside?', 'When does help come?'],
       topics: [
         { k: ['what happened', 'avalanche', 'stopped', 'jolt'], r: "Valanga, signore, at kilometre one forty-two. Nobody hurt, grazie a Dio." },
         { k: ['outside', 'door', 'leave', 'out'], r: "No, no, the doors stay bolted till morning. Too dangerous in the dark. My men went to look and came back in." },
-        { k: ['help', 'relief', 'morning', 'when'], r: "Relief from Domodossola in the morning. Go to bed, Ispettore." },
+        { k: ['help', 'relief', 'morning', 'when'], r: "Relief from Domodossola in the morning. Go to bed, Inspector." },
       ],
       evidence: {},
       fallback: "Go to bed, signore, everything is under control.",
     },
     ch3: {
-      greet: "Ispettore, grazie. The carabinieri come at ten with the relief train. Please, find out what happened before they blame my crew.",
+      greet: "Inspector, grazie. The carabinieri come at ten with the relief train. Please, find out what happened before they blame my crew.",
       suggest: ['What does your log say?', 'Were the doors bolted?', 'Gather everyone in the dining car.'],
       topics: [
         { k: ['log', 'book', 'record', 'time'], r: "Twenty to midnight, the avalanche. Ten to midnight my men go out by the dining car north door. A quarter to one, the snow stops. One o'clock, I find that north door not bolted, and I bolt it. All written." },
         { k: ['door', 'bolt', 'bolted', 'outside', 'order'], r: "I ordered every door bolted. But at one o'clock the dining car north door was open. Somebody forgot, or somebody used it." },
         { k: ['snow', 'stop', 'stopped'], r: "The snow stopped at a quarter to one. I wrote it down." },
         { k: ['found', 'body', 'morning', 'seven'], r: "Ten past seven, Théo and I forced the bolt of number seven. He was in his bed, peaceful. The Doctor said the heart." },
-        { k: ['gather', 'everyone', 'assemble', 'dining car', 'accuse', 'ready'], r: "Subito, Ispettore. I'll bring everyone to the dining car. Tell me when you are ready." },
+        { k: ['gather', 'everyone', 'assemble', 'dining car', 'accuse', 'ready'], r: "Subito, Inspector. I'll bring everyone to the dining car. Tell me when you are ready." },
         { k: ['relief', 'carabinieri', 'ten', 'when'], r: "Ten o'clock, from Domodossola. After that it is their business, not ours." },
       ],
       evidence: {
@@ -389,24 +389,24 @@ window.DEMO = {
         e_grappa: { r: "Théo! Luigi! Mamma mia. I'll speak to them later." },
         e_puncture: { r: "A needle... So it was not the heart. The Doctor must look again." },
       },
-      fallback: "That I don't know, Ispettore. Ask Théo, he watches the car.",
+      fallback: "That I don't know, Inspector. Ask Théo, he watches the car.",
     },
   },
   cook: {
     ch3: {
-      greet: "Ispettore! Sit, sit, have a coffee. Madonna, what a morning. A dead man on my train and the rolls still in the oven.",
+      greet: "Inspector! Sit, sit, have a coffee. Madonna, what a morning. A dead man on my train and the rolls still in the oven.",
       suggest: ['Where were you last night?', 'Did you hear anything in the night?', 'What did you think of the envoy?'],
       topics: [
         { k: ['door', 'bolt', 'north door', 'draught', 'draft', 'noise', 'bang', 'hear', 'heard', 'who closed'], needs: 's_luigi_grappa', reveal: 's_luigi_door', mood: 'nervous', r: "...Basta, I tell you everything. At five to midnight I shut the north door behind the crew with the coffee pot in my hands, and I forgot the bolt. About half past twelve, Théo still here, I felt the cold on my feet and heard that door bang. I thought, the wind. At one I heard Bruno bolt it and I said nothing." },
-        { k: ['hear', 'heard', 'noise', 'draught', 'draft', 'bang', 'sound'], r: "Noise? With the avalanche, all night the wind in the doors, bang, bang. A train in the snow is never quiet, ispettore." },
-        { k: ['window', 'outside', 'snow', 'figure', 'saw', 'see', 'someone'], r: "I stand at my stove with my back to that window, ispettore. The stock doesn't stir itself. Outside, I see nothing." },
+        { k: ['hear', 'heard', 'noise', 'draught', 'draft', 'bang', 'sound'], r: "Noise? With the avalanche, all night the wind in the doors, bang, bang. A train in the snow is never quiet, Inspector." },
+        { k: ['window', 'outside', 'snow', 'figure', 'saw', 'see', 'someone'], r: "I stand at my stove with my back to that window, Inspector. The stock doesn't stir itself. Outside, I see nothing." },
         { k: ['door', 'north door', 'bolt', 'vestibule', 'crew'], r: "The north door? Castelli's men went out at a quarter to midnight to look at the snow and came back at five to. The crew bolted it. I never touch it.", mood: 'nervous' },
-        { k: ['kill', 'murder', 'who did', 'guilty', 'did you'], r: "Me? I kill a chicken, ispettore, not a man! He was rude to everybody. Who did it, I don't know. Madonna.", mood: 'defensive' },
+        { k: ['kill', 'murder', 'who did', 'guilty', 'did you'], r: "Me? I kill a chicken, Inspector, not a man! He was rude to everybody. Who did it, I don't know. Madonna.", mood: 'defensive' },
         { k: ['theo', 'théo', 'conductor', 'grappa', 'drink', 'glass'], r: "Théo? He has his car, I have my kitchen. Everybody in his own pot, eh?", mood: 'nervous' },
-        { k: ['last night', 'where', 'alone', 'night', 'all night', 'alibi', 'midnight'], r: "Here, ispettore, in my kitchen, alone all night. Scrubbing pans, making dough for the rolls. I saw nothing, I heard nothing, only the avalanche.", mood: 'nervous' },
+        { k: ['last night', 'where', 'alone', 'night', 'all night', 'alibi', 'midnight'], r: "Here, Inspector, in my kitchen, alone all night. Scrubbing pans, making dough for the rolls. I saw nothing, I heard nothing, only the avalanche.", mood: 'nervous' },
         { k: ['avalanche', 'stop', 'stopped', 'pans', 'stock'], r: "Twenty to midnight, boom! All my pans on the floor, a whole pot of stock gone. I swore for five minutes. God forgive me." },
         { k: ['lazar', 'lazăr', 'envoy', 'dead', 'victim', 'think of'], r: "God rest him. Every night he sent my plate back. Peasant food, he said. Never a tip. I will pray for him, but I will not cry." },
-        { k: ['ferrand', 'doctor'], r: "The Doctor? A gentleman. But last night at dinner he hardly touched my veal. A sin, ispettore, a sin." },
+        { k: ['ferrand', 'doctor'], r: "The Doctor? A gentleman. But last night at dinner he hardly touched my veal. A sin, Inspector, a sin." },
         { k: ['castelli', 'boss', 'chef de train'], r: "Bruno? An old friend. But he shouts, and he has the rule book in his head. Please, don't make him shout at me today." },
         { k: ['dinner', 'food', 'cook', 'menu', 'veal'], r: "Consommé, trout, veal. Perfect, all of it. And the snow outside like a mountain of flour." },
         { k: ['coffee', 'breakfast', 'rolls'], r: "Up at six, the stove lit, the rolls in. Drink, drink, the coffee is perfect. Tell the German." },
@@ -414,14 +414,14 @@ window.DEMO = {
       evidence: {
         e_grappa: { r: "...Madonna. All right, all right. Théo was here, ten past twelve to twenty-five to one, a little grappa behind the stove. His cap is still on the hook. But I had my back to the window at the stove, I saw nothing outside. Please, don't tell Castelli.", reveal: 's_luigi_grappa', mood: 'nervous' },
         t_theo_figure: { r: "He told you. Yes, Théo was with me, ten past twelve to twenty-five to one, a little grappa. A man outside? I was at the stove, my back to the window. I saw nothing.", reveal: 's_luigi_grappa', mood: 'nervous' },
-        t_mila_corridor: { r: "His seat was empty because he was here, with me, ten past twelve to twenty-five to one. A little grappa, that's all. Don't tell the company, ispettore.", reveal: 's_luigi_grappa', mood: 'nervous' },
+        t_mila_corridor: { r: "His seat was empty because he was here, with me, ten past twelve to twenty-five to one. A little grappa, that's all. Don't tell the company, Inspector.", reveal: 's_luigi_grappa', mood: 'nervous' },
         e_trainlog: { r: "Mamma mia, the log. It was me. At five to midnight I shut that door behind the crew with the coffee pot in my hands, and I forgot the bolt. And about half past twelve, Théo still here, I felt the cold on my feet and heard that door bang. I thought, the wind. At one I heard Bruno bolt it and I said nothing.", reveal: 's_luigi_door', mood: 'nervous' },
         e_footprints: { r: "Past my window? To the north door? ...Madonna. At five to midnight I shut that door and forgot the bolt. About half past twelve I felt a draught and heard it bang. I thought it was the wind. I didn't look.", reveal: 's_luigi_door', mood: 'nervous' },
-        e_puncture: { r: "A needle? Then not his heart... Madonna, I only cook the food, ispettore." },
+        e_puncture: { r: "A needle? Then not his heart... Madonna, I only cook the food, Inspector." },
         e_callboard: { r: "Théo's board. I don't read it, I read recipes." },
         e_scorecard: { r: "The Major's cards. I don't play, I lose enough to the German at breakfast." },
       },
-      fallback: "That I don't know, ispettore. I know my kitchen, my stove, my pots. Coffee?",
+      fallback: "That I don't know, Inspector. I know my kitchen, my stove, my pots. Coffee?",
     },
   },
 };

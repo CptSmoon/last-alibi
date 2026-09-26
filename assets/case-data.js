@@ -243,7 +243,7 @@ window.CASE = {
    "chapter": "ch3",
    "t": "07:20",
    "who": "castelli",
-   "say": "Ispettore, please. Before the carabinieri come at ten."
+   "say": "Inspector, please. Before the carabinieri come at ten."
   },
   {
    "chapter": "ch3",
