@@ -121,16 +121,49 @@
       m.querySelector('.mbtn:not([disabled])')?.focus();
     },
     cases(list, onPick, onBack) {
-      const v = $('#menu-cases'); $('#menu').hidden = false; $('#menu-main').hidden = true; v.hidden = false;
-      v.innerHTML = `<h2>Choose a case</h2><div class="cases">${list.map((c, i) => `<button class="case parch" data-i="${i}" ${c.ready ? '' : 'disabled'}>
-        <div class="art" ${c.art ? `style="background-image:url('${esc(c.art)}')"` : ''}>${c.art ? '' : '<b>?</b>'}</div>
-        <div class="txt"><div class="m">${esc(c.year)} · ${esc(c.place)}</div><div class="t">${esc(c.title)}</div>${c.blurb ? `<p class="d">${esc(c.blurb)}</p>` : ''}${c.ready ? '<span class="play">Play</span>' : ''}</div>
-        ${c.ready ? '' : '<span class="soon">Coming soon</span>'}</button>`).join('')}</div><button class="back">← Back</button>`;
-      v.querySelectorAll('.case').forEach((b) => (b.onclick = () => onPick(list[+b.dataset.i])));
+      const v = $('#menu-cases'); $('#menu').hidden = false; $('#menu-main').hidden = true; v.hidden = false; v.classList.remove('focus');
+      const tilt = [-3, 2.2, -1.6, 2.8, -2.4], bg = (c) => (c.art ? `style="background-image:url('${esc(c.art)}')"` : '');
+      v.innerHTML = `<h2>Choose a case</h2><div class="cases">${list.map((c, i) => `<div class="pc${c.ready ? '' : ' soon'}" data-i="${i}" style="--r:${tilt[i % tilt.length]}deg">
+        <div class="pc-flip">
+          <button class="pc-front" ${c.ready ? '' : 'aria-disabled="true"'} aria-label="${esc(c.title)}${c.ready ? '' : ', coming soon'}">
+            <div class="art" ${bg(c)}>${c.art ? '' : '<b>?</b>'}</div>
+            <div class="cap"><span>${esc(c.title)}</span><small>${esc(c.year)}</small></div>
+          </button>
+          ${c.ready ? `<div class="pc-back" inert>
+            <div class="l"><div class="m">${esc(c.year)} · ${esc(c.place)}</div><div class="t">${esc(c.title)}</div>${c.blurb ? `<p class="d">${esc(c.blurb)}</p>` : ''}</div>
+            <div class="r"><div class="stamp"><i ${bg(c)}></i></div><div class="postmark"><span>${esc(c.postmark || '')}</span><b>${esc(c.year)}</b></div>
+              <div class="addr"><span>To the detective</span><i></i><i></i><i></i></div>
+              <div class="acts"><button class="play">Open the case</button><button class="putback">Put it back</button></div></div>
+          </div>` : ''}
+        </div><span class="tape"></span>${c.ready ? '' : '<span class="rubber">Coming soon</span>'}</div>`).join('')}</div><div class="cases-shade"></div><button class="back">← Back</button>`;
+      let open = null;
+      const peel = (pc) => { // take the card off the wall: fly it to the middle of the menu, then turn it over
+        const r = pc.getBoundingClientRect(), m = $('#menu').getBoundingClientRect();
+        pc.style.setProperty('--dx', `${m.left + m.width / 2 - (r.left + r.width / 2)}px`); pc.style.setProperty('--dy', `${m.top + m.height / 2 - (r.top + r.height / 2)}px`);
+        open = pc; pc.classList.add('open'); v.classList.add('focus');
+        const back = pc.querySelector('.pc-back'); back.inert = false; pc.querySelector('.pc-front').tabIndex = -1;
+        setTimeout(() => open === pc && back.querySelector('.play').focus({ preventScroll: true }), 450);
+        window.AUDIO && AUDIO.sfx('page');
+      };
+      const putBack = () => {
+        if (!open) return; const pc = open; open = null;
+        pc.classList.remove('open'); v.classList.remove('focus'); pc.querySelector('.pc-back').inert = true;
+        const f = pc.querySelector('.pc-front'); f.tabIndex = 0; f.focus({ preventScroll: true });
+      };
+      v.querySelectorAll('.pc').forEach((pc) => {
+        const c = list[+pc.dataset.i];
+        pc.querySelector('.pc-front').onclick = () => {
+          if (c.ready) return open ? null : peel(pc);
+          pc.classList.remove('nudge'); void pc.offsetWidth; pc.classList.add('nudge');
+        };
+        pc.addEventListener('animationend', () => pc.classList.remove('nudge'));
+        if (c.ready) { pc.querySelector('.play').onclick = () => { removeEventListener('keydown', key, true); onPick(c); }; pc.querySelector('.putback').onclick = putBack; }
+      });
+      v.querySelector('.cases-shade').onclick = putBack;
       const back = v.querySelector('.back'); back.onclick = () => { removeEventListener('keydown', key, true); onBack(); };
-      const key = (e) => { if (e.key === 'Escape' && !v.hidden && !$('#menu').hidden) { e.stopPropagation(); back.onclick(); } };
+      const key = (e) => { if (e.key === 'Escape' && !v.hidden && !$('#menu').hidden) { e.stopPropagation(); open ? putBack() : back.onclick(); } };
       addEventListener('keydown', key, true);
-      v.querySelector('.case:not([disabled])')?.focus();
+      v.querySelector('.pc:not(.soon) .pc-front')?.focus({ preventScroll: true });
     },
     hideMenu() { $('#menu').hidden = true; },
 

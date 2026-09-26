@@ -1,7 +1,7 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Last Alibi</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800;900&family=Pixelify+Sans:wght@600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800;900&family=Pixelify+Sans:wght@600&family=Caveat:wght@600;700&display=swap">
 <style>
 :root { --parch: #f5ead0; --parch2: #ecdcb6; --edge: #b4893d; --edge2: #8a6224; --ink: #3a2414; --muted: #7a5a3a; --wine: #7a2236; --green: #3f7a5a; --red: #b8322a;
   --ui: "Nunito", "Trebuchet MS", system-ui, sans-serif; --title: "Pixelify Sans", "Nunito", monospace; }
@@ -118,18 +118,67 @@ button { font-family: var(--ui); }
 .mbtn:hover, .mbtn:focus-visible { outline: none; border-color: #e0a72e; transform: translateY(-.08em); }
 #menu-sub { margin-top: 1.2em; font: 600 .9em var(--ui); opacity: .7; text-align: center; }
 #menu h2 { margin: 0 0 1em; font: 600 2.4em var(--title); color: #f0c46a; text-shadow: 0 .08em 0 #3a2414, 0 .2em .5em rgba(0,0,0,.6); }
-.cases { display: grid; grid-template-columns: repeat(3, 20em); gap: 1.4em; }
-.case { position: relative; display: grid; grid-template-rows: auto 1fr; padding: 0; overflow: hidden; text-align: left; cursor: pointer; color: var(--ink); font: inherit; }
-.case .art { aspect-ratio: 16 / 10; background: #2a1a10 center / cover; display: grid; place-items: center; border-bottom: .18em solid var(--edge); }
-.case .art b { font: 600 4em var(--title); color: rgba(245,234,208,.25); }
-.case .txt { padding: .8em 1em 1em; display: grid; gap: .3em; align-content: start; }
-.case .t { font: 900 1.15em/1.2 var(--ui); }
-.case .m { font: 800 .8em var(--ui); color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
-.case .d { font: 600 .9em/1.4 var(--ui); margin: .2em 0 0; }
-.case .play { justify-self: start; margin-top: .5em; font: 900 .95em var(--ui); padding: .35em 1.1em; background: var(--red); color: #fff; border: .15em solid #7a1a14; border-radius: .4em; }
-.case:not([disabled]):hover, .case:not([disabled]):focus-visible { outline: none; border-color: #e0a72e; transform: translateY(-.15em); }
-.case[disabled] { cursor: default; } .case[disabled] .art { filter: saturate(.8) brightness(.9); }
-.case .soon { position: absolute; top: .8em; right: .8em; padding: .3em .8em; border-radius: .3em; background: #f0c46a; color: #3a2414; font: 900 .75em var(--ui); letter-spacing: .08em; text-transform: uppercase; box-shadow: 0 .15em 0 rgba(0,0,0,.35); }
+/* the case library: postcards taped to the wall. Hover lifts a corner, a click peels one off and turns it over */
+.cases { display: grid; grid-template-columns: repeat(3, 21em); gap: 2.2em; padding-top: .6em; }
+.pc { --hand: "Caveat", "Segoe Print", cursive; --paper: #f6eedb; position: relative; perspective: 70em; transform: rotate(var(--r));
+  transition: transform .45s cubic-bezier(.3,1.3,.5,1); }
+.pc-flip { position: relative; display: grid; transform-style: preserve-3d; transform-origin: 50% 0; transition: transform .6s cubic-bezier(.4,.1,.2,1); }
+.pc-front, .pc-back { grid-area: 1 / 1; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: .15em; color: var(--ink);
+  background: radial-gradient(ellipse at 30% 20%, #fffaf0 0%, transparent 60%), var(--paper); box-shadow: 0 .3em .6em rgba(0,0,0,.45), 0 0 0 .05em rgba(90,60,30,.25); transition: box-shadow .45s; }
+.pc-front { display: grid; padding: .55em .55em 0; border: 0; font: inherit; text-align: left; cursor: pointer; }
+.pc-front .art { aspect-ratio: 16 / 9; background: #2a1a10 center / cover; image-rendering: pixelated; display: grid; place-items: center; box-shadow: inset 0 0 0 .06em rgba(0,0,0,.35); }
+.pc-front .art b { font: 600 4em var(--title); color: rgba(245,234,208,.25); }
+.pc-front .cap { display: flex; justify-content: space-between; align-items: baseline; gap: .6em; padding: .15em .25em .3em; font: 700 1.45em/1.2 var(--hand); }
+.pc-front .cap small { font-size: .8em; color: var(--muted); }
+.pc .tape { position: absolute; z-index: 2; left: 50%; top: -.85em; width: 6.5em; height: 1.9em; pointer-events: none; transform-origin: 0 50%;
+  transform: translateX(-50%) rotate(calc(var(--r) * -1.4)); background: linear-gradient(rgba(255,250,225,.62), rgba(236,222,180,.55));
+  clip-path: polygon(3% 0, 97% 4%, 100% 22%, 96% 45%, 100% 70%, 97% 100%, 2% 96%, 0 75%, 4% 50%, 0 25%);
+  box-shadow: 0 .1em .2em rgba(0,0,0,.15); transition: transform .45s cubic-bezier(.3,1.3,.5,1), opacity .3s; }
+/* ready card: hover lifts the lower corner and the tape starts to peel */
+.pc:not(.soon):hover, .pc:not(.soon):has(.pc-front:focus-visible) { transform: rotate(calc(var(--r) * .3)) translateY(-.8em) scale(1.04); }
+.pc:not(.soon):hover .pc-flip, .pc:not(.soon):has(.pc-front:focus-visible) .pc-flip { transform: rotateX(16deg) rotateY(-11deg); }
+.pc:not(.soon):hover .pc-front, .pc:not(.soon):has(.pc-front:focus-visible) .pc-front { box-shadow: .9em 1.8em 2em rgba(0,0,0,.55), 0 0 0 .05em rgba(90,60,30,.25); }
+.pc:not(.soon):hover .tape, .pc:not(.soon):has(.pc-front:focus-visible) .tape { transform: translateX(-50%) rotate(calc(var(--r) * -1.4 - 12deg)) translateY(-.25em); opacity: .85; }
+.pc-front:focus-visible { outline: .15em solid #f0c46a; outline-offset: .3em; }
+/* coming soon: stays taped down, stamped, and only shivers when touched */
+.pc.soon .pc-front { cursor: default; }
+.pc.soon .art { filter: saturate(.55) brightness(.8) sepia(.25); }
+.pc .rubber { position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%) rotate(-9deg); padding: .25em .8em; pointer-events: none;
+  font: 900 1.25em var(--ui); letter-spacing: .14em; text-transform: uppercase; color: rgba(190,40,40,.88); border: .18em solid currentColor; border-radius: .25em;
+  background: rgba(246,238,219,.18); mix-blend-mode: multiply; }
+.pc.nudge { animation: pc-nudge .45s; }
+@keyframes pc-nudge { 25% { transform: rotate(calc(var(--r) + 1.6deg)); } 55% { transform: rotate(calc(var(--r) - 1.1deg)); } 80% { transform: rotate(calc(var(--r) + .4deg)); } }
+/* the back: the pitch written by hand, a stamp, a postmark, and the way in */
+.pc-back { transform: rotateY(180deg); display: grid; grid-template-columns: 1.2fr 1fr; gap: .9em; padding: .8em .9em .7em; }
+.pc-back .l { display: grid; align-content: start; gap: .2em; padding-right: .9em; border-right: .06em solid rgba(90,60,30,.35); }
+.pc-back .m { font: 800 .52em var(--ui); color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+.pc-back .t { font: 900 .82em/1.15 var(--ui); }
+.pc-back .d { margin: .15em 0 0; font: 600 .98em/1.1 var(--hand); color: #2c3e70; }
+.pc-back .r { position: relative; display: grid; grid-template-rows: auto 1fr auto; }
+.pc-back .stamp { justify-self: end; width: 3.4em; height: 4em; padding: .3em; box-sizing: border-box; background: #fffdf6; filter: drop-shadow(0 .06em .12em rgba(0,0,0,.35));
+  -webkit-mask: radial-gradient(circle .12em, transparent 96%, #000) -.2em -.2em / .4em .4em, linear-gradient(#000 0 0) content-box;
+  mask: radial-gradient(circle .12em, transparent 96%, #000) -.2em -.2em / .4em .4em, linear-gradient(#000 0 0) content-box; }
+.pc-back .stamp i { display: block; height: 100%; background: #333 center / cover; image-rendering: pixelated; }
+.pc-back .postmark { position: absolute; right: 5em; top: 1.2em; width: 5.4em; height: 5.4em; border: .12em solid rgba(30,35,70,.6); border-radius: 50%;
+  display: grid; place-content: center; text-align: center; transform: rotate(-14deg); color: rgba(30,35,70,.7); font: 900 .55em/1.25 var(--ui); letter-spacing: .08em; text-transform: uppercase; }
+.pc-back .postmark b { font-size: 1.5em; }
+.pc-back .postmark::after { content: ""; position: absolute; left: 95%; top: 32%; width: 4em; height: 1.2em; border-block: .1em solid currentColor; opacity: .7;
+  background: linear-gradient(transparent 45%, currentColor 45% 55%, transparent 55%); }
+.pc-back .addr { align-self: center; display: grid; gap: .9em; margin-top: 1em; }
+.pc-back .addr i { height: .06em; background: rgba(90,60,30,.4); }
+.pc-back .addr span { font: 700 .95em var(--hand); color: #2c3e70; margin-bottom: -.8em; }
+.pc-back .acts { display: grid; gap: .35em; }
+.pc-back .play { font: 900 .7em var(--ui); padding: .5em .8em; background: var(--red); color: #fff; border: .15em solid #7a1a14; border-radius: .4em; cursor: pointer; }
+.pc-back .play:hover, .pc-back .play:focus-visible { background: #cf3a30; outline: none; box-shadow: 0 0 0 .15em #f0c46a; }
+.pc-back .putback { font: 700 .6em var(--ui); padding: .2em; background: none; border: 0; color: var(--muted); cursor: pointer; text-decoration: underline; }
+/* picked: the card leaves the wall, comes to the middle and turns over */
+.cases-shade { position: fixed; inset: 0; z-index: 5; background: rgba(8,5,3,.72); opacity: 0; pointer-events: none; transition: opacity .4s; }
+#menu-cases.focus .cases-shade { opacity: 1; pointer-events: auto; }
+.pc.open, .pc.open:hover, .pc.open:has(.pc-front:focus-visible) { z-index: 6; transform: translate(var(--dx), var(--dy)) scale(1.65); transition: transform .6s cubic-bezier(.4,.1,.2,1); }
+.pc.open .pc-flip, .pc.open:hover .pc-flip, .pc.open:has(.pc-front:focus-visible) .pc-flip { transform: rotateY(180deg); }
+.pc.open .tape { opacity: 0 !important; transform: translateX(-50%) rotate(-25deg) translateY(-1em) !important; }
+.pc.open .pc-back { box-shadow: 0 1.2em 2.4em rgba(0,0,0,.7); }
+@media (prefers-reduced-motion: reduce) { .pc, .pc-flip, .pc .tape, .cases-shade { transition-duration: .01s; } .pc.nudge { animation: none; } }
 #menu .back { justify-self: center; margin-top: 1.4em; color: #f5ead0; border-color: rgba(245,234,208,.4); }
 
 /* accusation */
