@@ -44,7 +44,7 @@
         ...Object.entries(DOOR_X).map(([k, x]) => ({ id: 'door' + k, at: [x, 270], stand: [x, 430], r: 60, label: 'No. ' + k, text: `Compartment ${k}. Locked for now: the conductor has the key.`, beats: BF })),
         { id: 'callboard', at: [40, 385], stand: [175, 470], r: 55, label: 'Call board', clues: ['e_callboard'] },
         { id: 'hanky', at: [1150, 470], stand: [1115, 480], r: 30, label: 'Something on the carpet', clues: ['e_handkerchief'], prop: 'e_handkerchief', w: 42 },
-        { id: 'bolt', at: [1232, 330], stand: [1228, 440], r: 45, label: 'The broken bolt', clues: ['e_bolt'] },
+        { id: 'bolt', at: [1232, 330], stand: [1228, 440], r: 45, label: 'The broken bolt', clues: ['e_bolt'], patch: { img: 'patches/corridor-bolt', x: 1158, y: 272 } },
       ],
     },
 
@@ -55,11 +55,11 @@
       exits: [{ id: 'to-corridor', rect: [560, 706, 300, 62], to: 'corridor', spawn: [1200, 480, 'front'], label: 'Corridor' }],
       spots: [
         { id: 'body', at: [1190, 440], stand: [1030, 570], r: 70, label: 'Anton Lazăr', clues: ['e_puncture'] },
-        { id: 'pillow', at: [1082, 405], stand: [1030, 525], r: 30, label: 'By the pillow', clues: ['e_notebook'] },
+        { id: 'pillow', at: [1082, 405], stand: [1030, 525], r: 30, label: 'By the pillow', clues: ['e_notebook'], patch: { img: 'patches/c7-pillow', x: 1050, y: 377 } },
         { id: 'window', at: [820, 240], stand: [760, 525], r: 80, label: 'The window', clues: ['e_window'] },
-        { id: 'table', at: [190, 415], stand: [345, 545], r: 45, label: 'The fold-down table', clues: ['e_blotter'] },
-        { id: 'medcase', at: [245, 330], stand: [345, 525], r: 32, label: 'A small case', clues: ['e_camphor'] },
-        { id: 'attache', at: [215, 625], stand: [345, 640], r: 60, label: 'The attaché case', clues: ['e_letters', 'e_contract'] },
+        { id: 'table', at: [190, 415], stand: [345, 545], r: 45, label: 'The fold-down table', clues: ['e_blotter'], patch: { img: 'patches/c7-table', x: 158, y: 390 } },
+        { id: 'medcase', at: [245, 330], stand: [345, 525], r: 32, label: 'A small case', clues: ['e_camphor'], patch: { img: 'patches/c7-medcase', x: 182, y: 260 } },
+        { id: 'attache', at: [215, 625], stand: [345, 640], r: 60, label: 'The attaché case', clues: ['e_letters', 'e_contract'], patch: { img: 'patches/c7-attache', x: 157, y: 600 } },   // the case stays: the patch empties it
       ],
     },
 
@@ -116,7 +116,7 @@
       name: 'Compartment 2', bg: 'bg-c2', base: 250, depth: CDEPTH,
       walk: [[[350, 550], [1020, 550], [1020, 595], [1300, 595], [1330, 745], [350, 745]]], exits: [compExit(2, DOOR_X[2])],
       spots: [
-        { id: 'cards', at: [200, 565], stand: [390, 610], r: 60, label: 'Cards on the berth', clues: ['e_marked_cards'] },
+        { id: 'cards', at: [200, 565], stand: [390, 610], r: 60, label: 'Cards on the berth', clues: ['e_marked_cards'], patch: { img: 'patches/c2-cards', x: 140, y: 525 } },
         { id: 'whisky', at: [990, 345], stand: [990, 560], r: 60, label: 'Whisky and a photograph', text: 'A bottle of Scotch, two-thirds gone, and a regimental photograph. One face has been scratched out.' },
       ],
     },

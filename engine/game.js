@@ -79,6 +79,11 @@
         return sp.clues && sp.done && sp.prop && G.items.includes(sp.clues[0]) ? { ...sp, prop: null } : sp;
       });
     },
+    // a spot looks emptied (its `patch` is drawn) once every takeable clue in it is in the inventory
+    taken(sp) {
+      const t = (sp.clues || []).filter((c) => EV[c] && EV[c].take);
+      return t.length > 0 && t.every((c) => G.items.includes(c));
+    },
     exitOpen: (e) => !e.beats || e.beats.includes(G.beat),
     exitLocked: (e) => UI.toast(e.locked),
     entered: (id) => { UI.place(SCENES[id].name); G.flags['been_' + id] = true; if (id === 'c7') G.flags.inC7 = true; },

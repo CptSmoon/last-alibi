@@ -204,12 +204,12 @@
     W, H, canvas: cv, ctx, img, preload, scene: null, sceneId: null, actors: new Map(), player: null, bubbles: [], t: 0,
     fade: 0, fadeTarget: 0, shake: 0, hover: null, lock: false, onArrive: null, beat: null,
     WALK: 6.4, HURRY: 9.5, // the player's speed, px per frame (was 3.4 / 5.2: QA found walking too slow). Shift hurries.
-    hooks: { spots: () => [], people: () => [], clickActor() {}, clickSpot() {}, exitLocked() {}, entered() {} },
+    hooks: { spots: () => [], taken: () => false, people: () => [], clickActor() {}, clickSpot() {}, exitLocked() {}, entered() {} },
 
     async load(id, spawn) {
       const s = SCENES[id]; E.scene = s; E.sceneId = id; E.clearBubbles(); E.hover = null; E.inExit = null; E.namesUntil = E.t + 200;
       const keep = E.player; E.actors = new Map();
-      await preload(['bg/' + s.bg, ...(s.props || []).map((p) => p.img)]);
+      await preload(['bg/' + s.bg, ...(s.props || []).map((p) => p.img), ...(s.spots || []).filter((sp) => sp.patch).map((sp) => sp.patch.img)]);
       if (!s.cinematic && keep) { if (spawn) { keep.x = spawn[0]; keep.y = spawn[1]; keep.dir = spawn[2] || keep.dir; } keep.stop(); E.actors.set('sorel', keep); }
       const placed = (BEATS[E.beat] || {})[id] || {};
       for (const [who, [x, y, dir, pose]] of Object.entries(placed)) { const a = new Actor(who, x, y, dir); a.seated = pose === 'sit'; E.actors.set(who, a); }
@@ -437,6 +437,8 @@
     if (ready(bg)) {
       if (s.cinematic) { const z = 1 + Math.min(E.t, 600) * 0.00018; ctx.drawImage(bg, (W - W * z) / 2, (H - H * z) / 2, W * z, H * z); }
       else ctx.drawImage(bg, 0, 0, W, H);
+      // "taken" patches: a clue object painted into the plate is painted out once the player has taken it
+      for (const sp of s.spots || []) if (sp.patch && E.hooks.taken(sp)) { const im = img(sp.patch.img); if (ready(im)) ctx.drawImage(im, sp.patch.x, sp.patch.y); }
     }
     if (!s.cinematic) {
       followTick();
