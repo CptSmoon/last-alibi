@@ -49,17 +49,17 @@
     },
 
     c7: {
-      name: 'Compartment 7', bg: 'bg-c7', base: 245, depth: [470, 700, 1.0, 1.1],
-      walk: [[[300, 480], [1255, 472], [1262, 602], [818, 602], [818, 712], [604, 712], [604, 602], [300, 602]]],
-      exits: [{ id: 'to-corridor', rect: [604, 706, 214, 62], to: 'corridor', spawn: [1200, 480, 'front'], label: 'Corridor' }],
-      props: [{ img: 'sprites/lazar-body', x: 822, y: 262, w: 450, flip: true }],
+      // Same room shell as Nos. 1-6; the body and every clue object are painted into the plate.
+      name: 'Compartment 7', bg: 'bg-c7', base: 250, depth: CDEPTH,
+      walk: [[[330, 515], [1045, 515], [1045, 745], [320, 745], [320, 565], [330, 565]]],
+      exits: [{ id: 'to-corridor', rect: [560, 706, 300, 62], to: 'corridor', spawn: [1200, 480, 'front'], label: 'Corridor' }],
       spots: [
-        { id: 'body', at: [1170, 330], stand: [1120, 500], r: 70, label: 'Anton Lazăr', clues: ['e_puncture'] },
-        { id: 'pillow', at: [1195, 402], stand: [1180, 500], r: 30, label: 'Under the pillow', clues: ['e_notebook'], prop: 'e_notebook', w: 40 },
-        { id: 'window', at: [700, 235], stand: [700, 495], r: 80, label: 'The window', clues: ['e_window'] },
-        { id: 'table', at: [385, 405], stand: [420, 500], r: 45, label: 'The fold-down table', clues: ['e_blotter'], prop: 'e_blotter', w: 64 },
-        { id: 'medcase', at: [455, 392], stand: [480, 500], r: 32, label: 'A small case', clues: ['e_camphor'], prop: 'e_camphor', w: 54 },
-        { id: 'attache', at: [362, 628], stand: [470, 590], r: 60, label: 'The attaché case', clues: ['e_letters', 'e_contract'], prop: 'e_letters', w: 56 },
+        { id: 'body', at: [1190, 440], stand: [1030, 570], r: 70, label: 'Anton Lazăr', clues: ['e_puncture'] },
+        { id: 'pillow', at: [1082, 405], stand: [1030, 525], r: 30, label: 'By the pillow', clues: ['e_notebook'] },
+        { id: 'window', at: [820, 240], stand: [760, 525], r: 80, label: 'The window', clues: ['e_window'] },
+        { id: 'table', at: [190, 415], stand: [345, 545], r: 45, label: 'The fold-down table', clues: ['e_blotter'] },
+        { id: 'medcase', at: [245, 330], stand: [345, 525], r: 32, label: 'A small case', clues: ['e_camphor'] },
+        { id: 'attache', at: [215, 625], stand: [345, 640], r: 60, label: 'The attaché case', clues: ['e_letters', 'e_contract'] },
       ],
     },
 

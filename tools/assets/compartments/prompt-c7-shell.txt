@@ -1,0 +1,14 @@
+Image 1 is the approved template screen of a cozy top-down pixel-art mystery game: a sleeping-car compartment of the Simplon-Orient Express (December 1931, train stopped in deep snow in the Alps, morning), with the inspector (camel trench coat, brown fedora) standing in it for scale. Image 2 is the old version of the crime-scene room, compartment 7: use it ONLY for the victim and the objects, NOT for the layout or camera.
+
+Draw compartment 7, the crime scene, keeping from image 1 EXACTLY: the camera and framing, the room shell (back wall, side walls, wood panelling with the green and wine-red Art Deco inlay panels, green floor, long Art Deco carpet, dark frame at the bottom), the big window in the centre of the back wall, the brass wall sconce, the lighting, the pixel-art style, the inspector standing in the same place at the same size, the bed along the RIGHT wall at the same realistic size, and every object at a realistic size compared to the inspector.
+
+What makes this room compartment 7 (all taken from image 2):
+- THE VICTIM IN THE BED: Anton Lazar, an old bald man with a grey fringe of hair, grey moustache and a monocle, lying dead on his back as if asleep, eyes closed, head on the white pillow at the back-wall end of the bed. A rumpled wine-red blanket covers him up to the chest. BOTH his arms lie ON TOP of the blanket, resting along his sides over the covers, sleeves of dark striped pyjamas visible, hands visible on top of the blanket. The arms must NOT go through or under the blanket: they rest clearly above it. He has the same size as a real adult man compared to the inspector and fits inside the bed.
+- A small black leather notebook half-hidden under the edge of the pillow.
+- THE WINDOW IS OPEN: its lower pane pushed open, catch unfastened, snow packed on the sill and spilling slightly inside; outside, a snowbank rises almost to the sill, snowy pines, falling snow. NO tracks, NO rails, NO fence.
+- A small puddle of melted snow on the floor just below the window.
+- On the LEFT, a fold-down table against the left wall with an ink blotter on a wooden rocker, an inkwell, a pen, and a small open leather case holding six little glass ampoules.
+- On the floor at the front left, an open leather attaché case holding a bundle of old letters tied with a pink ribbon and a folded document with a red wax seal.
+- Dark, slightly heavier curtains in wine red. Nothing else added.
+
+Art style: EXACTLY image 1: cozy Gather.town-like RPG pixel art, slight 3/4 tilt, soft pixel shading, dark outlines. No text, no letters, no numbers, no name labels, no UI, no sparkles, no speech bubbles anywhere.
