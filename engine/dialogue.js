@@ -23,9 +23,13 @@
       if (instant) { txt.textContent = text; return; }
       let i = 0; T.typer = setInterval(() => { i += 2; txt.textContent = text.slice(0, i); if (i >= text.length) clearInterval(T.typer); }, 16);
     }
+    // A character who ended the interview is only cold for a while: ~40 s, or until the game clock moves on
+    // 10 minutes. Showing evidence always gets their attention. (A permanent refusal locked players out.)
+    const cold = () => { const p = P(); return !!(p.coldUntil && performance.now() < p.coldUntil && G.clock < (p.coldClock || 0)); };
+    const coldLine = () => type(T.who, 'Not now, Inspector. Come back later, or show me something that matters.');
     function renderChips() {
       chips.innerHTML = '';
-      if (P().done) return;
+      if (cold()) return;
       const used = (T.used[T.who] ||= new Set());
       const list = T.who === 'castelli' && window.SIDEKICK && SIDEKICK.active() ? SIDEKICK.chips()
         : [...(T.who === 'castelli' && G.canGather() ? ['Gather everyone. I am ready to accuse.'] : []), ...((DEMO[T.who] || {}).ch3?.suggest || []).filter((s) => !used.has(s))].slice(0, 3);
@@ -112,7 +116,7 @@
               } else if (m.type === 'tool' && m.ok) {
                 if (m.name === 'reveal_secret') reveal(m.args.secret_id, m.unlock);
                 if (m.name === 'set_mood') mood(m.args.mood, m.args.trust);
-                if (m.name === 'end_interview') p.done = true;
+                if (m.name === 'end_interview') { p.coldUntil = performance.now() + 40000; p.coldClock = G.clock + 10; }
                 if (m.name === 'follow_inspector') hooks.follow && hooks.follow(who, !!m.args.follow);
               } else if (m.type === 'done') { hist.push(...m.turns); if (text) { p.lines.push({ who, s: text.trim() }); hooks.speaking(who, text.trim()); hooks.said(who, input.kind === 'greet' ? '' : T.lastQ, text.trim()); } }
               else if (m.type === 'error') throw new Error(m.message);
@@ -159,14 +163,16 @@
 
     // ---- actions ----
     function ask(q, quick) {
-      q = (q || '').trim(); if (!q || !T.open || P().done || T.busy) return;
+      q = (q || '').trim(); if (!q || !T.open || T.busy) return;
+      if (cold()) { type('sorel', q, true); setTimeout(coldLine, 450); return; }
       if (quick) (T.used[T.who] ||= new Set()).add(q);
       if (T.who === 'castelli' && G.canGather() && /\b(gather|assemble)\b|ready to accuse|i('| a)m ready/i.test(q)) { type('sorel', q, true); setTimeout(() => hooks.gather(), 700); return; }
       T.asked++; T.lastQ = q; type('sorel', q, true); P().lines.push({ who: 'sorel', s: q });
       setTimeout(() => brain().ask(q), 350);
     }
     function present(ev) {
-      if (!T.open || P().done || T.busy) return;
+      if (!T.open || T.busy) return;
+      P().coldUntil = 0;                                   // evidence always gets their attention back
       T.asked++; P().shown.add(ev);
       const e = CASE.evidence.find((x) => x.id === ev);
       const line = e.take ? `Look at this: ${e.name.toLowerCase()}.` : `I know about this: ${e.name.replace(/^[^:]+: /, '').toLowerCase()}.`;
@@ -236,7 +242,8 @@
         T.open = true; T.who = id; T.asked = 0; box.hidden = false;
         box.classList.toggle('voice', voiceMode());
         speaker(id); txt.textContent = ''; renderChips();
-        if (P().done) { type(id, 'I have nothing more to say to you, Inspector.'); return; }
+        delete P().done;                                  // old saves: the permanent refusal no longer exists
+        if (cold()) { type(id, 'I have nothing more to say to you right now, Inspector. Later, perhaps.'); return; }
         brain().greet();
       },
       close() {
